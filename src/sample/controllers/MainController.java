@@ -1,18 +1,17 @@
 package sample.controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import sample.dataReader.Item;
 
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
-public class MainController {
+public class MainController implements Initializable {
     @FXML
-    private InvoiceController invoiceController;
+    private InvoiceController invoiceController=new InvoiceController();
 
-    @FXML
-    private void initialize(){
-        invoiceController.initialize(this);
-    }
 
     public void addToInvoice(Item newItem){
         invoiceController.add(newItem);
@@ -24,4 +23,8 @@ public class MainController {
         }
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
 }

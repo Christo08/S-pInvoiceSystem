@@ -34,17 +34,18 @@
                   <tabs>
                     <Tab text="Untitled Tab 1">
                       <content>
-                          <fx:include fx:id="tab1" source="Tab1.fxml" />
-                      </content>
+                        <content>
+                           <fx:include source="Tab1.fxml" />
+                        </content>
                     </Tab>
                     <Tab text="Untitled Tab 2">
                       <content>
-                          <fx:include fx:id="tab2" source="Tab2.fxml" />
+                          <fx:include source="Tab2.fxml" />
                       </content>
                     </Tab>
                     <Tab text="Untitled Tab 3">
                         <content>
-                            <fx:include fx:id="tab3" source="Tab3.fxml" />
+                            <fx:include source="Tab3.fxml" />
                         </content>
                       </Tab>
                   </tabs>
@@ -52,7 +53,7 @@
             </Pane>
             <Pane>
                <children>
-                   <fx:include fx:id="invoice" source="Invoice.fxml" />
+                  <fx:include source="Invoice.fxml" />
                </children>
             </Pane>
         </items>

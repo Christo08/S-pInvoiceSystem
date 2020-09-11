@@ -22,22 +22,22 @@
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Spinner fx:id="SprPercent" layoutX="56.0" layoutY="67.0" prefWidth="122.0" />
+                <Spinner fx:id="SprPercent" amountToStepBy=".1" editable="true" initialValue="0.0" layoutX="56.0" layoutY="67.0" max="100.0" min="0.0" prefWidth="122.0" />
                 <Label layoutY="70.0" text="Percent:">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Button fx:id="BtnInvoiceRemove" disable="true" layoutX="39.0" layoutY="121.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="114.0" text="Remove " wrapText="true" />
-                <Button fx:id="BtnInvoiceClear" disable="true" layoutX="39.0" layoutY="172.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="114.0" text="Clear " wrapText="true" />
-                <Button fx:id="BtnInvoicePrint" disable="true" layoutX="39.0" layoutY="223.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="114.0" text="Print" wrapText="true" />
+                <Button fx:id="BtnInvoiceRemove" disable="true" layoutX="39.0" layoutY="121.0" mnemonicParsing="false" onAction="#removeItemFromInvoice" prefHeight="35.0" prefWidth="114.0" text="Remove " wrapText="true" />
+                <Button fx:id="BtnInvoiceClear" disable="true" layoutX="39.0" layoutY="172.0" mnemonicParsing="false" onAction="#clearInvoice" prefHeight="35.0" prefWidth="114.0" text="Clear " wrapText="true" />
+                <Button fx:id="BtnInvoicePrint" disable="true" layoutX="39.0" layoutY="223.0" mnemonicParsing="false" onAction="#printInvoice" prefHeight="35.0" prefWidth="114.0" text="Print" wrapText="true" />
             </children>
         </AnchorPane>
         <SplitPane dividerPositions="0.9" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
             <items>
                 <ScrollPane fitToWidth="true" prefHeight="200.0">
                     <content>
-                        <TableView fx:id="TVInvoiceTable" prefHeight="325.0" prefWidth="567.0">
+                        <TableView fx:id="TVInvoiceTable" editable="true" prefHeight="325.0" prefWidth="567.0">
                             <columns>
                                 <TableColumn fx:id="ColItemName" prefWidth="134.0" text="Item name" />
                                 <TableColumn fx:id="ColNumberOfItems" prefWidth="167.0" text="Number of items" />
