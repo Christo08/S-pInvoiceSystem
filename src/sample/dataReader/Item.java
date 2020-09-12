@@ -1,114 +1,171 @@
 package sample.dataReader;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 
 public class Item {
-    private final StringProperty name;
-    private final StringProperty numderOfItems;
-    private final StringProperty units;
-    private final StringProperty price;
-    private final StringProperty totalePrice;
+    private final StringProperty stockName;
+    private final StringProperty description;
+    private final StringProperty costQuantity;
+    private final StringProperty sellingQuantity;
+    private final StringProperty unit;
+    private final StringProperty costPrice;
+    private final StringProperty sellingPrice;
+    private final StringProperty totalCostPrice;
+    private final StringProperty totalSellingPrice;
 
-    private double numberOfItemsDoulbe;
-    private double priceDoulbe;
+    private double costQuantityDouble;
+    private double sellingQuantityDouble;
+    private double costPriceDouble;
+    private double sellingPriceDouble;
+    private double totalSellingPriceDouble;
+    private double totalCostPriceDouble;
 
-    private double totalePriceDoulbe;
+    public Item(String stockName, String description, String unit, double costQuantityDouble, double sellingQuantityDouble, double costPriceDouble, double sellingPriceDouble) {
+        this.costQuantityDouble = costQuantityDouble;
+        this.sellingQuantityDouble = sellingQuantityDouble;
+        this.costPriceDouble = costPriceDouble;
+        this.sellingPriceDouble = sellingPriceDouble;
+        this.totalSellingPriceDouble = this.sellingQuantityDouble*this.sellingPriceDouble;
+        this.totalCostPriceDouble = this.costQuantityDouble*this.costPriceDouble;
 
-    public Item(String name, double numberOfItems, String units, double price) {
-        numberOfItemsDoulbe=numberOfItems;
-        priceDoulbe =price;
-        totalePriceDoulbe = price*numberOfItems;
+        this.stockName = new SimpleStringProperty(stockName);
+        this.description = new SimpleStringProperty(description);
+        this.unit = new SimpleStringProperty(unit);
 
-        this.name = new SimpleStringProperty(name);
-        this.numderOfItems = new SimpleStringProperty(Double.toString(numberOfItems));
-        this.units = new SimpleStringProperty(units);
-        this.price = new SimpleStringProperty(String.format("%.2f", price));
-        this.totalePrice = new SimpleStringProperty(String.format("%.2f", totalePriceDoulbe));
+        this.costQuantity=new SimpleStringProperty(Double.toString(this.costQuantityDouble ));
+        this.sellingQuantity=new SimpleStringProperty(Double.toString(this.sellingQuantityDouble ));
+
+        this.costPrice=new SimpleStringProperty(String.format("%.2f", this.costPriceDouble ));
+        this.sellingPrice=new SimpleStringProperty(String.format("%.2f", this.sellingPriceDouble ));
+
+        this.totalCostPrice=new SimpleStringProperty(String.format("%.2f", this.totalCostPriceDouble ));
+        this.totalSellingPrice=new SimpleStringProperty(String.format("%.2f", this.totalSellingPriceDouble ));
     }
 
-    public void setName(String name) {
-        this.name.set(name);
+    public String getStockName() {
+        return stockName.get();
     }
 
-    public void setNumberOfItems(double numberOfItems) {
-        numberOfItemsDoulbe=numberOfItems;
-        recalculotTotalPrice();
-        this.numderOfItems.set(Double.toString(numberOfItems));
+    public StringProperty stockNameProperty() {
+        return stockName;
     }
 
-    public void setUnits(String units) {
-        this.units.set(units);
+    public void setStockName(String stockName) {
+        this.stockName.set(stockName);
     }
 
-    public void setPrice(double price) {
-        priceDoulbe =price;
-        recalculotTotalPrice();
-        this.price.set(String.format("%.2f", price));
+    public String getDescription() {
+        return description.get();
     }
 
-    public String getName() {
-        return name.get();
+    public StringProperty descriptionProperty() {
+        return description;
     }
 
-    public String getNumberOfItems() {
-        return numderOfItems.get();
+    public void setDescription(String description) {
+        this.description.set(description);
     }
 
-    public String getUnits() {
-        return units.get();
+    public String getCostQuantity() {
+        return costQuantity.get();
     }
 
-    public String getPrice() {
-        return price.get();
+    public StringProperty costQuantityProperty() {
+        return costQuantity;
     }
 
-    public String getTotalePrice() {
-        return totalePrice.get();
+    public void setCostQuantity(double costQuantity) {
+        this.costPriceDouble=costQuantity;
+        recalculateTotalCostPrice();
+        this.costQuantity.set(Double.toString(this.costQuantityDouble ));
     }
 
-    public double getNumberOfItemsDoulbe() {
-        return numberOfItemsDoulbe;
+    public String getSellingQuantity() {
+        return sellingQuantity.get();
     }
 
-    public double getPriceDoulbe() {
-        return priceDoulbe;
+    public StringProperty sellingQuantityProperty() {
+        return sellingQuantity;
     }
 
-    public double getTotalePriceDoulbe() {
-        return totalePriceDoulbe;
+    public void setSellingQuantity(double sellingQuantity) {
+        this.sellingQuantityDouble=sellingQuantity;
+        recalculateTotalSellingPrice();
+        this.sellingQuantity.set(Double.toString(this.sellingQuantityDouble ));
     }
 
-    public void recalculotTotalPrice(){
-        totalePriceDoulbe = priceDoulbe*numberOfItemsDoulbe;
-        this.totalePrice.set(String.format("%.2f", totalePriceDoulbe));
+    public String getUnit() {
+        return unit.get();
     }
 
-    public ObservableValue<String> getNameProperty() {
-        return this.name;
+    public StringProperty unitProperty() {
+        return unit;
     }
 
-    public ObservableValue<String> getNumberOfItemsProperty() {
-        return this.numderOfItems;
+    public void setUnit(String unit) {
+        this.unit.set(unit);
     }
 
-    public ObservableValue<String> getUnitsProperty() {
-        return this.units;
+    public String getCostPrice() {
+        return costPrice.get();
     }
 
-    public ObservableValue<String> getPriceProperty() {
-        return this.price;
+    public StringProperty costPriceProperty() {
+        return costPrice;
     }
 
-    public ObservableValue<String> getTotalePriceProperty() {
-        return this.totalePrice;
+    public void setCostPrice(double costPrice) {
+        this.costPriceDouble =costPrice;
+        recalculateTotalCostPrice();
+        this.costPrice.set(String.format("%.2f", this.costPriceDouble ));
     }
 
-    @Override
-    public String toString(){
-        return "Name: "+getName()+" number of items: "+getNumberOfItems()+ " Units: "+getUnits()+" Price for one: "+getPrice()+ " Totale price: "+getTotalePrice();
+    public String getSellingPrice() {
+        return sellingPrice.get();
+    }
+
+    public StringProperty sellingPriceProperty() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(double sellingPrice) {
+        this.sellingPriceDouble=sellingPrice;
+        recalculateTotalSellingPrice();
+        this.sellingPrice.set(String.format("%.2f", this.sellingPriceDouble ));
+    }
+
+    public double getCostQuantityDouble() {
+        return costQuantityDouble;
+    }
+
+    public double getSellingQuantityDouble() {
+        return sellingQuantityDouble;
+    }
+
+    public double getCostPriceDouble() {
+        return costPriceDouble;
+    }
+
+    public double getSellingPriceDouble() {
+        return sellingPriceDouble;
+    }
+
+    public double getTotalSellingPriceDouble() {
+        return totalSellingPriceDouble;
+    }
+
+    public double getTotalCostPriceDouble() {
+        return totalCostPriceDouble;
+    }
+
+    private void recalculateTotalCostPrice(){
+        this.totalCostPriceDouble = this.costQuantityDouble*this.costPriceDouble;
+        this.totalCostPrice.setValue(String.format("%.2f", this.totalCostPriceDouble ));
+    }
+
+    private void recalculateTotalSellingPrice(){
+        this.totalSellingPriceDouble = this.sellingQuantityDouble*this.sellingPriceDouble;
+        this.totalSellingPrice.setValue(String.format("%.2f", this.totalSellingPriceDouble ));
     }
 }
