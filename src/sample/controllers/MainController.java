@@ -81,7 +81,7 @@ public class MainController implements Initializable {
                         double numberOfItems = Double.parseDouble(row.getCell(1).toString());
                         String units = row.getCell(2).toString();
                         double price = Double.parseDouble(row.getCell(3).toString());
-                        invoiceController.add(new Item(name, numberOfItems, units, price));
+                        //invoiceController.add(new Item(name, numberOfItems, units, price));
                     }
                 }
             } catch(Exception ioe) {
@@ -112,25 +112,27 @@ public class MainController implements Initializable {
     }
 
     private void Quit(){
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Save");
-            alert.setHeaderText("Save changes to document “Untitled” before closing?");
-            alert.setContentText("Your changes will be lost if you don’t save them.");
-            ButtonType save = new ButtonType("Save");
-            ButtonType saveAs = new ButtonType("SaveAs");
-            ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        if (activeFileName != null){
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Save");
+                alert.setHeaderText("Save changes to document “Untitled” before closing?");
+                alert.setContentText("Your changes will be lost if you don’t save them.");
+                ButtonType save = new ButtonType("Save");
+                ButtonType saveAs = new ButtonType("SaveAs");
+                ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            alert.getButtonTypes().setAll(save, saveAs, cancel);
+                alert.getButtonTypes().setAll(save, saveAs, cancel);
 
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == save){
-                Save();
-            } else if (result.get() == saveAs){
-                SaveAs();
-            }
-        });
-        System.out.println("Quit application");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == save){
+                    Save();
+                } else if (result.get() == saveAs){
+                    SaveAs();
+                }
+            });
+            System.out.println("Quit application");
+        }
     }
 
     public void addToInvoice(Item newItem){
