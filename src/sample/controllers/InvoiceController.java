@@ -1,32 +1,22 @@
 package sample.controllers;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyEvent;
-import javafx.util.StringConverter;
+import javafx.scene.layout.Pane;
 import sample.dataReader.Item;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Observable;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class InvoiceController implements Initializable {
-
-    @FXML
-    private SplitPane invoice;
 
     @FXML
     private TextField TxtInvoiceSearch;
@@ -61,13 +51,22 @@ public class InvoiceController implements Initializable {
     @FXML
     private Label LblTotal;
 
-    private MainController mainController;
+    @FXML
+    private Pane ChangesNumberOfItems;
+
+    @FXML
+    private Spinner<Double> SprNewNumber;
+
+    @FXML
+    private Button ChangesNumberButton;
 
     private ObservableList<Item> itemData;
 
     private double netoTotal;
     private double bruttoTotal;
     private double percent=1;
+    private double oldNumder=0.0;
+    private double newNumber=0.0;
 
     public void add(Item newItem) {
         itemData.add(newItem);
@@ -91,18 +90,31 @@ public class InvoiceController implements Initializable {
         updateTotal();
     }
 
+    public List<Item> getItems(){
+        return TVInvoiceTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+    }
+
+    public double getNetoTotal() {
+        return netoTotal;
+    }
+
+    public double getBruttoTotal() {
+        return bruttoTotal;
+    }
+
+    public double getPercent() {
+        return percent;
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        ChangesNumberOfItems.setVisible(false);
+        initializeSpinners();
+        initializeTalbe();
+    }
+
     private void initializeTalbe(){
         itemData= FXCollections.observableArrayList();
-
-        add(new Item("RAM",3,"none",1000));
-        add(new Item("CPU",1,"none",5000));
-        add(new Item("Fan",6,"none",50));
-        add(new Item("SDD",1,"none",2000));
-        add(new Item("HDD",3,"none",700));
-        add(new Item("Mother braod",1,"none",5499.99));
-        add(new Item("Graphic card",1,"none",10000));
-        add(new Item("Cades",1.50,"meters",100));
-        add(new Item("Case",1,"none",7499.99));
 
         ColItemName.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
         ColNumberOfItems.setCellValueFactory(cellData -> cellData.getValue().getNumberOfItemsProperty());
@@ -136,6 +148,66 @@ public class InvoiceController implements Initializable {
 
         TVInvoiceTable.setItems(sortedData);
         TVInvoiceTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        TVInvoiceTable.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVInvoiceTable.getSelectionModel().getSelectedItem()!=null) {
+                ChangesNumberOfItems.setVisible(true);
+                ChangesNumberButton.setDisable(true);
+                oldNumder=TVInvoiceTable.getSelectionModel().getSelectedItem().getNumberOfItemsDoulbe();
+                SprNewNumber.getEditor().setText(Double.toString(oldNumder));
+            }
+        });
+
+        add(new Item("RAM",3,"none",1000));
+        add(new Item("CPU",1,"none",5000));
+        add(new Item("Fan",6,"none",50));
+        add(new Item("SDD",1,"none",2000));
+        add(new Item("HDD",3,"none",700));
+        add(new Item("Mother braod",1,"none",5499.99));
+        add(new Item("Graphic card",1,"none",10000));
+        add(new Item("Cades",1.50,"meters",100));
+        add(new Item("Case",1,"none",7499.99));
+    }
+
+    private void initializeSpinners() {
+       SprPercent.valueProperty().addListener((obs, oldValue, newValue) ->{
+                percent=1+newValue/100;
+                updateTotal();
+        }
+        );
+        SprPercent.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.matches("-?\\d+(\\.\\d)?")){
+                double newDoubleValue=Double.parseDouble(newValue);
+                if(newDoubleValue>100||newDoubleValue<0) {
+                    SprPercent.getValueFactory().setValue(0.0);
+                    return;
+                }
+                percent=1+newDoubleValue/100;
+                updateTotal();
+            }
+        });
+
+        SprNewNumber.valueProperty().addListener((obs, oldValue, newValue) ->{
+                    newNumber=newValue;
+                    if(newNumber!=oldNumder){
+                        ChangesNumberButton.setDisable(false);
+                    }else{
+                        ChangesNumberButton.setDisable(true);
+                    }
+                    SprNewNumber.getEditor().setText(Double.toString(newNumber));
+                }
+        );
+        SprNewNumber.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.matches("-?\\d+(\\.\\d)?")){
+                newNumber=Double.parseDouble(newValue);
+
+                if(newNumber!=oldNumder&&newNumber>=0){
+                    ChangesNumberButton.setDisable(false);
+                }else{
+                    ChangesNumberButton.setDisable(true);
+                }
+            }
+        });
     }
 
     private void updateTotal(){
@@ -145,15 +217,6 @@ public class InvoiceController implements Initializable {
         }
         netoTotal = bruttoTotal*percent;
         LblTotal.setText("Totale: R"+String.format("%.2f", netoTotal));
-    }
-
-    private void initializeSpinner() {
-       SprPercent.valueProperty().addListener((obs, oldValue, newValue) ->{
-                percent=1+newValue/100;
-                updateTotal();
-        }
-        );
-        SprPercent.onKeyTypedProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue.toString()));
     }
 
     @FXML
@@ -179,9 +242,20 @@ public class InvoiceController implements Initializable {
 
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        initializeSpinner();
-        initializeTalbe();
+    @FXML
+    private void ChangesNumber(ActionEvent event) {
+        ChangesNumberOfItems.setVisible(false);
+        Item selectedItem = TVInvoiceTable.getSelectionModel().getSelectedItem();
+        if(newNumber==0)
+            remove(selectedItem);
+        else
+            selectedItem.setNumberOfItems(newNumber);
+        updateTotal();
     }
+
+    @FXML
+    private void ClosePopUp(ActionEvent event) {
+        ChangesNumberOfItems.setVisible(false);
+    }
+
 }
