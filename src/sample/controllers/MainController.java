@@ -7,21 +7,25 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.fxml.Initializable;
 import sample.dataReader.Item;
 import javafx.application.Platform;
 
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
-public class MainController {
-    final FileChooser fileChooser = new FileChooser();
+public class MainController implements Initializable {
+
+    private final FileChooser fileChooser = new FileChooser();
     private Stage primaryStage;
-
     private String activeFileName = null;
 
     @FXML
-    private InvoiceController invoiceController;
+    private InvoiceController invoiceController=new InvoiceController();
 
     @FXML
     private MenuItem menuItemOpen;
@@ -34,11 +38,6 @@ public class MainController {
 
     @FXML
     private MenuItem menuItemQuit;
-
-    @FXML
-    private void initialize(){
-        invoiceController.initialize(this);
-    }
 
     public void setStage(Stage stage){
         primaryStage = stage;
@@ -113,4 +112,8 @@ public class MainController {
         }
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
 }
