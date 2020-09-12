@@ -18,11 +18,11 @@
           <items>
                   <MenuItem mnemonicParsing="false" text="Improt data" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Open…" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save as ..." />
+            <MenuItem fx:id="menuItemOpen" mnemonicParsing="false" text="Open…" />
+            <MenuItem fx:id="menuItemSave" mnemonicParsing="false" text="Save" />
+            <MenuItem fx:id="menuItemSaveAs" mnemonicParsing="false" text="Save as ..." />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Quit" />
+            <MenuItem fx:id="menuItemQuit" mnemonicParsing="false" text="Quit" />
           </items>
         </Menu>
       </menus>
