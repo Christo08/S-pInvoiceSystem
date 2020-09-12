@@ -100,6 +100,10 @@ public class InvoiceController implements Initializable {
         return TVInvoiceTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
     }
 
+    public List<Item> getInvoiceItems(){
+        return itemData;
+    }
+
     public double getNetoTotal() {
         return netoTotal;
     }
