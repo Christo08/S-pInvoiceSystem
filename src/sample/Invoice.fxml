@@ -45,14 +45,16 @@
                   <StackPane>
                      <children>
                               <TableView fx:id="TVInvoiceTable" editable="true" prefHeight="325.0" prefWidth="567.0">
-                                  <columns>
-                                      <TableColumn fx:id="ColItemName" prefWidth="134.0" text="Item name" />
-                                      <TableColumn fx:id="ColNumberOfItems" prefWidth="167.0" text="Number of items" />
-                                      <TableColumn fx:id="ColUnitOfItems" prefWidth="104.0" text="Units" />
-                                      <TableColumn fx:id="ColPriceOfItem" prefWidth="160.0" text="Item price (R)" />
-                                  </columns>
+                           <columns>
+                              <TableColumn fx:id="colStockCode" editable="false" prefWidth="75.0" text="Stock Code" />
+                              <TableColumn fx:id="colDescription" editable="false" prefWidth="110.0" text="Description" />
+                              <TableColumn fx:id="colQuantity" editable="false" prefWidth="88.0" text="Quantity" />
+                              <TableColumn fx:id="colUnit" editable="false" prefWidth="61.0" text="Unit" />
+                              <TableColumn fx:id="colPrice" editable="false" prefWidth="111.0" text="Selling Price (R)" />
+                              <TableColumn fx:id="colTotal" editable="false" prefWidth="121.0" text="Total Price (R)" />
+                           </columns>
                               </TableView>
-                        <Pane fx:id="ChangesNumberOfItems" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="307.0" style="-fx-background-color: efefef;">
+                        <Pane fx:id="ChangesNumberOfItems" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="307.0" style="-fx-background-color: efefef;" visible="false">
                            <children>
                               <GridPane prefHeight="201.0" prefWidth="300.0">
                                 <columnConstraints>

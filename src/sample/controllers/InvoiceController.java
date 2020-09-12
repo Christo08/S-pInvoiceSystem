@@ -37,16 +37,22 @@ public class InvoiceController implements Initializable {
     private TableView<Item> TVInvoiceTable;
 
     @FXML
-    private TableColumn<Item, String> ColItemName;
+    private TableColumn<Item, String> colStockCode;
 
     @FXML
-    private TableColumn<Item, String> ColNumberOfItems;
+    private TableColumn<Item, String> colDescription;
 
     @FXML
-    private TableColumn<Item, String> ColUnitOfItems;
+    private TableColumn<Item, String> colQuantity;
 
     @FXML
-    private TableColumn<Item, String> ColPriceOfItem;
+    private TableColumn<Item, String> colUnit;
+
+    @FXML
+    private TableColumn<Item, String> colPrice;
+
+    @FXML
+    private TableColumn<Item, String> colTotal;
 
     @FXML
     private Label LblTotal;
@@ -116,10 +122,13 @@ public class InvoiceController implements Initializable {
     private void initializeTalbe(){
         itemData= FXCollections.observableArrayList();
 
-        ColItemName.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
-        ColNumberOfItems.setCellValueFactory(cellData -> cellData.getValue().getNumberOfItemsProperty());
-        ColUnitOfItems.setCellValueFactory(cellData -> cellData.getValue().getUnitsProperty());
-        ColPriceOfItem.setCellValueFactory(cellData -> cellData.getValue().getTotalePriceProperty());
+        colStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
+        colDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
+        colQuantity.setCellValueFactory(cellData->cellData.getValue().sellingQuantityProperty());
+        colUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
+        colPrice.setCellValueFactory(cellData->cellData.getValue().sellingPriceProperty());
+        colTotal.setCellValueFactory(cellData->cellData.getValue().totalSellingPriceProperty());
+
         FilteredList<Item> filteredData = new FilteredList<>(itemData, p -> true);
         TxtInvoiceSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate(item -> {
@@ -129,13 +138,19 @@ public class InvoiceController implements Initializable {
 
                 String lowerCaseFilter = newValue.toLowerCase();
 
-                if (item.getName().toLowerCase().contains(lowerCaseFilter)) {
+                if (item.getStockCode().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
-                } else if (item.getPrice().toLowerCase().contains(lowerCaseFilter)) {
+                } else if (item.getDescription().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
-                }else if (item.getUnits().toLowerCase().contains(lowerCaseFilter)) {
+                }else if (item.getUnit().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
-                }else if (item.getTotalePrice().toLowerCase().contains(lowerCaseFilter)) {
+                }else if (item.getCostQuantity().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }else if (item.getSellingQuantity().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }else if (item.getTotalSellingPrice().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }else if (item.getSellingPrice().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 }
                 return false;
@@ -153,20 +168,20 @@ public class InvoiceController implements Initializable {
             if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVInvoiceTable.getSelectionModel().getSelectedItem()!=null) {
                 ChangesNumberOfItems.setVisible(true);
                 ChangesNumberButton.setDisable(true);
-                oldNumder=TVInvoiceTable.getSelectionModel().getSelectedItem().getNumberOfItemsDoulbe();
+                oldNumder=TVInvoiceTable.getSelectionModel().getSelectedItem().getSellingPriceDouble();
                 SprNewNumber.getEditor().setText(Double.toString(oldNumder));
             }
         });
 
-        add(new Item("RAM",3,"none",1000));
-        add(new Item("CPU",1,"none",5000));
-        add(new Item("Fan",6,"none",50));
-        add(new Item("SDD",1,"none",2000));
-        add(new Item("HDD",3,"none",700));
-        add(new Item("Mother braod",1,"none",5499.99));
-        add(new Item("Graphic card",1,"none",10000));
-        add(new Item("Cades",1.50,"meters",100));
-        add(new Item("Case",1,"none",7499.99));
+        add(new Item("R1","RAM","none",10,3,500,1000));
+        add(new Item("C1","CPU","none",5,1,2500,5000));
+        add(new Item("F1","Fan","none",100,6,40,50));
+        add(new Item("S1","SDD","none",10,1,1500,2000));
+        add(new Item("H1","HDD","none",15,2,400,700));
+        add(new Item("M1","Mother braod","none",5,1,3500,5499.99));
+        add(new Item("G1","Graphic card","none",8,1,7500,10000));
+        add(new Item("C2","Cades","meters",100,10.524,10,20));
+        add(new Item("C3","Cadles","none",4,1,5000.54,7499.99));
     }
 
     private void initializeSpinners() {
@@ -213,7 +228,7 @@ public class InvoiceController implements Initializable {
     private void updateTotal(){
         bruttoTotal=0;
         for(Item item: itemData){
-            bruttoTotal=bruttoTotal+ item.getTotalePriceDoulbe();
+            bruttoTotal=bruttoTotal+ item.getSellingPriceDouble();
         }
         netoTotal = bruttoTotal*percent;
         LblTotal.setText("Totale: R"+String.format("%.2f", netoTotal));
@@ -249,7 +264,7 @@ public class InvoiceController implements Initializable {
         if(newNumber==0)
             remove(selectedItem);
         else
-            selectedItem.setNumberOfItems(newNumber);
+            selectedItem.setSellingQuantity(newNumber);
         updateTotal();
     }
 
