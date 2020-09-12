@@ -54,7 +54,7 @@
             </Pane>
             <Pane>
                <children>
-                  <fx:include source="Invoice.fxml" />
+                  <fx:include fx:id="invoice" source="Invoice.fxml" />
                </children>
             </Pane>
         </items>

@@ -3,10 +3,7 @@ package sample.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
@@ -32,7 +29,10 @@ public class MainController implements Initializable {
     private String activeFileName = null;
 
     @FXML
-    private InvoiceController invoiceController = new InvoiceController();
+    private SplitPane invoice;
+
+    @FXML
+    private InvoiceController invoiceController;
 
     @FXML
     private MenuItem menuItemOpen;
@@ -47,9 +47,6 @@ public class MainController implements Initializable {
     private MenuItem menuItemQuit;
 
     public void setStage(Stage stage) throws Exception{
-/*        FXMLLoader loader = new FXMLLoader(getClass().getResource("/sample/Invoice.fxml"));
-        Parent root = loader.load();
-        invoiceController = (InvoiceController)loader.getController();*/
         primaryStage = stage;
         // set fileChooser extension filter
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
@@ -68,7 +65,7 @@ public class MainController implements Initializable {
             System.out.println("Opened file "+activeFileName);
 
             try {
-                //invoiceController.clearInvoice();
+                invoiceController.clearInvoice();
 
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -76,18 +73,15 @@ public class MainController implements Initializable {
                 XSSFCell cell;
 
                 int rows = sheet.getPhysicalNumberOfRows();
-                int cols = 4; // No of columns
 
-                for(int r = 0; r < rows; r++) {
+                for(int r = 1; r < rows; r++) {
                     row = sheet.getRow(r);
                     if(row != null) {
-                        for(int c = 0; c < cols; c++) {
-                            cell = row.getCell((short)c);
-                            if(cell != null) {
-                                System.out.print(cell.toString()+"\t");
-                            }
-                        }
-                        System.out.println();
+                        String name = row.getCell(0).toString();
+                        double numberOfItems = Double.parseDouble(row.getCell(1).toString());
+                        String units = row.getCell(2).toString();
+                        double price = Double.parseDouble(row.getCell(3).toString());
+                        invoiceController.add(new Item(name, numberOfItems, units, price));
                     }
                 }
             } catch(Exception ioe) {
