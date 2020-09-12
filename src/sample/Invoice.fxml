@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane fx:id="invoice" dividerPositions="0.25" prefHeight="316.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.InvoiceController">
+<SplitPane dividerPositions="0.25" prefHeight="316.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.InvoiceController">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="195.0">
             <children>
