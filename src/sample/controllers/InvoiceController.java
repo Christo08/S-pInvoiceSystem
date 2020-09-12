@@ -106,7 +106,6 @@ public class InvoiceController implements Initializable {
         return percent;
     }
 
-    @Override
     public void initialize(URL location, ResourceBundle resources) {
         ChangesNumberOfItems.setVisible(false);
         initializeSpinners();
@@ -219,6 +218,15 @@ public class InvoiceController implements Initializable {
         LblTotal.setText("Totale: R"+String.format("%.2f", netoTotal));
     }
 
+    public void clearInvoice(){
+        itemData.clear();
+        TxtInvoiceSearch.setDisable(true);
+        BtnInvoiceRemove.setDisable(true);
+        BtnInvoiceClear.setDisable(true);
+        BtnInvoicePrint.setDisable(true);
+        updateTotal();
+    }
+
     @FXML
     private void removeItemFromInvoice(ActionEvent event){
         List<Item> items = TVInvoiceTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
@@ -229,12 +237,7 @@ public class InvoiceController implements Initializable {
 
     @FXML
     private void clearInvoice(ActionEvent event){
-        itemData.clear();
-        TxtInvoiceSearch.setDisable(true);
-        BtnInvoiceRemove.setDisable(true);
-        BtnInvoiceClear.setDisable(true);
-        BtnInvoicePrint.setDisable(true);
-        updateTotal();
+        clearInvoice();
     }
 
     @FXML
