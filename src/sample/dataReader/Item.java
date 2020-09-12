@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Item {
-    private final StringProperty stockName;
+    private final StringProperty stockCode;
     private final StringProperty description;
     private final StringProperty costQuantity;
     private final StringProperty sellingQuantity;
@@ -21,7 +21,7 @@ public class Item {
     private double totalSellingPriceDouble;
     private double totalCostPriceDouble;
 
-    public Item(String stockName, String description, String unit, double costQuantityDouble, double sellingQuantityDouble, double costPriceDouble, double sellingPriceDouble) {
+    public Item(String stockCode, String description, String unit, double costQuantityDouble, double sellingQuantityDouble, double costPriceDouble, double sellingPriceDouble) {
         this.costQuantityDouble = costQuantityDouble;
         this.sellingQuantityDouble = sellingQuantityDouble;
         this.costPriceDouble = costPriceDouble;
@@ -29,7 +29,7 @@ public class Item {
         this.totalSellingPriceDouble = this.sellingQuantityDouble*this.sellingPriceDouble;
         this.totalCostPriceDouble = this.costQuantityDouble*this.costPriceDouble;
 
-        this.stockName = new SimpleStringProperty(stockName);
+        this.stockCode = new SimpleStringProperty(stockCode);
         this.description = new SimpleStringProperty(description);
         this.unit = new SimpleStringProperty(unit);
 
@@ -43,16 +43,16 @@ public class Item {
         this.totalSellingPrice=new SimpleStringProperty(String.format("%.2f", this.totalSellingPriceDouble ));
     }
 
-    public String getStockName() {
-        return stockName.get();
+    public String getStockCode() {
+        return stockCode.get();
     }
 
-    public StringProperty stockNameProperty() {
-        return stockName;
+    public StringProperty stockCodeProperty() {
+        return stockCode;
     }
 
-    public void setStockName(String stockName) {
-        this.stockName.set(stockName);
+    public void setStockCode(String stockCode) {
+        this.stockCode.set(stockCode);
     }
 
     public String getDescription() {
@@ -127,6 +127,22 @@ public class Item {
 
     public StringProperty sellingPriceProperty() {
         return sellingPrice;
+    }
+
+    public String getTotalSellingPrice() {
+        return totalSellingPrice.get();
+    }
+
+    public StringProperty totalSellingPriceProperty() {
+        return totalSellingPrice;
+    }
+
+    public String getTotalCostPrice() {
+        return this.totalCostPrice.get();
+    }
+
+    public StringProperty totalCostPriceProperty() {
+        return this.totalCostPrice;
     }
 
     public void setSellingPrice(double sellingPrice) {
