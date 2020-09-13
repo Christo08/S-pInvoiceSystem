@@ -68,6 +68,8 @@ public class InvoiceController implements Initializable {
 
     private ObservableList<Item> itemData;
 
+    private MainController mainController;
+
     private double totalWithvat=0.0;
     private double netoTotal=0.0;
     private double bruttoTotal=0.0;
@@ -75,18 +77,22 @@ public class InvoiceController implements Initializable {
     private double oldNumber=0.0;
     private double newNumber=0.0;
 
-    public void add(Item newItem) {
-        itemData.add(newItem);
-        if(TxtSearch.isDisable()||BtnInvoiceRemove.isDisable()||BtnInvoiceClear.isDisable()||BtnInvoicePrint.isDisable()){
-            TxtSearch.setDisable(false);
-            BtnInvoiceRemove.setDisable(false);
-            BtnInvoiceClear.setDisable(false);
-            BtnInvoicePrint.setDisable(false);
+    public void add(Item newItem, double quantity) {
+        newItem.addQuantity(quantity);
+        if (!itemData.contains(newItem)) {
+            itemData.add(newItem);
+            if (TxtSearch.isDisable() || BtnInvoiceRemove.isDisable() || BtnInvoiceClear.isDisable() || BtnInvoicePrint.isDisable()) {
+                TxtSearch.setDisable(false);
+                BtnInvoiceRemove.setDisable(false);
+                BtnInvoiceClear.setDisable(false);
+                BtnInvoicePrint.setDisable(false);
+            }
         }
         updateTotal();
     }
 
     public void remove(Item selectedItem){
+        selectedItem.removeQuantity(selectedItem.getSellingQuantityDouble());
         itemData.remove(selectedItem);
         if(itemData.size()==0){
             TxtSearch.setDisable(true);
@@ -94,6 +100,20 @@ public class InvoiceController implements Initializable {
             BtnInvoiceClear.setDisable(true);
             BtnInvoicePrint.setDisable(true);
         }
+        mainController.addToTab(selectedItem);
+        updateTotal();
+    }
+
+    public void clearInvoice(){
+        for (Item item:itemData) {
+            item.removeQuantity(item.getSellingQuantityDouble());
+            mainController.addToTab(item);
+        }
+        itemData.clear();
+        TxtSearch.setDisable(true);
+        BtnInvoiceRemove.setDisable(true);
+        BtnInvoiceClear.setDisable(true);
+        BtnInvoicePrint.setDisable(true);
         updateTotal();
     }
 
@@ -177,15 +197,6 @@ public class InvoiceController implements Initializable {
             }
         });
 
-        add(new Item("R1","RAM","none",10,3,500,1000));
-        add(new Item("C1","CPU","none",5,1,2500,5000));
-        add(new Item("F1","Fan","none",100,6,40,50));
-        add(new Item("S1","SDD","none",10,1,1500,2000));
-        add(new Item("H1","HDD","none",15,2,400,700));
-        add(new Item("M1","Mother braod","none",5,1,3500,5499.99));
-        add(new Item("G1","Graphic card","none",8,1,7500,10000));
-        add(new Item("C2","Cades","meters",100,10.524,10,20));
-        add(new Item("C3","Cadles","none",4,1,5000.54,7499.99));
     }
 
     private void initializeSpinners() {
@@ -232,20 +243,15 @@ public class InvoiceController implements Initializable {
     private void updateTotal(){
         bruttoTotal=0;
         for(Item item: itemData){
-            bruttoTotal=bruttoTotal+ item.getSellingPriceDouble();
+            bruttoTotal=bruttoTotal+ item.getTotalSellingPriceDouble();
         }
         netoTotal = bruttoTotal*percent;
         totalWithvat=netoTotal*1.15;
         LblTotal.setText("Totale: R"+String.format("%.2f", totalWithvat));
     }
 
-    public void clearInvoice(){
-        itemData.clear();
-        TxtSearch.setDisable(true);
-        BtnInvoiceRemove.setDisable(true);
-        BtnInvoiceClear.setDisable(true);
-        BtnInvoicePrint.setDisable(true);
-        updateTotal();
+    public void setMainController(MainController mainController) {
+        this.mainController=mainController;
     }
 
     @FXML
@@ -272,8 +278,15 @@ public class InvoiceController implements Initializable {
         Item selectedItem = TVInvoiceTable.getSelectionModel().getSelectedItem();
         if(newNumber==0)
             remove(selectedItem);
-        else
-            selectedItem.setSellingQuantity(newNumber);
+        else {
+            double totalChanges =newNumber-oldNumber;
+            if (totalChanges>0){
+                selectedItem.addQuantity(totalChanges);
+            }else if(totalChanges<0){
+                totalChanges=-1*totalChanges;
+                selectedItem.removeQuantity(totalChanges);
+            }
+        }
         updateTotal();
     }
 

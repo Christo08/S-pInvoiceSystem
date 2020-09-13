@@ -21,6 +21,10 @@ public class Item {
     private double totalSellingPriceDouble;
     private double totalCostPriceDouble;
 
+    public Item(String stockCode, String description, String unit, double costQuantityDouble, double costPriceDouble, double sellingPriceDouble){
+        this(stockCode, description,  unit,  costQuantityDouble,0, costPriceDouble, sellingPriceDouble);
+    }
+
     public Item(String stockCode, String description, String unit, double costQuantityDouble, double sellingQuantityDouble, double costPriceDouble, double sellingPriceDouble) {
         this.costQuantityDouble = costQuantityDouble;
         this.sellingQuantityDouble = sellingQuantityDouble;
@@ -76,9 +80,9 @@ public class Item {
     }
 
     public void setCostQuantity(double costQuantity) {
-        this.costPriceDouble=costQuantity;
-        recalculateTotalCostPrice();
-        this.costQuantity.set(Double.toString(this.costQuantityDouble ));
+            this.costQuantityDouble = costQuantity;
+            recalculateTotalCostPrice();
+            this.costQuantity.set(Double.toString(this.costQuantityDouble));
     }
 
     public String getSellingQuantity() {
@@ -151,6 +155,32 @@ public class Item {
         this.sellingPrice.set(String.format("%.2f", this.sellingPriceDouble ));
     }
 
+    public void addQuantity(double numberToAdd){
+        if(this.costQuantityDouble!=0){
+            if (numberToAdd>this.costQuantityDouble)
+                numberToAdd=this.costQuantityDouble;
+
+            this.sellingQuantityDouble=this.sellingQuantityDouble+numberToAdd;
+            this.costQuantityDouble=this.costQuantityDouble-numberToAdd;
+
+            setSellingQuantity(this.sellingQuantityDouble);
+            setCostQuantity(this.costQuantityDouble);
+        }
+    }
+
+    public void removeQuantity(double numberToRemove){
+        if(this.sellingQuantityDouble!=0){
+            if (numberToRemove>this.sellingQuantityDouble)
+                numberToRemove=this.sellingQuantityDouble;
+
+            this.sellingQuantityDouble=this.sellingQuantityDouble-numberToRemove;
+            this.costQuantityDouble=this.costQuantityDouble+numberToRemove;
+
+            setSellingQuantity(this.sellingQuantityDouble);
+            setCostQuantity(this.costQuantityDouble);
+        }
+    }
+
     public double getCostQuantityDouble() {
         return costQuantityDouble;
     }
@@ -183,5 +213,20 @@ public class Item {
     private void recalculateTotalSellingPrice(){
         this.totalSellingPriceDouble = this.sellingQuantityDouble*this.sellingPriceDouble;
         this.totalSellingPrice.setValue(String.format("%.2f", this.totalSellingPriceDouble ));
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "stockCode=" + getStockCode() +
+                ", description=" + getDescription() +
+                ", costQuantity=" + getCostQuantity() +
+                ", sellingQuantity=" + getSellingQuantity() +
+                ", unit=" + getUnit() +
+                ", costPrice=" + getCostPrice() +
+                ", sellingPrice=" + getSellingPrice() +
+                ", totalCostPrice=" + getTotalCostPrice() +
+                ", totalSellingPrice=" + getTotalSellingPrice() +
+                '}';
     }
 }

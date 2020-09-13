@@ -10,29 +10,29 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.25" layoutX="5.0" layoutY="3.0" prefHeight="320.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<SplitPane dividerPositions="0.25" layoutX="5.0" layoutY="3.0" prefHeight="320.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.Tab1Controller">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="195.0">
             <children>
-                <TextField disable="true" layoutX="56.0" layoutY="23.0" prefHeight="25.0" prefWidth="122.0" />
+                <TextField fx:id="TxtSearch" disable="true" layoutX="56.0" layoutY="23.0" prefHeight="25.0" prefWidth="122.0" />
                 <Label layoutX="8.0" layoutY="25.0" text="Search:">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Button disable="true" layoutX="42.0" layoutY="78.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="114.0" text="Add To Invoice" wrapText="true" />
+                <Button fx:id="BtnAddToInvoice" disable="true" layoutX="42.0" layoutY="78.0" mnemonicParsing="false" onAction="#moveItemToInvoice" prefHeight="35.0" prefWidth="114.0" text="Add To Invoice" wrapText="true" />
             </children>
         </AnchorPane>
         <ScrollPane fitToWidth="true" prefHeight="200.0">
             <content>
-                <TableView prefHeight="293.0" prefWidth="571.0">
+                <TableView fx:id="TVItemsTable" prefHeight="293.0" prefWidth="571.0">
                     <columns>
-                        <TableColumn editable="false" prefWidth="75.0" text="Stock Code" />
-                        <TableColumn editable="false" prefWidth="110.0" text="Description" />
-                        <TableColumn editable="false" prefWidth="88.0" text="Quantity" />
-                        <TableColumn editable="false" prefWidth="61.0" text="Unit" />
-                        <TableColumn editable="false" prefWidth="111.0" text="Selling Price (R)" />
-                        <TableColumn editable="false" prefWidth="121.0" text="Total Price (R)" />
+                        <TableColumn fx:id="colStockCode" editable="false" prefWidth="75.0" text="Stock Code" />
+                        <TableColumn fx:id="colDescription" editable="false" prefWidth="110.0" text="Description" />
+                        <TableColumn fx:id="colQuantity" editable="false" prefWidth="88.0" text="Quantity" />
+                        <TableColumn fx:id="colUnit" editable="false" prefWidth="61.0" text="Unit" />
+                        <TableColumn fx:id="colPrice" editable="false" prefWidth="114.0" text="Cost Price (R)" />
+                        <TableColumn fx:id="colTotal" editable="false" prefWidth="125.0" text="Total Price (R)" />
                     </columns>
                 </TableView>
             </content>

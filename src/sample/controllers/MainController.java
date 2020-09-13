@@ -32,7 +32,13 @@ public class MainController implements Initializable {
     private SplitPane invoice;
 
     @FXML
+    private SplitPane tad1;
+
+    @FXML
     private InvoiceController invoiceController;
+
+    @FXML
+    private Tab1Controller tab1Controller;
 
     @FXML
     private MenuItem menuItemOpen;
@@ -135,17 +141,25 @@ public class MainController implements Initializable {
         }
     }
 
-    public void addToInvoice(Item newItem){
-        invoiceController.add(newItem);
+    public void addToInvoice(Item newItem, double quantity){
+        invoiceController.add(newItem,quantity);
     }
 
-    public void addToInvoice(List<Item> newItems){
+    public void addToInvoice(List<Item> newItems, List<Double> quantities){
+        int counter=0;
         for (Item newItem: newItems) {
-            invoiceController.add(newItem);
+            invoiceController.add(newItem, quantities.get(counter));
+            counter++;
         }
+    }
+
+    public void addToTab(Item item){
+        tab1Controller.add(item);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tab1Controller.setMainController(this);
+        invoiceController.setMainController(this);
     }
 }

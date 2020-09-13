@@ -36,7 +36,7 @@
                       <content>
                       </content>
                         <content>
-                           <fx:include source="Tab1.fxml" />
+                           <fx:include fx:id="tab1"  source="Tab1.fxml" />
                         </content>
                     </Tab>
                     <Tab text="Untitled Tab 2">
