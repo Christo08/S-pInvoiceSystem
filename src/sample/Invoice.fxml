@@ -21,7 +21,7 @@
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="195.0">
             <children>
-                <TextField fx:id="TxtInvoiceSearch" disable="true" layoutX="56.0" layoutY="23.0" prefHeight="25.0" prefWidth="122.0" />
+                <TextField fx:id="TxtSearch" disable="true" layoutX="56.0" layoutY="23.0" prefHeight="25.0" prefWidth="122.0" />
                 <Label layoutX="3.0" layoutY="26.0" text="Search:">
                     <font>
                         <Font size="14.0" />

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class InvoiceController implements Initializable {
 
     @FXML
-    private TextField TxtInvoiceSearch;
+    private TextField TxtSearch;
 
     @FXML
     private Spinner<Double> SprPercent;
@@ -68,16 +68,17 @@ public class InvoiceController implements Initializable {
 
     private ObservableList<Item> itemData;
 
-    private double netoTotal;
-    private double bruttoTotal;
+    private double totalWithvat=0.0;
+    private double netoTotal=0.0;
+    private double bruttoTotal=0.0;
     private double percent=1;
-    private double oldNumder=0.0;
+    private double oldNumber=0.0;
     private double newNumber=0.0;
 
     public void add(Item newItem) {
         itemData.add(newItem);
-        if(TxtInvoiceSearch.isDisable()||BtnInvoiceRemove.isDisable()||BtnInvoiceClear.isDisable()||BtnInvoicePrint.isDisable()){
-            TxtInvoiceSearch.setDisable(false);
+        if(TxtSearch.isDisable()||BtnInvoiceRemove.isDisable()||BtnInvoiceClear.isDisable()||BtnInvoicePrint.isDisable()){
+            TxtSearch.setDisable(false);
             BtnInvoiceRemove.setDisable(false);
             BtnInvoiceClear.setDisable(false);
             BtnInvoicePrint.setDisable(false);
@@ -88,7 +89,7 @@ public class InvoiceController implements Initializable {
     public void remove(Item selectedItem){
         itemData.remove(selectedItem);
         if(itemData.size()==0){
-            TxtInvoiceSearch.setDisable(true);
+            TxtSearch.setDisable(true);
             BtnInvoiceRemove.setDisable(true);
             BtnInvoiceClear.setDisable(true);
             BtnInvoicePrint.setDisable(true);
@@ -112,6 +113,10 @@ public class InvoiceController implements Initializable {
         return percent;
     }
 
+    public double getTotalWithvat() {
+        return totalWithvat;
+    }
+
     public void initialize(URL location, ResourceBundle resources) {
         ChangesNumberOfItems.setVisible(false);
         initializeSpinners();
@@ -129,7 +134,7 @@ public class InvoiceController implements Initializable {
         colTotal.setCellValueFactory(cellData->cellData.getValue().totalSellingPriceProperty());
 
         FilteredList<Item> filteredData = new FilteredList<>(itemData, p -> true);
-        TxtInvoiceSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+        TxtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate(item -> {
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
@@ -167,8 +172,8 @@ public class InvoiceController implements Initializable {
             if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVInvoiceTable.getSelectionModel().getSelectedItem()!=null) {
                 ChangesNumberOfItems.setVisible(true);
                 ChangesNumberButton.setDisable(true);
-                oldNumder=TVInvoiceTable.getSelectionModel().getSelectedItem().getSellingPriceDouble();
-                SprNewNumber.getEditor().setText(Double.toString(oldNumder));
+                oldNumber=TVInvoiceTable.getSelectionModel().getSelectedItem().getSellingQuantityDouble();
+                SprNewNumber.getEditor().setText(Double.toString(oldNumber));
             }
         });
 
@@ -203,7 +208,7 @@ public class InvoiceController implements Initializable {
 
         SprNewNumber.valueProperty().addListener((obs, oldValue, newValue) ->{
                     newNumber=newValue;
-                    if(newNumber!=oldNumder){
+                    if(newNumber!=oldNumber){
                         ChangesNumberButton.setDisable(false);
                     }else{
                         ChangesNumberButton.setDisable(true);
@@ -215,7 +220,7 @@ public class InvoiceController implements Initializable {
             if(newValue.matches("-?\\d+(\\.\\d)?")){
                 newNumber=Double.parseDouble(newValue);
 
-                if(newNumber!=oldNumder&&newNumber>=0){
+                if(newNumber!=oldNumber&&newNumber>=0){
                     ChangesNumberButton.setDisable(false);
                 }else{
                     ChangesNumberButton.setDisable(true);
@@ -230,12 +235,13 @@ public class InvoiceController implements Initializable {
             bruttoTotal=bruttoTotal+ item.getSellingPriceDouble();
         }
         netoTotal = bruttoTotal*percent;
-        LblTotal.setText("Totale: R"+String.format("%.2f", netoTotal));
+        totalWithvat=netoTotal*1.15;
+        LblTotal.setText("Totale: R"+String.format("%.2f", totalWithvat));
     }
 
     public void clearInvoice(){
         itemData.clear();
-        TxtInvoiceSearch.setDisable(true);
+        TxtSearch.setDisable(true);
         BtnInvoiceRemove.setDisable(true);
         BtnInvoiceClear.setDisable(true);
         BtnInvoicePrint.setDisable(true);
