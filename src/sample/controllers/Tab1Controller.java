@@ -36,16 +36,16 @@ public class Tab1Controller implements Initializable {
     private TableColumn<Item, String> colDescription;
 
     @FXML
-    private TableColumn<Item, String> colQuantity;
-
-    @FXML
     private TableColumn<Item, String> colUnit;
 
     @FXML
-    private TableColumn<Item, String> colPrice;
+    private TableColumn<Item, String> colProfitPercent;
 
     @FXML
-    private TableColumn<Item, String> colTotal;
+    private TableColumn<Item, String> colCostPrice;
+
+    @FXML
+    private TableColumn<Item, String> colSellingPrice;
 
     private ObservableList<Item> itemData;
 
@@ -59,12 +59,9 @@ public class Tab1Controller implements Initializable {
     @FXML
     private void moveItemToInvoice(ActionEvent event) {
         List<Item> items =TVItemsTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
-        List<Double> quantity = new ArrayList<>();
+        List<Integer> quantity = new ArrayList<>();
         for (Item item:items) {
-            quantity.add(1.0);
-            if(item.getCostQuantityDouble()==1){
-                remove(item);
-            }
+            quantity.add(1);
         }
         mainController.addToInvoice(items,quantity);
     }
@@ -91,10 +88,10 @@ public class Tab1Controller implements Initializable {
 
         colStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
         colDescription.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
-        colQuantity.setCellValueFactory(cellData -> cellData.getValue().costQuantityProperty());
+        colProfitPercent.setCellValueFactory(cellData -> cellData.getValue().profitPercentProperty());
         colUnit.setCellValueFactory(cellData -> cellData.getValue().unitProperty());
-        colPrice.setCellValueFactory(cellData -> cellData.getValue().costPriceProperty());
-        colTotal.setCellValueFactory(cellData -> cellData.getValue().totalCostPriceProperty());
+        colCostPrice.setCellValueFactory(cellData -> cellData.getValue().costPriceProperty());
+        colSellingPrice.setCellValueFactory(cellData -> cellData.getValue().sellingPriceProperty());
 
         FilteredList<Item> filteredData = new FilteredList<>(itemData, p -> true);
         TxtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -111,9 +108,7 @@ public class Tab1Controller implements Initializable {
                     return true;
                 } else if (item.getUnit().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
-                } else if (item.getCostQuantity().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (item.getCostQuantity().toLowerCase().contains(lowerCaseFilter)) {
+                } else if (item.getQuantity().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 } else if (item.getTotalCostPrice().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
@@ -132,15 +127,15 @@ public class Tab1Controller implements Initializable {
         TVItemsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 
-        add(new Item("R1", "RAM", "none", 10, 500, 1000));
-        add(new Item("C1", "CPU", "none", 5, 2500, 5000));
-        add(new Item("F1", "Fan", "none", 100, 40, 50));
-        add(new Item("S1", "SDD", "none", 10, 1500, 2000));
-        add(new Item("H1", "HDD", "none", 15, 400, 700));
-        add(new Item("M1", "Mother braod", "none", 5, 3500, 5499.99));
-        add(new Item("G1", "Graphic card", "none", 8, 7500, 10000));
-        add(new Item("C2", "Cades", "meters", 100, 10, 20));
-        add(new Item("C3", "Cadles", "none", 4, 5000.54, 7499.99));
+        add(new Item("R1", "RAM",10, "none",  50, 500));
+        add(new Item("C1", "CPU", 5,"none",  25, 2500));
+        add(new Item("F1", "Fan", 100,"none",  75, 40));
+        add(new Item("S1", "SDD", 10,"none",  12.5, 1500));
+        add(new Item("H1", "HDD", 15,"none",  50, 400));
+        add(new Item("M1", "Mother braod", 5,"none",  50, 3500.80));
+        add(new Item("G1", "Graphic card", 8,"none", 50, 7500));
+        add(new Item("C2", "Cades", 100,"meters",  42, 10));
+        add(new Item("C3", "Cadles", 4,"none",  60, 5000.54));
     }
 
 

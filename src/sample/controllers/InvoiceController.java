@@ -1,5 +1,7 @@
 package sample.controllers;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -22,123 +24,170 @@ public class InvoiceController implements Initializable {
     private TextField TxtSearch;
 
     @FXML
-    private Spinner<Double> SprPercent;
+    private Label LblGrossTotal;
 
     @FXML
-    private Button BtnInvoiceRemove;
-
-    @FXML
-    private Button BtnInvoiceClear;
-
-    @FXML
-    private Button BtnInvoicePrint;
-
-    @FXML
-    private TableView<Item> TVInvoiceTable;
-
-    @FXML
-    private TableColumn<Item, String> colStockCode;
-
-    @FXML
-    private TableColumn<Item, String> colDescription;
-
-    @FXML
-    private TableColumn<Item, String> colQuantity;
-
-    @FXML
-    private TableColumn<Item, String> colUnit;
-
-    @FXML
-    private TableColumn<Item, String> colPrice;
-
-    @FXML
-    private TableColumn<Item, String> colTotal;
+    private Label LblVAT;
 
     @FXML
     private Label LblTotal;
 
     @FXML
-    private Pane ChangesNumberOfItems;
+    private Button BtnRemove;
 
     @FXML
-    private Spinner<Double> SprNewNumber;
+    private Button BtnClear;
 
     @FXML
-    private Button ChangesNumberButton;
+    private Button BtnPrint;
+
+
+    @FXML
+    private TabPane Tables;
+
+    @FXML
+    private TableView<Item> TVQuotationTable;
+
+    @FXML
+    private TableColumn<Item, String> colQuotationStockCode;
+
+    @FXML
+    private TableColumn<Item, String> colQuotationDescription;
+
+    @FXML
+    private TableColumn<Item, String> colQuotationQuantity;
+
+    @FXML
+    private TableColumn<Item, String> colQuotationUnit;
+
+    @FXML
+    private TableColumn<Item, String> colSellingPrice;
+
+    @FXML
+    private TableColumn<Item, String> colTotalSellingPrice;
+
+    @FXML
+    private Pane QuotationPopUp;
+
+    @FXML
+    private Label lblQuotationQuantity;
+
+    @FXML
+    private Spinner<Integer> SprQuotationQuantity;
+
+    @FXML
+    private Button BtnQuotationChanges;
+
+    @FXML
+    private TableView<Item> TVCostTable;
+
+    @FXML
+    private TableColumn<Item, String> colCostStockCode;
+
+    @FXML
+    private TableColumn<Item, String> colCostDescription;
+
+    @FXML
+    private TableColumn<Item, String> colCostQuantity;
+
+    @FXML
+    private TableColumn<Item, String> colCostUnit;
+
+    @FXML
+    private TableColumn<Item, String> colCostProfit;
+
+    @FXML
+    private TableColumn<Item, String> colCostPrice;
+
+    @FXML
+    private TableColumn<Item, String> colCostTotalPrice;
+
+    @FXML
+    private Pane CostingPopUp;
+
+    @FXML
+    private Label lblCostingQuantity;
+
+    @FXML
+    private Spinner<Integer> SprCostingQuantity;
+
+    @FXML
+    private Spinner<Double> SprProfitPercent;
+
+    @FXML
+    private Button BtnCostingChanges;
+
+    @FXML
+    private Button BtnCostingCancel;
 
     private ObservableList<Item> itemData;
 
     private MainController mainController;
 
-    private double totalWithvat=0.0;
-    private double netoTotal=0.0;
-    private double bruttoTotal=0.0;
-    private double percent=1;
-    private double oldNumber=0.0;
-    private double newNumber=0.0;
+    private double grossTotal=0.0;
+    private double VAT=0.0;
+    private double total=0.0;
+    private int oldNumber=0;
+    private int newNumber=0;
 
-    public void add(Item newItem, double quantity) {
-        newItem.addQuantity(quantity);
+    public void add(Item newItem, int quantity) {
+        newItem.setQuantity(quantity);
         if (!itemData.contains(newItem)) {
             itemData.add(newItem);
-            if (TxtSearch.isDisable() || BtnInvoiceRemove.isDisable() || BtnInvoiceClear.isDisable() || BtnInvoicePrint.isDisable()) {
+            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() || BtnPrint.isDisable()) {
                 TxtSearch.setDisable(false);
-                BtnInvoiceRemove.setDisable(false);
-                BtnInvoiceClear.setDisable(false);
-                BtnInvoicePrint.setDisable(false);
+                BtnRemove.setDisable(false);
+                BtnClear.setDisable(false);
+                BtnPrint.setDisable(false);
             }
         }
         updateTotal();
     }
 
     public void remove(Item selectedItem){
-        selectedItem.removeQuantity(selectedItem.getSellingQuantityDouble());
+        selectedItem.setQuantity(0);
         itemData.remove(selectedItem);
         if(itemData.size()==0){
             TxtSearch.setDisable(true);
-            BtnInvoiceRemove.setDisable(true);
-            BtnInvoiceClear.setDisable(true);
-            BtnInvoicePrint.setDisable(true);
+            BtnRemove.setDisable(true);
+            BtnClear.setDisable(true);
+            BtnPrint.setDisable(true);
         }
         mainController.addToTab(selectedItem);
         updateTotal();
     }
 
-    public void clearInvoice(){
+    public void clearTables(){
         for (Item item:itemData) {
-            item.removeQuantity(item.getSellingQuantityDouble());
+            item.setQuantity(0);
             mainController.addToTab(item);
         }
         itemData.clear();
         TxtSearch.setDisable(true);
-        BtnInvoiceRemove.setDisable(true);
-        BtnInvoiceClear.setDisable(true);
-        BtnInvoicePrint.setDisable(true);
+        BtnRemove.setDisable(true);
+        BtnClear.setDisable(true);
+        BtnPrint.setDisable(true);
         updateTotal();
     }
 
     public List<Item> getItems(){
-        return TVInvoiceTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+        return TVQuotationTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
     }
 
-    public double getNetoTotal() {
-        return netoTotal;
+    public double getGrossTotal() {
+        return grossTotal;
     }
 
-    public double getBruttoTotal() {
-        return bruttoTotal;
+    public double getVAT() {
+        return VAT;
     }
 
-    public double getPercent() {
-        return percent;
-    }
-
-    public double getTotalWithvat() {
-        return totalWithvat;
+    public double getTotal() {
+        return total;
     }
 
     public void initialize(URL location, ResourceBundle resources) {
-        ChangesNumberOfItems.setVisible(false);
+        QuotationPopUp.setVisible(false);
         initializeSpinners();
         initializeTalbe();
     }
@@ -146,12 +195,12 @@ public class InvoiceController implements Initializable {
     private void initializeTalbe(){
         itemData= FXCollections.observableArrayList();
 
-        colStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
-        colDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
-        colQuantity.setCellValueFactory(cellData->cellData.getValue().sellingQuantityProperty());
-        colUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
-        colPrice.setCellValueFactory(cellData->cellData.getValue().sellingPriceProperty());
-        colTotal.setCellValueFactory(cellData->cellData.getValue().totalSellingPriceProperty());
+        colQuotationStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
+        colQuotationDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
+        colQuotationQuantity.setCellValueFactory(cellData->cellData.getValue().quantityProperty());
+        colQuotationUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
+        colSellingPrice.setCellValueFactory(cellData->cellData.getValue().sellingPriceProperty());
+        colTotalSellingPrice.setCellValueFactory(cellData->cellData.getValue().totalSellingPriceProperty());
 
         FilteredList<Item> filteredData = new FilteredList<>(itemData, p -> true);
         TxtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -168,9 +217,7 @@ public class InvoiceController implements Initializable {
                     return true;
                 }else if (item.getUnit().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
-                }else if (item.getCostQuantity().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }else if (item.getSellingQuantity().toLowerCase().contains(lowerCaseFilter)) {
+                }else if (item.getQuantity().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 }else if (item.getTotalSellingPrice().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
@@ -183,71 +230,65 @@ public class InvoiceController implements Initializable {
 
         SortedList<Item> sortedData = new SortedList<>(filteredData);
 
-        sortedData.comparatorProperty().bind(TVInvoiceTable.comparatorProperty());
+        sortedData.comparatorProperty().bind(TVQuotationTable.comparatorProperty());
 
-        TVInvoiceTable.setItems(sortedData);
-        TVInvoiceTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        TVQuotationTable.setItems(sortedData);
+        TVQuotationTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        TVInvoiceTable.setOnMousePressed(event -> {
-            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVInvoiceTable.getSelectionModel().getSelectedItem()!=null) {
-                ChangesNumberOfItems.setVisible(true);
-                ChangesNumberButton.setDisable(true);
-                oldNumber=TVInvoiceTable.getSelectionModel().getSelectedItem().getSellingQuantityDouble();
-                SprNewNumber.getEditor().setText(Double.toString(oldNumber));
+        TVQuotationTable.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVQuotationTable.getSelectionModel().getSelectedItem()!=null) {
+                QuotationPopUp.setVisible(true);
+                BtnQuotationChanges.setDisable(true);
+                Item selectItem = TVQuotationTable.getSelectionModel().getSelectedItem();
+                oldNumber=selectItem.getQuantityInt();
+                SprQuotationQuantity.getEditor().setText(Double.toString(oldNumber));
+                lblQuotationQuantity.setText(lblQuotationQuantity.getText().replace("{{0}}",selectItem.getUnit()));
             }
         });
 
     }
 
     private void initializeSpinners() {
-       SprPercent.valueProperty().addListener((obs, oldValue, newValue) ->{
-                percent=1+newValue/100;
-                updateTotal();
-        }
-        );
-        SprPercent.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue.matches("-?\\d+(\\.\\d)?")){
-                double newDoubleValue=Double.parseDouble(newValue);
-                if(newDoubleValue>100||newDoubleValue<0) {
-                    SprPercent.getValueFactory().setValue(0.0);
-                    return;
-                }
-                percent=1+newDoubleValue/100;
-                updateTotal();
-            }
-        });
-
-        SprNewNumber.valueProperty().addListener((obs, oldValue, newValue) ->{
+        SprQuotationQuantity.valueProperty().addListener((obs, oldValue, newValue) ->{
                     newNumber=newValue;
                     if(newNumber!=oldNumber){
-                        ChangesNumberButton.setDisable(false);
+                        BtnQuotationChanges.setDisable(false);
                     }else{
-                        ChangesNumberButton.setDisable(true);
+                        BtnQuotationChanges.setDisable(true);
                     }
-                    SprNewNumber.getEditor().setText(Double.toString(newNumber));
+                    SprQuotationQuantity.getEditor().setText(Double.toString(newNumber));
                 }
         );
-        SprNewNumber.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue.matches("-?\\d+(\\.\\d)?")){
-                newNumber=Double.parseDouble(newValue);
-
-                if(newNumber!=oldNumber&&newNumber>=0){
-                    ChangesNumberButton.setDisable(false);
-                }else{
-                    ChangesNumberButton.setDisable(true);
+        SprQuotationQuantity.getEditor().textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue == null) {
+                    return ;
+                }
+                try {
+                    newNumber = Integer.parseInt(newValue);
+                    if(newNumber!=oldNumber&&newNumber>=0){
+                        BtnQuotationChanges.setDisable(false);
+                    }else{
+                        BtnQuotationChanges.setDisable(true);
+                    }
+                } catch (NumberFormatException nfe) {
+                    return ;
                 }
             }
         });
     }
 
     private void updateTotal(){
-        bruttoTotal=0;
+        grossTotal=0;
         for(Item item: itemData){
-            bruttoTotal=bruttoTotal+ item.getTotalSellingPriceDouble();
+            grossTotal=grossTotal+ item.getTotalSellingPriceDouble();
         }
-        netoTotal = bruttoTotal*percent;
-        totalWithvat=netoTotal*1.15;
-        LblTotal.setText("Totale: R"+String.format("%.2f", totalWithvat));
+        VAT=grossTotal*0.15;
+        total=grossTotal+VAT;
+        LblGrossTotal.setText("Gross Total: R"+String.format("%.2f", grossTotal));
+        LblTotal.setText("Total: R"+String.format("%.2f", total));
+        LblVAT.setText("VAT: R"+String.format("%.2f", VAT));
     }
 
     public void setMainController(MainController mainController) {
@@ -255,44 +296,47 @@ public class InvoiceController implements Initializable {
     }
 
     @FXML
-    private void removeItemFromInvoice(ActionEvent event){
-        List<Item> items = TVInvoiceTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+    private void ChangesQuotation(ActionEvent event) {
+        QuotationPopUp.setVisible(false);
+        Item selectedItem = TVQuotationTable.getSelectionModel().getSelectedItem();
+        if(newNumber==0)
+            remove(selectedItem);
+        selectedItem.setQuantity(newNumber);
+        updateTotal();
+    }
+
+    @FXML
+    private void changesCosting(ActionEvent event){
+
+    }
+
+    @FXML
+    private void CloseCostingPopUp(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void CloseQuotationPopUp(ActionEvent event) {
+        QuotationPopUp.setVisible(false);
+    }
+
+    @FXML
+    private void clearItems(ActionEvent event) {
+        clearTables();
+    }
+
+    @FXML
+    private void printTable(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void removeItem(ActionEvent event) {
+        List<Item> items = TVQuotationTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
         for (Item item: items) {
             remove(item);
         }
     }
 
-    @FXML
-    private void clearInvoice(ActionEvent event){
-        clearInvoice();
-    }
-
-    @FXML
-    private void printInvoice(ActionEvent event){
-
-    }
-
-    @FXML
-    private void ChangesNumber(ActionEvent event) {
-        ChangesNumberOfItems.setVisible(false);
-        Item selectedItem = TVInvoiceTable.getSelectionModel().getSelectedItem();
-        if(newNumber==0)
-            remove(selectedItem);
-        else {
-            double totalChanges =newNumber-oldNumber;
-            if (totalChanges>0){
-                selectedItem.addQuantity(totalChanges);
-            }else if(totalChanges<0){
-                totalChanges=-1*totalChanges;
-                selectedItem.removeQuantity(totalChanges);
-            }
-        }
-        updateTotal();
-    }
-
-    @FXML
-    private void ClosePopUp(ActionEvent event) {
-        ChangesNumberOfItems.setVisible(false);
-    }
 
 }

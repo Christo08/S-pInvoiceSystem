@@ -33,8 +33,6 @@
                 <TabPane prefHeight="320.0" prefWidth="780.0" tabClosingPolicy="UNAVAILABLE">
                   <tabs>
                     <Tab text="Untitled Tab 1">
-                      <content>
-                      </content>
                         <content>
                            <fx:include fx:id="tab1"  source="Tab1.fxml" />
                         </content>
@@ -54,7 +52,7 @@
             </Pane>
             <Pane>
                <children>
-                  <fx:include fx:id="invoice" source="Invoice.fxml" />
+                  <fx:include fx:id="invoice" source="Quotation.fxml" />
                </children>
             </Pane>
         </items>

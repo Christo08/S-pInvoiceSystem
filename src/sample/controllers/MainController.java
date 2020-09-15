@@ -63,7 +63,6 @@ public class MainController implements Initializable {
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
     }
-
     private void Open(){
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file != null) {
@@ -71,7 +70,7 @@ public class MainController implements Initializable {
             System.out.println("Opened file "+activeFileName);
 
             try {
-                invoiceController.clearInvoice();
+                invoiceController.clearTables();
 
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -138,14 +137,16 @@ public class MainController implements Initializable {
                 }
             });
             System.out.println("Quit application");
+        }else {
+            System.out.println("Quit application");
         }
     }
 
-    public void addToInvoice(Item newItem, double quantity){
+    public void addToInvoice(Item newItem, int quantity){
         invoiceController.add(newItem,quantity);
     }
 
-    public void addToInvoice(List<Item> newItems, List<Double> quantities){
+    public void addToInvoice(List<Item> newItems, List<Integer> quantities){
         int counter=0;
         for (Item newItem: newItems) {
             invoiceController.add(newItem, quantities.get(counter));
