@@ -1,61 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-
-<VBox prefHeight="666.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.MainController">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-                  <MenuItem mnemonicParsing="false" text="Improt data" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="menuItemOpen" mnemonicParsing="false" text="Open…" />
-            <MenuItem fx:id="menuItemSave" mnemonicParsing="false" text="Save" />
-            <MenuItem fx:id="menuItemSaveAs" mnemonicParsing="false" text="Save as ..." />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="menuItemQuit" mnemonicParsing="false" text="Quit" />
-          </items>
-        </Menu>
-      </menus>
-    </MenuBar>
-      <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="641.0" prefWidth="780.0">
-        <items>
-            <Pane>
-                <TabPane prefHeight="320.0" prefWidth="780.0" tabClosingPolicy="UNAVAILABLE">
-                  <tabs>
-                    <Tab text="Untitled Tab 1">
-                        <content>
-                           <fx:include fx:id="tab1"  source="Tab1.fxml" />
-                        </content>
-                    </Tab>
-                    <Tab text="Untitled Tab 2">
-                      <content>
-                          <fx:include source="Tab2.fxml" />
-                      </content>
-                    </Tab>
-                    <Tab text="Untitled Tab 3">
-                        <content>
-                            <fx:include source="Tab3.fxml" />
-                        </content>
-                      </Tab>
-                  </tabs>
-                </TabPane>
-            </Pane>
-            <Pane>
-               <children>
-                  <fx:include fx:id="invoice" source="Quotation.fxml" />
-               </children>
-            </Pane>
-        </items>
-      </SplitPane>
-  </children>
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="666.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171"
+      fx:controller="sample.controllers.MainController">
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Improt data"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="menuItemOpen" mnemonicParsing="false" text="Open…"/>
+                        <MenuItem fx:id="menuItemSave" mnemonicParsing="false" text="Save"/>
+                        <MenuItem fx:id="menuItemSaveAs" mnemonicParsing="false" text="Save as ..."/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="menuItemQuit" mnemonicParsing="false" text="Quit"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="641.0" prefWidth="780.0">
+            <items>
+                <Pane>
+                    <TabPane prefHeight="320.0" prefWidth="780.0" tabClosingPolicy="UNAVAILABLE">
+                        <tabs>
+                            <Tab text="Category C">
+                                <content>
+                                    <fx:include fx:id="tabC" source="TabC.fxml"/>
+                                </content>
+                            </Tab>
+                            <Tab text="Category F-H">
+                                <content>
+                                    <fx:include source="TabFH.fxml"/>
+                                </content>
+                            </Tab>
+                            <Tab text="Category M-S">
+                                <content>
+                                    <fx:include source="TabMS.fxml"/>
+                                </content>
+                            </Tab>
+                        </tabs>
+                    </TabPane>
+                </Pane>
+                <Pane>
+                    <children>
+                        <fx:include fx:id="invoice" source="Sheets.fxml"/>
+                    </children>
+                </Pane>
+            </items>
+        </SplitPane>
+    </children>
 </VBox>

@@ -3,6 +3,8 @@ package sample.dataReader;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.util.Objects;
+
 public class Item {
     private final StringProperty stockCode;
     private final StringProperty description;
@@ -21,11 +23,27 @@ public class Item {
     private double totalCostPriceDouble;
     private double totalSellingPriceDouble;
 
+    public  Item(Item originalItem){
+        this(originalItem.getStockCode(),originalItem.getDescription(),originalItem.getUnit(), originalItem.getProfitPercentDouble(), originalItem.getCostPriceDouble());
+    }
+
+    public Item(String stockCode, String description, String unit,  double costPrice) {
+        this(stockCode, description, 0, unit,  costPrice);
+    }
+
+    public Item(String stockCode, String description, String unit, double profitPercent,  double costPrice) {
+        this(stockCode, description, 0, unit,profitPercent,  costPrice);
+    }
+
+    public Item(String stockCode, String description, int quantity, String unit,  double costPrice) {
+        this(stockCode, description, quantity, unit, 25, costPrice);
+    }
+
     public Item(String stockCode, String description, int quantity, String unit, double profitPercent, double costPrice) {
         this.quantityInt=quantity;
         this.profitPercentDouble=profitPercent;
         this.costPriceDouble=costPrice;
-        this.sellingPriceDouble=this.costPriceDouble*(1+this.profitPercentDouble/100);
+        this.sellingPriceDouble=(this.costPriceDouble/(100-this.profitPercentDouble))*100;
         this.totalCostPriceDouble=this.costPriceDouble*this.quantityInt;
         this.totalSellingPriceDouble=this.sellingPriceDouble*this.quantityInt;
 
@@ -167,6 +185,23 @@ public class Item {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return Double.compare(item.profitPercentDouble, profitPercentDouble) == 0 &&
+                Double.compare(item.costPriceDouble, costPriceDouble) == 0 &&
+                Objects.equals(stockCode, item.stockCode) &&
+                Objects.equals(description, item.description) &&
+                Objects.equals(unit, item.unit);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stockCode, description, unit, profitPercentDouble, costPriceDouble);
+    }
+
+    @Override
     public String toString() {
         return "Item{" +
                 "stockCode=" + getStockCode() +
@@ -188,7 +223,7 @@ public class Item {
     }
 
     private void recalculateTotals() {
-        this.sellingPriceDouble=this.costPriceDouble*(1+this.profitPercentDouble/100);
+        this.sellingPriceDouble=(this.costPriceDouble/(100-this.profitPercentDouble))*100;
         this.totalCostPriceDouble=this.costPriceDouble*this.quantityInt;
         this.totalSellingPriceDouble=this.sellingPriceDouble*this.quantityInt;
         this.sellingPrice.set(String.format("%.2f", this.sellingPriceDouble));

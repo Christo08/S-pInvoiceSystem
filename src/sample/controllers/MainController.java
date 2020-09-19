@@ -1,8 +1,6 @@
 package sample.controllers;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -38,7 +36,7 @@ public class MainController implements Initializable {
     private InvoiceController invoiceController;
 
     @FXML
-    private Tab1Controller tab1Controller;
+    private TabCController tabCController;
 
     @FXML
     private MenuItem menuItemOpen;
@@ -155,12 +153,16 @@ public class MainController implements Initializable {
     }
 
     public void addToTab(Item item){
-        tab1Controller.add(item);
+        tabCController.add(item);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        tab1Controller.setMainController(this);
+        tabCController.setMainController(this);
         invoiceController.setMainController(this);
+    }
+
+    public void clearSheets() {
+        invoiceController.clearTables();
     }
 }
