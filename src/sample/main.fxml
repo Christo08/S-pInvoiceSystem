@@ -24,25 +24,9 @@
         <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="641.0" prefWidth="780.0">
             <items>
                 <Pane>
-                    <TabPane prefHeight="320.0" prefWidth="780.0" tabClosingPolicy="UNAVAILABLE">
-                        <tabs>
-                            <Tab text="Category C">
-                                <content>
-                                    <fx:include fx:id="tabC" source="TabC.fxml"/>
-                                </content>
-                            </Tab>
-                            <Tab text="Category F-H">
-                                <content>
-                                    <fx:include source="TabFH.fxml"/>
-                                </content>
-                            </Tab>
-                            <Tab text="Category M-S">
-                                <content>
-                                    <fx:include source="TabMS.fxml"/>
-                                </content>
-                            </Tab>
-                        </tabs>
-                    </TabPane>
+                    <children>
+                        <fx:include fx:id="categories" source="Categories.fxml"/>
+                    </children>
                 </Pane>
                 <Pane>
                     <children>
