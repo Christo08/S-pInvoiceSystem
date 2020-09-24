@@ -19,11 +19,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.net.URL;
-import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
@@ -44,6 +41,9 @@ public class MainController implements Initializable {
     private TabCController tabCController;
 
     @FXML
+    private MenuItem menuItemImport;
+
+    @FXML
     private MenuItem menuItemOpen;
 
     @FXML
@@ -61,11 +61,61 @@ public class MainController implements Initializable {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
         fileChooser.getExtensionFilters().add(extFilter);
 
+        menuItemImport.setOnAction((event) -> ImportData());
         menuItemOpen.setOnAction((event) -> Open());
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
     }
+
+    private void addTab(String catagory, List<Item> items){
+        System.out.println("Catagory: " + catagory);
+        for (Item item: items) {
+            System.out.println(item.toString());
+        }
+    }
+
+    private void ImportData(){
+        File file = fileChooser.showOpenDialog(primaryStage);
+        if (file.exists()) {
+            try {
+                XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                XSSFRow row;
+
+
+                int rows = sheet.getPhysicalNumberOfRows();
+                List<Item> items = new ArrayList<>();
+                String currentCategory = sheet.getRow(5).getCell(0).toString();
+                for(int r = 6; r < rows - 1; r++) {
+                    row = sheet.getRow(r);
+                    if(row != null) {
+                        String code = row.getCell(0).toString();
+
+                        if(code.toLowerCase().contains("category"))
+                        {
+                            addTab(currentCategory, items);
+                            currentCategory = code;
+                            items = new ArrayList<>();
+                        }
+                        else{
+                            String description = row.getCell(1).toString();
+                            String unit = row.getCell(2).toString();
+                            double costPrice = Double.parseDouble(row.getCell(3).toString());
+                            items.add(new Item(code, description, unit, costPrice));
+                        }
+
+                    }
+                }
+                addTab(currentCategory, items);
+                items = null;
+
+            } catch(Exception ioe) {
+                ioe.printStackTrace();
+            }
+        }
+    }
+
     private void Open(){
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file.exists()) {
@@ -88,6 +138,7 @@ public class MainController implements Initializable {
                         double quantity = Double.parseDouble(row.getCell(2).toString());
                         String unit = row.getCell(3).toString();
                         double sellingPrice = Double.parseDouble(row.getCell(4).toString());
+                        //TODO: Add correct items to invoice table
                         //addToInvoice(new Item(name, numberOfItems, units, price));
                     }
                 }
@@ -131,7 +182,8 @@ public class MainController implements Initializable {
             XSSFWorkbook  workbook = new XSSFWorkbook();
             XSSFSheet sheet = workbook.createSheet();
             addHeadingRowToSheet(sheet);
-            addItemsToSheet(sheet, invoiceController.getInvoiceItems());
+            // TODO: Fix this call
+            //addItemsToSheet(sheet, invoiceController.getInvoiceItems());
             workbook.write(new FileOutputStream(file));
         } catch(Exception ioe) {
             ioe.printStackTrace();
@@ -195,13 +247,14 @@ public class MainController implements Initializable {
         XSSFRow row;
         for(int i = 0; i < items.size(); i++)
         {
-            row = sheet.createRow(i+1);
-            row.createCell(0).setCellValue(items.get(i).getStockCode());
-            row.createCell(1).setCellValue(items.get(i).getDescription());
-            row.createCell(2).setCellValue(items.get(i).getSellingQuantityDouble());
-            row.createCell(3).setCellValue(items.get(i).getUnit());
-            row.createCell(4).setCellValue(items.get(i).getSellingPriceDouble());
-            row.createCell(5).setCellValue(items.get(i).getTotalSellingPriceDouble());
+             //TODO: Add correct items
+//            row = sheet.createRow(i+1);
+//            row.createCell(0).setCellValue(items.get(i).getStockCode());
+//            row.createCell(1).setCellValue(items.get(i).getDescription());
+//            row.createCell(2).setCellValue(items.get(i).getSellingQuantityDouble());
+//            row.createCell(3).setCellValue(items.get(i).getUnit());
+//            row.createCell(4).setCellValue(items.get(i).getSellingPriceDouble());
+//            row.createCell(5).setCellValue(items.get(i).getTotalSellingPriceDouble());
         }
     }
 
