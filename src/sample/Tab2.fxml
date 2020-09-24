@@ -31,7 +31,7 @@
                         <TableColumn editable="false" prefWidth="110.0" text="Description" />
                         <TableColumn editable="false" prefWidth="88.0" text="Quantity" />
                         <TableColumn editable="false" prefWidth="61.0" text="Unit" />
-                        <TableColumn editable="false" prefWidth="111.0" text="Cost Price (R)" />
+                        <TableColumn editable="false" prefWidth="111.0" text="Selling Price (R)" />
                         <TableColumn editable="false" prefWidth="121.0" text="Total Price (R)" />
                     </columns>
                 </TableView>

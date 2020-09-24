@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.25" layoutX="5.0" layoutY="3.0" prefHeight="320.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.Tab1Controller">
+<SplitPane dividerPositions="0.25" layoutX="5.0" layoutY="3.0" prefHeight="320.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.TabCController">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="195.0">
             <children>
@@ -21,6 +21,7 @@
                     </font>
                 </Label>
                 <Button fx:id="BtnAddToInvoice" disable="true" layoutX="42.0" layoutY="78.0" mnemonicParsing="false" onAction="#moveItemToInvoice" prefHeight="35.0" prefWidth="114.0" text="Add To Invoice" wrapText="true" />
+            <Button fx:id="BtnResetItems" disable="true" layoutX="39.0" layoutY="142.0" mnemonicParsing="false" onAction="#resetItems" prefHeight="35.0" prefWidth="114.0" text="Reset items" wrapText="true" />
             </children>
         </AnchorPane>
         <ScrollPane fitToWidth="true" prefHeight="200.0">
