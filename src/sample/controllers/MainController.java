@@ -1,8 +1,6 @@
 package sample.controllers;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -37,7 +35,13 @@ public class MainController implements Initializable {
     private SplitPane invoice;
 
     @FXML
+    private SplitPane tad1;
+
+    @FXML
     private InvoiceController invoiceController;
+
+    @FXML
+    private TabCController tabCController;
 
     @FXML
     private MenuItem menuItemOpen;
@@ -62,14 +66,13 @@ public class MainController implements Initializable {
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
     }
-
     private void Open(){
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file.exists()) {
             try {
                 activeFilePath = file.getAbsolutePath();
                 System.out.println("Opened file " + activeFilePath);
-                invoiceController.clearInvoice();
+                invoiceController.clearTables();
 
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -163,13 +166,15 @@ public class MainController implements Initializable {
         });
     }
 
-    public void addToInvoice(Item newItem){
-        invoiceController.add(newItem);
+    public void addToInvoice(Item newItem, int quantity){
+        invoiceController.add(newItem,quantity);
     }
 
-    public void addToInvoice(List<Item> newItems){
+    public void addToInvoice(List<Item> newItems, List<Integer> quantities){
+        int counter=0;
         for (Item newItem: newItems) {
-            invoiceController.add(newItem);
+            invoiceController.add(newItem, quantities.get(counter));
+            counter++;
         }
     }
 
@@ -205,7 +210,17 @@ public class MainController implements Initializable {
         System.exit(0);
     }
 
+    public void addToTab(Item item){
+        tabCController.add(item);
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tabCController.setMainController(this);
+        invoiceController.setMainController(this);
+    }
+
+    public void clearSheets() {
+        invoiceController.clearTables();
     }
 }
