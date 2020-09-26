@@ -108,7 +108,6 @@ public class QuotationController implements Initializable {
                 SprQuotationQuantity.getValueFactory().setValue(selectItem.getQuantityInt());
             }
         });
-
     }
 
     private void initializeSpinners() {

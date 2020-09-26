@@ -47,6 +47,10 @@ public class Item {
         this.totalCostPriceDouble=this.costPriceDouble*this.quantityInt;
         this.totalSellingPriceDouble=this.sellingPriceDouble*this.quantityInt;
 
+        if(unit.equalsIgnoreCase("mete")){
+            unit="m";
+        }
+
         this.stockCode = new SimpleStringProperty(stockCode);
         this.description = new SimpleStringProperty(description);
         this.quantity = new SimpleStringProperty(Integer.toString(this.quantityInt));

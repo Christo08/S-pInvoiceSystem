@@ -81,15 +81,10 @@ public class InvoiceController implements Initializable {
             BtnClear.setDisable(true);
             BtnPrint.setDisable(true);
         }
-        mainController.addToTab(selectedItem);
         updateTotal();
     }
 
     public void clearTables() {
-        for (Item item : itemData) {
-            item.setQuantity(0);
-            mainController.addToTab(item);
-        }
         itemData.clear();
         TxtSearch.setDisable(true);
         BtnRemove.setDisable(true);

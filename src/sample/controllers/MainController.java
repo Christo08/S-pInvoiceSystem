@@ -38,7 +38,7 @@ public class MainController implements Initializable {
     private InvoiceController invoiceController;
 
     @FXML
-    private TabCController tabCController;
+    private CategoriesController categoriesController;
 
     @FXML
     private MenuItem menuItemImport;
@@ -69,14 +69,11 @@ public class MainController implements Initializable {
     }
 
     private void addTab(String catagory, List<Item> items){
-        System.out.println("Catagory: " + catagory);
-        for (Item item: items) {
-            System.out.println(item.toString());
-        }
+        categoriesController.addTab(catagory.subSequence(26,catagory.length()-1).toString(),items);
     }
 
     private void ImportData(){
-        File file = fileChooser.showOpenDialog(primaryStage);
+        File file = new File("C:\\Users\\Chris\\OneDrive\\Work\\SP\\Invoice\\src\\Data.xlsx");//fileChooser.showOpenDialog(primaryStage);
         if (file.exists()) {
             try {
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
@@ -263,14 +260,12 @@ public class MainController implements Initializable {
         System.exit(0);
     }
 
-    public void addToTab(Item item){
-        tabCController.add(item);
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        tabCController.setMainController(this);
+        categoriesController.setMainController(this);
         invoiceController.setMainController(this);
+        ImportData();
     }
 
     public void clearSheets() {
