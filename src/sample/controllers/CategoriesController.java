@@ -7,10 +7,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import sample.dataReader.Item;
+import sample.data.Item;
 
 import java.net.URL;
 import java.util.ArrayList;

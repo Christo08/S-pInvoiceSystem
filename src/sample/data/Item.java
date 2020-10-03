@@ -1,4 +1,4 @@
-package sample.dataReader;
+package sample.data;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
