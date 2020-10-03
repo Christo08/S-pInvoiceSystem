@@ -7,9 +7,9 @@ import javafx.stage.Stage;
 import javafx.fxml.Initializable;
 import sample.PdfHandler;
 import sample.dataReader.Item;
+import sample.data.Item;
 import javafx.application.Platform;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -17,9 +17,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.net.URL;
 
@@ -58,6 +56,8 @@ public class MainController implements Initializable {
     @FXML
     private MenuItem menuItemQuit;
 
+    private SettingsFileController settingsFileController;
+
     public void setStage(Stage stage) throws Exception{
         primaryStage = stage;
         menuItemImport.setOnAction((event) -> ImportData());
@@ -83,7 +83,7 @@ public class MainController implements Initializable {
 
     private void ImportData(){
         setExcelExtentionFilter();
-        File file = new File("D:\\Users\\Jeandre Botha\\Documents\\Data.xlsx");//fileChooser.showOpenDialog(primaryStage);
+        File file = fileChooser.showOpenDialog(primaryStage);
         if (file.exists()) {
             try {
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
@@ -233,12 +233,11 @@ public class MainController implements Initializable {
         System.exit(0);
     }
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
-        ImportData();
+        settingsFileController = new SettingsFileController();
     }
 
     public void clearSheets() {

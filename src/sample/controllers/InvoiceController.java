@@ -10,7 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import sample.dataReader.Item;
+import sample.data.Item;
 
 import java.net.URL;
 import java.util.List;

@@ -1,39 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="666.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.171"
-      fx:controller="sample.controllers.MainController">
-    <children>
-        <MenuBar VBox.vgrow="NEVER">
-            <menus>
-                <Menu mnemonicParsing="false" text="File">
-                    <items>
-                        <MenuItem fx:id="menuItemImport" mnemonicParsing="false" text="Improt data"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem fx:id="menuItemOpen" mnemonicParsing="false" text="Open…"/>
-                        <MenuItem fx:id="menuItemSave" mnemonicParsing="false" text="Save"/>
-                        <MenuItem fx:id="menuItemSaveAs" mnemonicParsing="false" text="Save as ..."/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem fx:id="menuItemQuit" mnemonicParsing="false" text="Quit"/>
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="641.0" prefWidth="780.0">
-            <items>
-                <Pane>
-                    <children>
-                        <fx:include fx:id="categories" source="Categories.fxml"/>
-                    </children>
-                </Pane>
-                <Pane>
-                    <children>
-                        <fx:include fx:id="invoice" source="Sheets.fxml"/>
-                    </children>
-                </Pane>
-            </items>
-        </SplitPane>
-    </children>
-</VBox>
+
+
+<StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.MainController">
+   <children>
+      <VBox prefHeight="666.0" prefWidth="780.0">
+          <children>
+              <MenuBar VBox.vgrow="NEVER">
+                  <menus>
+                      <Menu mnemonicParsing="false" text="File">
+                          <items>
+                              <MenuItem fx:id="menuItemImport" mnemonicParsing="false" text="Improt data" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="menuItemOpen" mnemonicParsing="false" text="Open…" />
+                              <MenuItem fx:id="menuItemSave" mnemonicParsing="false" text="Save" />
+                              <MenuItem fx:id="menuItemSaveAs" mnemonicParsing="false" text="Save as ..." />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Settings" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="menuItemQuit" mnemonicParsing="false" text="Quit" />
+                          </items>
+                      </Menu>
+                  </menus>
+              </MenuBar>
+            <StackPane focusTraversable="true">
+               <children>
+                    <SplitPane dividerPositions="0.5" focusTraversable="false" orientation="VERTICAL" prefHeight="641.0" prefWidth="780.0">
+                        <items>
+                            <Pane>
+                                <children>
+                                    <fx:include fx:id="categories" source="Categories.fxml" />
+                                </children>
+                            </Pane>
+                            <Pane>
+                                <children>
+                                    <fx:include fx:id="invoice" source="Sheets.fxml" />
+                                </children>
+                            </Pane>
+                        </items>
+                    </SplitPane>
+                  <AnchorPane disable="true" prefHeight="200.0" prefWidth="200.0" visible="false">
+                     <children>
+                        <fx:include source="Settings.fxml" StackPane.alignment="CENTER" />
+                     </children>
+                  </AnchorPane>
+               </children>
+            </StackPane>
+          </children>
+      </VBox>
+   </children>
+</StackPane>

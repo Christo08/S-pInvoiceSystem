@@ -1,12 +1,10 @@
 package sample.controllers;
 
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
-import sample.dataReader.Item;
+import sample.data.Item;
 
 import java.util.ArrayList;
 import java.util.List;

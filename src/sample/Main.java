@@ -17,7 +17,7 @@ public class Main extends Application {
         MainController mainController = (MainController)loader.getController();
         mainController.setStage(primaryStage);
         primaryStage.setTitle("Invoice");
-        primaryStage.getIcons().add(new Image("Logo.PNG"));
+        primaryStage.getIcons().add(new Image("sample/resource/Logo.PNG"));
         primaryStage.setScene(new Scene(root, 780, 666));
         primaryStage.setResizable(false);
         primaryStage.show();

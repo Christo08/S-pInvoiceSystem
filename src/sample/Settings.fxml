@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: 0;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.SettingsController">
+    <top>
+        <Label text="Settings" BorderPane.alignment="CENTER">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
+    </top>
+    <center>
+        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab fx:id="UsersTab" text="Users">
+                    <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                            <top>
+                                <Label text="Users:" BorderPane.alignment="CENTER">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Label>
+                            </top>
+                            <left>
+                                <ListView fx:id="LVUsersList" onMouseClicked="#populateData" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                            </left>
+                            <center>
+                                <GridPane BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label text="Name:" />
+                                        <TextField fx:id="TxtNameInput" GridPane.columnIndex="1" />
+                                        <Label text="Surname:" GridPane.rowIndex="1" />
+                                        <TextField fx:id="TxtSurnameInput" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Phone Number:" GridPane.rowIndex="2" />
+                                        <TextField fx:id="TxtNumberInput" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Email:" GridPane.rowIndex="3" />
+                                        <TextField fx:id="TxtEmailInput" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5">
+                                            <children>
+                                                <Button fx:id="BtnAddUsers" disable="true" mnemonicParsing="false" onAction="#addNewUser" text="Add" />
+                                                <Button fx:id="BtnChangesUser" disable="true" mnemonicParsing="false" onAction="#changesUsers" text="Changes" />
+                                                <Button fx:id="BtnRemoveUser" disable="true" mnemonicParsing="false" onAction="#removeUser" text="Remove" />
+                                            </children>
+                                        </HBox>
+                                        <CheckBox fx:id="CheckMakeMainUsers" mnemonicParsing="false" text="I am this user" GridPane.columnSpan="2147483647" GridPane.rowIndex="4" />
+                                    </children>
+                                </GridPane>
+                            </center>
+                        </BorderPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="PDFTab" text="PDF Layout">
+                    <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                            <top>
+                                <Label text="PDF Layout:" BorderPane.alignment="CENTER">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Label>
+                            </top>
+                            <center>
+                                <GridPane BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label text="Company and User info position:" />
+                                        <ComboBox fx:id="CbxUserInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" />
+                                        <Label text="Costing sheet position:" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="CbxCostingSheetPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Quotation position: " GridPane.rowIndex="2" />
+                                        <ComboBox fx:id="CbxQuotationPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Text position:" GridPane.rowIndex="3" />
+                                        <ComboBox fx:id="CbxTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Text:" GridPane.rowIndex="4" />
+                                        <TextArea fx:id="TxtAreaTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    </children>
+                                </GridPane>
+                            </center>
+                        </BorderPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="PathsTab" text="Paths">
+                    <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                            <top>
+                                <Label text="Default Paths:" BorderPane.alignment="CENTER">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Label>
+                            </top>
+                            <center>
+                                <GridPane BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label text="Import on start up:" />
+                                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <RadioButton fx:id="RBtnImportStartUpYes" mnemonicParsing="false" onAction="#enableImportPathTextField" selected="true" text="Yes">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="importOnStartUp" />
+                                       </toggleGroup>
+                                    </RadioButton>
+                                                <RadioButton fx:id="RBtnImportStartUpNo" mnemonicParsing="false" onAction="#disableImportPathTextField" text="No" toggleGroup="$importOnStartUp" />
+                                            </children>
+                                        </HBox>
+                                        <Label text="Import path:" GridPane.rowIndex="1" />
+                                        <TextField fx:id="TxtImportURL" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Export path:" GridPane.rowIndex="2" />
+                                        <TextField fx:id="TxtExportURL" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    </children>
+                                </GridPane>
+                            </center>
+                        </BorderPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </padding>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" prefHeight="36.0" prefWidth="580.0" spacing="10.0" BorderPane.alignment="BOTTOM_RIGHT">
+            <children>
+                <Button mnemonicParsing="false" prefWidth="75.0" text="Ok" />
+                <Button mnemonicParsing="false" prefWidth="75.0" text="Cancel" />
+                <Button disable="true" mnemonicParsing="false" prefWidth="75.0" text="Apply" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
