@@ -40,6 +40,15 @@ public class User {
                 '}';
     }
 
+    public String pdfString(){
+        return  name+" "+surname+"\n"+
+                number+"\n"+
+                email+"\n"+
+                "www.sppowerunits.co.za\n"+
+                "1121 Steve Biko Road,\n"+
+                "Wonderboom South, 0084";
+    }
+
     public String getName() {
         return name;
     }
