@@ -128,6 +128,7 @@ public class InvoiceController implements Initializable {
         LblVAT.setText("VAT: R" + String.format("%.2f", VAT));
     }
 
+
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }

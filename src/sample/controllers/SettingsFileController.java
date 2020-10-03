@@ -6,7 +6,8 @@ import java.util.*;
 
 public class SettingsFileController {
     String fileName = "settings.txt";
-    String absolutePath = "D:\\Users\\Jeandre Botha\\Documents\\S-pInvoiceSystem\\src\\sample\\resource\\"+fileName;
+    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    String absolutePath = recourcePath+"/"+fileName;
     Map<String,Object> keyValuePair;
     private boolean usersDataHasChanged=false;
     private boolean pdfDataHasChanged=false;

@@ -165,7 +165,7 @@ public class MainController implements Initializable {
         if (activeFilePath != null){
             File file = new File(activeFilePath);
             if (file!= null) {
-                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController);
+                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
                 pdfHandler.save(invoiceController.getItems());
                 System.out.println("File \"" +file.getAbsolutePath()+ "\" saved");
             }
@@ -183,7 +183,7 @@ public class MainController implements Initializable {
         File file = fileChooser.showSaveDialog(primaryStage);
         if (file != null) {
             activeFilePath = file.getAbsolutePath();
-            PdfHandler pdfHandler = new PdfHandler(file, settingsFileController);
+            PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
             pdfHandler.save(invoiceController.getItems());
             System.out.println("File saved as " + file.getAbsolutePath());
         }
