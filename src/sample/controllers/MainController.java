@@ -6,7 +6,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
 import sample.PdfHandler;
-import sample.dataReader.Item;
 import sample.data.Item;
 import javafx.application.Platform;
 
@@ -60,11 +59,13 @@ public class MainController implements Initializable {
 
     public void setStage(Stage stage) throws Exception{
         primaryStage = stage;
-        menuItemImport.setOnAction((event) -> ImportData());
+        menuItemImport.setOnAction((event) -> ImportNewDataBook());
         menuItemOpen.setOnAction((event) -> Open());
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
+        if (settingsFileController.getImportOnStartUp())
+            ImportData(new File(settingsFileController.getImportPath()));
     }
 
     private void setExcelExtentionFilter(){
@@ -81,9 +82,13 @@ public class MainController implements Initializable {
         categoriesController.addTab(catagory.subSequence(26,catagory.length()-1).toString(),items);
     }
 
-    private void ImportData(){
+    private void ImportNewDataBook(){
         setExcelExtentionFilter();
         File file = fileChooser.showOpenDialog(primaryStage);
+        ImportData(file);
+    }
+
+    private void ImportData(File file){
         if (file.exists()) {
             try {
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
@@ -160,7 +165,7 @@ public class MainController implements Initializable {
         if (activeFilePath != null){
             File file = new File(activeFilePath);
             if (file!= null) {
-                PdfHandler pdfHandler = new PdfHandler(file);
+                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController);
                 pdfHandler.save(invoiceController.getItems());
                 System.out.println("File \"" +file.getAbsolutePath()+ "\" saved");
             }
@@ -178,7 +183,7 @@ public class MainController implements Initializable {
         File file = fileChooser.showSaveDialog(primaryStage);
         if (file != null) {
             activeFilePath = file.getAbsolutePath();
-            PdfHandler pdfHandler = new PdfHandler(file);
+            PdfHandler pdfHandler = new PdfHandler(file, settingsFileController);
             pdfHandler.save(invoiceController.getItems());
             System.out.println("File saved as " + file.getAbsolutePath());
         }

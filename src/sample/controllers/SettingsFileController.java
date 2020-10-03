@@ -6,7 +6,7 @@ import java.util.*;
 
 public class SettingsFileController {
     String fileName = "settings.txt";
-    String absolutePath = "C:\\Users\\User\\OneDrive\\Work\\SP\\Invoice\\src\\sample\\resource\\"+fileName;
+    String absolutePath = "D:\\Users\\Jeandre Botha\\Documents\\S-pInvoiceSystem\\src\\sample\\resource\\"+fileName;
     Map<String,Object> keyValuePair;
     private boolean usersDataHasChanged=false;
     private boolean pdfDataHasChanged=false;
@@ -55,6 +55,7 @@ public class SettingsFileController {
         } catch (Exception e) {
             System.out.println(e);
         }
+
     }
 
     public List<Integer> getPDFPositions(){
@@ -66,6 +67,16 @@ public class SettingsFileController {
         defaultValues.add(4);
         defaultValues.add(3);
         return defaultValues;
+    }
+
+    public Map<String,Integer> getPDFPositionMap(){
+        List<Integer> positions = getPDFPositions();
+        Map<String,Integer> positionMap = new HashMap<>();
+        positionMap.put("info", positions.get(0));
+        positionMap.put("costingSheet", positions.get(1));
+        positionMap.put("quotationSheet", positions.get(2));
+        positionMap.put("additionalText", positions.get(3));
+        return positionMap;
     }
 
     public void setPDFPositions(List<Integer> newPositions){
@@ -82,6 +93,18 @@ public class SettingsFileController {
     public void setPDFText(String newPDFText){
         pdfDataHasChanged=true;
         keyValuePair.replace("PDFTab.Data.Text",newPDFText);
+    }
+
+
+    public String getImportPath(){
+        if(keyValuePair.containsKey("PathsTab.Data.Import"))
+            return (String) keyValuePair.get("PathsTab.Data.Import");
+        return "";
+    }
+
+    public void setImportPath(String newPath){
+        keyValuePair.replace("PathsTab.Data.Import",newPath);
+        pathsDataHasChanged=true;
     }
 
     public String getExportPath(){
