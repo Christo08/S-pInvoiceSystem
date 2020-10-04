@@ -1,5 +1,6 @@
 package sample.controllers;
 
+import javafx.stage.Stage;
 import sample.data.User;
 import java.io.*;
 import java.util.*;
@@ -82,6 +83,17 @@ public class SettingsFileController {
     public void setPDFText(String newPDFText){
         pdfDataHasChanged=true;
         keyValuePair.replace("PDFTab.Data.Text",newPDFText);
+    }
+
+    public String getImportPath(){
+        if(keyValuePair.containsKey("PathsTab.Data.Import"))
+            return (String) keyValuePair.get("PathsTab.Data.Import");
+        return "";
+    }
+
+    public void setImportPath(String newPath){
+        keyValuePair.replace("PathsTab.Data.Import",newPath);
+        pathsDataHasChanged=true;
     }
 
     public String getExportPath(){
@@ -178,7 +190,7 @@ public class SettingsFileController {
         return true;
     }
 
-    public boolean isPathsExportImport(){
+    public boolean isPathsImportEnable(){
         if(keyValuePair.containsKey("PathsTab.Enable.Import"))
             return (boolean) keyValuePair.get("PathsTab.Enable.Import");
         return true;
@@ -203,13 +215,13 @@ public class SettingsFileController {
     }
 
     public boolean isUsersTabMakeMainOnlyEnable(){
-        if(keyValuePair.containsKey("UsersTab.Enable.AddButton"))
-            return (boolean) keyValuePair.get("UsersTab.Enable.AddButton");
+        if(keyValuePair.containsKey("UsersTab.Enable.MakeMainOnly"))
+            return (boolean) keyValuePair.get("UsersTab.Enable.MakeMainOnly");
         return false;
     }
 
-    public boolean isUsersTabRemoveButtonEnable(){
-        if(keyValuePair.containsKey("UsersTab.Enable.RemoveButton"))
+    public boolean isUsersTabRemoveButtonEnable() {
+        if (keyValuePair.containsKey("UsersTab.Enable.RemoveButton"))
             return (boolean) keyValuePair.get("UsersTab.Enable.RemoveButton");
         return true;
     }
@@ -262,4 +274,5 @@ public class SettingsFileController {
         outputText.replace("="," = ");
         return outputText;
     }
+
 }

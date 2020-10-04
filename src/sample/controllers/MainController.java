@@ -38,6 +38,9 @@ public class MainController implements Initializable {
     private CategoriesController categoriesController;
 
     @FXML
+    private SettingsController settingsController;
+
+    @FXML
     private MenuItem menuItemImport;
 
     @FXML
@@ -262,9 +265,19 @@ public class MainController implements Initializable {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
         settingsFileController = new SettingsFileController();
+        settingsController.setMainController(this);
+    }
+
+    @FXML
+    void showSettings(){
+        settingsController.showSettings();
     }
 
     public void clearSheets() {
         invoiceController.clearTables();
+    }
+
+    public SettingsFileController getSettingsFileController() {
+        return settingsFileController;
     }
 }
