@@ -19,8 +19,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: 0;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.SettingsController">
+<BorderPane fx:id="BorderPaneSettings" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" visible="false" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.SettingsController">
     <top>
         <Label text="Settings" BorderPane.alignment="CENTER">
             <font>
@@ -72,6 +71,7 @@
                                                 <Button fx:id="BtnAddUsers" disable="true" mnemonicParsing="false" onAction="#addNewUser" text="Add" />
                                                 <Button fx:id="BtnChangesUser" disable="true" mnemonicParsing="false" onAction="#changesUsers" text="Changes" />
                                                 <Button fx:id="BtnRemoveUser" disable="true" mnemonicParsing="false" onAction="#removeUser" text="Remove" />
+                                    <Button fx:id="BtnResetUser" disable="true" mnemonicParsing="false" onAction="#resetUser" text="Reset" />
                                             </children>
                                         </HBox>
                                         <CheckBox fx:id="CheckMakeMainUsers" mnemonicParsing="false" text="I am this user" GridPane.columnSpan="2147483647" GridPane.rowIndex="4" />
@@ -106,13 +106,13 @@
                                     </rowConstraints>
                                     <children>
                                         <Label text="Company and User info position:" />
-                                        <ComboBox fx:id="CbxUserInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" />
+                                        <ComboBox fx:id="CbxUserInfoPosition" onAction="#errorChecking" prefWidth="150.0" GridPane.columnIndex="1" />
                                         <Label text="Costing sheet position:" GridPane.rowIndex="1" />
-                                        <ComboBox fx:id="CbxCostingSheetPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <ComboBox fx:id="CbxCostingSheetPosition" onAction="#errorChecking" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <Label text="Quotation position: " GridPane.rowIndex="2" />
-                                        <ComboBox fx:id="CbxQuotationPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <ComboBox fx:id="CbxQuotationPosition" onAction="#errorChecking" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                         <Label text="Text position:" GridPane.rowIndex="3" />
-                                        <ComboBox fx:id="CbxTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <ComboBox fx:id="CbxTextPosition" onAction="#errorChecking" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                         <Label text="Text:" GridPane.rowIndex="4" />
                                         <TextArea fx:id="TxtAreaTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                     </children>
@@ -151,7 +151,7 @@
                                           <ToggleGroup fx:id="importOnStartUp" />
                                        </toggleGroup>
                                     </RadioButton>
-                                                <RadioButton fx:id="RBtnImportStartUpNo" mnemonicParsing="false" onAction="#disableImportPathTextField" text="No" toggleGroup="$importOnStartUp" />
+                                                <RadioButton fx:id="RBtnImportStartUpNo" mnemonicParsing="false" onAction="#disableImportPathTextField" selected="true" text="No" toggleGroup="$importOnStartUp" />
                                             </children>
                                         </HBox>
                                         <Label text="Import path:" GridPane.rowIndex="1" />
@@ -173,9 +173,9 @@
     <bottom>
         <HBox alignment="CENTER_RIGHT" prefHeight="36.0" prefWidth="580.0" spacing="10.0" BorderPane.alignment="BOTTOM_RIGHT">
             <children>
-                <Button mnemonicParsing="false" prefWidth="75.0" text="Ok" />
-                <Button mnemonicParsing="false" prefWidth="75.0" text="Cancel" />
-                <Button disable="true" mnemonicParsing="false" prefWidth="75.0" text="Apply" />
+                <Button mnemonicParsing="false" onAction="#closePopUp" prefWidth="75.0" text="Ok" />
+                <Button mnemonicParsing="false" onAction="#closePopUp" prefWidth="75.0" text="Cancel" />
+                <Button fx:id="BtnApply" disable="true" mnemonicParsing="false" onAction="#applyChanges" prefWidth="75.0" text="Apply" />
             </children>
         </HBox>
     </bottom>
