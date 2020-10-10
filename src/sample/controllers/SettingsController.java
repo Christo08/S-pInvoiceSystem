@@ -4,17 +4,16 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import sample.MainController;
 import sample.data.User;
 
 import java.net.URL;
@@ -163,7 +162,7 @@ public class SettingsController implements Initializable {
                 settingsFileController.changesUser(new ArrayList<>(listUser));
             }
             settingsFileController.applyChanges();
-            BtnApply.setDisable(false);
+            BtnApply.setDisable(true);
         }
     }
 

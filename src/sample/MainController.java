@@ -1,10 +1,18 @@
-package sample.controllers;
+package sample;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
+import sample.controllers.CategoriesController;
+import sample.controllers.InvoiceController;
+import sample.controllers.SettingsController;
+import sample.controllers.SettingsFileController;
 import sample.data.Item;
 import javafx.application.Platform;
 
@@ -15,6 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.net.URL;
@@ -36,9 +45,6 @@ public class MainController implements Initializable {
 
     @FXML
     private CategoriesController categoriesController;
-
-    @FXML
-    private SettingsController settingsController;
 
     @FXML
     private MenuItem menuItemImport;
@@ -63,7 +69,7 @@ public class MainController implements Initializable {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
         fileChooser.getExtensionFilters().add(extFilter);
 
-        menuItemImport.setOnAction((event) -> ImportData());
+        menuItemImport.setOnAction((event) -> ImportData(fileChooser.showOpenDialog(primaryStage)));
         menuItemOpen.setOnAction((event) -> Open());
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
@@ -74,8 +80,7 @@ public class MainController implements Initializable {
         categoriesController.addTab(catagory.subSequence(26,catagory.length()-1).toString(),items);
     }
 
-    private void ImportData(){
-        File file = fileChooser.showOpenDialog(primaryStage);
+    private void ImportData(File file){
         if (file.exists()) {
             try {
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
@@ -264,16 +269,25 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
-        settingsController.setMainController(this);
-        settingsFileController = settingsController.getSettingsFileController();
+        settingsFileController = new SettingsFileController();
+        if(settingsFileController.getImportOnStartUp()){
+            File file = new File(settingsFileController.getImportPath());
+            ImportData(file);
+        }
     }
 
     @FXML
-    void showSettings(){
-        settingsController.showSettings();
-        Alert alert = new Alert(Alert.AlertType.NONE);
-        alert.getDialogPane().setContent(settingsController.getMainNode());
-        alert.showAndWait();
+    void showSettings() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Settings.fxml"));
+        Parent parent = fxmlLoader.load();
+        SettingsController dialogController = fxmlLoader.getController();
+        dialogController.setMainController(this);
+
+        Scene scene = new Scene(parent, 600, 400);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(scene);
+        stage.showAndWait();
     }
 
     public void clearSheets() {

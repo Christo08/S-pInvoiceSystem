@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import sample.controllers.MainController;
 
 public class Main extends Application {
 
@@ -18,7 +17,7 @@ public class Main extends Application {
         mainController.setStage(primaryStage);
         primaryStage.setTitle("Invoice");
         primaryStage.getIcons().add(new Image("sample/resource/Logo.PNG"));
-        primaryStage.setScene(new Scene(root, 780, 666));
+        primaryStage.setScene(new Scene(root, 790, 666));
         primaryStage.setResizable(false);
         primaryStage.show();
     }
