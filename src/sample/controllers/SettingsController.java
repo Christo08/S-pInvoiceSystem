@@ -1,14 +1,15 @@
 package sample.controllers;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
@@ -16,11 +17,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.data.User;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class SettingsController implements Initializable {
 
@@ -134,23 +132,73 @@ public class SettingsController implements Initializable {
 
     @FXML
     void applyChanges(ActionEvent event) {
+        if(checkForChanges()){
+            if(changes.get("ChangePDFText")){
+                settingsFileController.setPDFText(TxtAreaTextInput.getText());
+            }
+            if(changes.get("ChangePDFPosition")){
+                List<Integer> positions =new ArrayList();
+                positions.add(positionsToString(CbxUserInfoPosition.getValue()));
+                positions.add(positionsToString(CbxCostingSheetPosition.getValue()));
+                positions.add(positionsToString(CbxQuotationPosition.getValue()));
+                positions.add(positionsToString(CbxTextPosition.getValue()));
+                settingsFileController.setPDFPositions(positions);
+            }
+            if(changes.get("ChangePathsOnStartUp")){
+                settingsFileController.setImportOnStartUp(RBtnImportStartUpYes.isSelected());
+            }
+            if(changes.get("ChangePathsImportPath")){
+                settingsFileController.setImportPath(TxtImportURL.getText());
+            }
+            if(changes.get("ChangePathsExportPath")){
+                settingsFileController.setImportPath(TxtExportURL.getText());
+            }
+            if(changes.get("AddedUser")){
+                settingsFileController.addUser(new ArrayList<>(listUser));
+            }
+            if(changes.get("RemoveUser")){
+                settingsFileController.removeUser(new ArrayList<>(listUser));
+            }
+            if(changes.get("ChangeUserSurname")||changes.get("ChangeUserName")||changes.get("ChangeUserNumber")||changes.get("ChangeUserEmail")||changes.get("ChangeMainUser")){
+                settingsFileController.changesUser(new ArrayList<>(listUser));
+            }
+            settingsFileController.applyChanges();
+            BtnApply.setDisable(false);
+        }
+    }
+
+    private Integer positionsToString(String value) {
+        if(value.equals("1")){
+            return 1;
+        }else if(value.equals("2")){
+            return 2;
+        }else if(value.equals("3")){
+            return 3;
+        }else if(value.equals("4")){
+            return 4;
+        }else{
+            return -1;
+        }
     }
 
     @FXML
     void closePopUp(ActionEvent event) {
-        BorderPaneSettings.setVisible(false);
+        closeStage(event);
     }
 
     @FXML
     void addNewUser(ActionEvent event) {
-        User newUser = new User(TxtNameInput.getText(),TxtSurnameInput.getText(),TxtNumberInput.getText(),Boolean.toString(CheckMakeMainUsers.isSelected()));
+        User newUser = new User(TxtNameInput.getText(),TxtSurnameInput.getText(),TxtNumberInput.getText(),TxtEmailInput.getText(),CheckMakeMainUsers.isSelected());
         for(User oldUser: listUser){
-            if(oldUser.equals(newUser)){
+            if(oldUser.getName().equals(newUser.getName())&&oldUser.getSurname().equals(newUser.getSurname())){
                 System.out.println("error");
                 return;
             }
         }
+        loadedUser=newUser;
         listUser.add(newUser);
+        BtnApply.setDisable(!checkForChanges());
+        changes.put("AddedUser",true);
     }
 
     @FXML
@@ -160,6 +208,8 @@ public class SettingsController implements Initializable {
             loadedUser.setSurname(TxtSurnameInput.getText());
             loadedUser.setNumber(TxtNumberInput.getText());
             loadedUser.setEmail(TxtEmailInput.getText());
+            loadedUser.setMainUser(settingsFileController.isUsersTabChangesButtonEnable());
+            if(loadedUser.isMainUser()==true){}
             int counter=0;
             for (User oldUser:listUser) {
                 if(oldUser.getId().equals(loadedUser.getId()))
@@ -167,6 +217,7 @@ public class SettingsController implements Initializable {
                 counter++;
             }
             listUser.set(counter,loadedUser);
+            BtnApply.setDisable(!checkForChanges());
         }
     }
 
@@ -182,6 +233,7 @@ public class SettingsController implements Initializable {
 
     @FXML
     void populateData(MouseEvent event) {
+        System.out.println(LVUsersList.getSelectionModel().getSelectedItem());
         if(loadedUser!=LVUsersList.getSelectionModel().getSelectedItem()) {
             loadedUser=LVUsersList.getSelectionModel().getSelectedItem();
             TxtNameInput.setText(loadedUser.getName());
@@ -199,53 +251,61 @@ public class SettingsController implements Initializable {
     void removeUser(ActionEvent event) {
         if(loadedUser!=null){
             listUser.remove(loadedUser);
-            BtnApply.setDisable(false);
-            BtnResetUser.setDisable(false);
-            changes.replace("ChangeUserEmail",true);
-            loadedUser=null;
+            changes.replace("RemoveUser",true);
             TxtNameInput.setText("");
             TxtSurnameInput.setText("");
-            TxtEmailInput.setText("");
             TxtNumberInput.setText("");
+            TxtEmailInput.setText("");
             CheckMakeMainUsers.setSelected(false);
-            BtnRemoveUser.setDisable(true);
-            BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
-            BtnChangesUser.setDisable(true);
-            BtnResetUser.setDisable(false);
-            TxtEmailInput.setStyle("");
+            TxtNameInput.setStyle("");
+            TxtSurnameInput.setStyle("");
             TxtNumberInput.setStyle("");
-            changes.replace("RemoveUser",true);
+            TxtEmailInput.setStyle("");
+            BtnApply.setDisable(true);
         }
     }
 
     @FXML
     void resetUser(ActionEvent event){
-        loadedUser=null;
+        changes.put("AddedUser",false);
+        changes.put("RemoveUser",false);
+        changes.put("ChangeUserName",false);
+        changes.put("ChangeUserSurname",false);
+        changes.put("ChangeUserNumber",false);
+        changes.put("ChangeUserEmail",false);
+        changes.put("ChangeMainUser",false);
+
         TxtNameInput.setText("");
         TxtSurnameInput.setText("");
-        TxtEmailInput.setText("");
         TxtNumberInput.setText("");
+        TxtEmailInput.setText("");
         CheckMakeMainUsers.setSelected(false);
-        BtnRemoveUser.setDisable(true);
-        BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
+
+        TxtNameInput.setStyle("");
+        TxtSurnameInput.setStyle("");
+        TxtNumberInput.setStyle("");
+        TxtEmailInput.setStyle("");
+
+        BtnAddUsers.setDisable(true);
         BtnChangesUser.setDisable(true);
-        BtnResetUser.setDisable(true);
-        for(int counter =0; counter<listUser.size();counter++){
-            if (LVUsersList.getSelectionModel().isSelected(counter)){
-                LVUsersList.getSelectionModel().clearSelection(counter);
+        BtnRemoveUser.setDisable(true);
+        BtnApply.setDisable(!checkForChanges());
+
+        listUser = FXCollections.observableArrayList(settingsFileController.getAllUsers());
+        LVUsersList.setItems(listUser);
+
+        for(User user:listUser){
+            if(user.isMainUser()){
+                LVUsersList.scrollTo(user);
+                LVUsersList.getSelectionModel().select(user);
+                TxtNameInput.setText(user.getName());
+                TxtSurnameInput.setText(user.getSurname());
+                TxtNumberInput.setText(user.getNumber());
+                TxtEmailInput.setText(user.getEmail());
+                CheckMakeMainUsers.setSelected(user.isMainUser());
+                break;
             }
         }
-        changes.replace("AddedUser",false);
-        changes.replace("RemoveUser",false);
-        changes.replace("ChangeUserName",false);
-        changes.replace("ChangeUserSurname",false);
-        changes.replace("ChangeUserNumber",false);
-        changes.replace("ChangeUserEmail",false);
-        changes.replace("ChangeMainUser",false);
-        BtnApply.setDisable(!checkForChanges());
-        TxtEmailInput.setStyle("");
-        TxtNumberInput.setStyle("");
-        listUser = FXCollections.observableArrayList(settingsFileController.getAllUsers());
     }
 
     @FXML
@@ -308,7 +368,7 @@ public class SettingsController implements Initializable {
 
     public void setMainController(MainController mainController) {
         this.mainController=mainController;
-        this.settingsFileController = mainController.getSettingsFileController();
+        settingsFileController = new SettingsFileController();
         setUpEnableOrDisableTabs();
         setUpDataInTabs();
     }
@@ -360,7 +420,7 @@ public class SettingsController implements Initializable {
         listUser = FXCollections.observableArrayList(settingsFileController.getAllUsers());
         LVUsersList.setItems(listUser);
         TxtNameInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.isEmpty()&&loadedUser!=null){
+            if (!oldValue.isEmpty()&&loadedUser!=null&&!newValue.isEmpty()){
                 changes.replace("ChangeUserName",false);
                 boolean hasChanged =newValue.equals(loadedUser.getName());
                 if(!checkForChanges()){
@@ -370,10 +430,19 @@ public class SettingsController implements Initializable {
                     BtnChangesUser.setDisable(hasChanged);
                 changes.replace("ChangeUserName",!hasChanged);
             }
+            if(newValue.isEmpty()){
+                TxtNameInput.setStyle("-fx-border-color: red");
+                BtnAddUsers.setDisable(true);
+                BtnChangesUser.setDisable(true);
+            }else{
+                TxtNameInput.setStyle("");
+                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
+                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
+            }
             BtnResetUser.setDisable(false);
         });
         TxtSurnameInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.isEmpty()&&loadedUser!=null){
+            if (!oldValue.isEmpty()&&loadedUser!=null&&newValue.isEmpty()){
                 changes.replace("ChangeUserSurname",false);
                 boolean hasChanged =newValue.equals(loadedUser.getName());
                 if(!checkForChanges()){
@@ -382,6 +451,15 @@ public class SettingsController implements Initializable {
                 if(settingsFileController.isUsersTabChangesButtonEnable())
                     BtnChangesUser.setDisable(hasChanged);
                 changes.replace("ChangeUserSurname",!hasChanged);
+            }
+            if(newValue.isEmpty()){
+                TxtSurnameInput.setStyle("-fx-border-color: red");
+                BtnAddUsers.setDisable(true);
+                BtnChangesUser.setDisable(true);
+            }else{
+                TxtSurnameInput.setStyle("");
+                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
+                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
             }
             BtnResetUser.setDisable(false);
         });
@@ -398,10 +476,14 @@ public class SettingsController implements Initializable {
                         BtnChangesUser.setDisable(hasChanged);
                     changes.replace("ChangeUserSurname",!hasChanged);
                 }
-                BtnResetUser.setDisable(false);
                 TxtNumberInput.setStyle("");
+                BtnResetUser.setDisable(false);
+                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
+                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
             } else {
                 TxtNumberInput.setStyle("-fx-border-color: red");
+                BtnAddUsers.setDisable(true);
+                BtnChangesUser.setDisable(true);
             }
         });
         TxtEmailInput.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -417,10 +499,14 @@ public class SettingsController implements Initializable {
                         BtnChangesUser.setDisable(hasChanged);
                     changes.replace("ChangeUserEmail",!hasChanged);
                 }
-                BtnResetUser.setDisable(false);
                 TxtEmailInput.setStyle("");
+                BtnResetUser.setDisable(false);
+                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
+                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
             } else {
                 TxtEmailInput.setStyle("-fx-border-color: red");
+                BtnAddUsers.setDisable(true);
+                BtnChangesUser.setDisable(true);
             }
         });
         CheckMakeMainUsers.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -432,10 +518,27 @@ public class SettingsController implements Initializable {
                 }
                 if(settingsFileController.isUsersTabChangesButtonEnable())
                     BtnChangesUser.setDisable(hasChanged);
+                for(User user:listUser){
+                    user.setMainUser(false);
+                }
                 changes.replace("ChangeMainUser",!hasChanged);
             }
             BtnResetUser.setDisable(false);
         });
+        for(User user:listUser){
+            if(user.isMainUser()){
+                Platform.runLater(() -> {
+                    LVUsersList.scrollTo(user);
+                    LVUsersList.getSelectionModel().select(user);
+                    TxtNameInput.setText(user.getName());
+                    TxtSurnameInput.setText(user.getSurname());
+                    TxtNumberInput.setText(user.getNumber());
+                    TxtEmailInput.setText(user.getEmail());
+                    CheckMakeMainUsers.setSelected(user.isMainUser());
+                });
+                break;
+            }
+        }
     }
 
     private void setUpDataPaths() {
@@ -551,9 +654,6 @@ public class SettingsController implements Initializable {
                 TxtSurnameInput.setDisable(false);
                 TxtNumberInput.setDisable(false);
                 TxtEmailInput.setDisable(false);
-                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
-               /* BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
-                BtnRemoveUser.setDisable(!settingsFileController.isUsersTabRemoveButtonEnable());*/
             }
         }
     }
@@ -615,5 +715,19 @@ public class SettingsController implements Initializable {
         CbxQuotationPosition.setDisable(true);
         CbxTextPosition.setDisable(true);
         TxtAreaTextInput.setDisable(true);
+    }
+
+    public SettingsFileController getSettingsFileController() {
+        return settingsFileController;
+    }
+
+    public Node getMainNode() {
+        return BorderPaneSettings;
+    }
+
+    private void closeStage(ActionEvent event) {
+        Node  source = (Node)  event.getSource();
+        Stage stage  = (Stage) source.getScene().getWindow();
+        stage.close();
     }
 }

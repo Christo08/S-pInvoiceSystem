@@ -3,12 +3,12 @@ package sample.data;
 import java.util.Objects;
 
 public class User {
-    private String name;
-    private String surname;
-    private String number;
-    private String email;
-    private boolean mainUser;
-    private String id;
+    private String name="";
+    private String surname="";
+    private String number="";
+    private String email="";
+    private boolean mainUser=false;
+    private String id="";
 
     public User(String inputData){
         inputData = inputData.substring(1,inputData.length()-1);
@@ -24,11 +24,12 @@ public class User {
         id=data[5];
     }
 
-    public User( String name, String surname, String number, String email) {
+    public User( String name, String surname, String number, String email, boolean mainUser) {
         this.name = name;
         this.surname = surname;
         this.number = number;
         this.email = email;
+        this.mainUser = mainUser;
     }
 
     @Override
@@ -110,11 +111,14 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return mainUser == user.mainUser &&
-                Objects.equals(name, user.name) &&
-                Objects.equals(surname, user.surname) &&
-                Objects.equals(number, user.number) &&
-                Objects.equals(email, user.email);
+        return id.equals(user.getId());
+    }
+
+    public boolean equals(User users1){
+        if (this == users1) return true;
+        if (users1 == null || getClass() != users1.getClass()) return false;
+        return id.equals(users1.getId())&&name.equals(users1.getName())&&surname.equals(users1.getSurname())&&
+                number.equals(users1.getNumber())&&email.equals(users1.getEmail())&&mainUser==users1.isMainUser();
     }
 
     @Override

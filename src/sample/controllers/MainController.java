@@ -264,13 +264,16 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
-        settingsFileController = new SettingsFileController();
         settingsController.setMainController(this);
+        settingsFileController = settingsController.getSettingsFileController();
     }
 
     @FXML
     void showSettings(){
         settingsController.showSettings();
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        alert.getDialogPane().setContent(settingsController.getMainNode());
+        alert.showAndWait();
     }
 
     public void clearSheets() {
