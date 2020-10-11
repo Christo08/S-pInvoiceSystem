@@ -33,6 +33,8 @@ public class MainController implements Initializable {
     private final FileChooser fileChooser = new FileChooser();
     private Stage primaryStage;
     private String activeFilePath = null;
+    private FileChooser.ExtensionFilter excelExtensionFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
+    private FileChooser.ExtensionFilter pdfExtensionFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
 
     @FXML
     private SplitPane invoice;
@@ -65,19 +67,34 @@ public class MainController implements Initializable {
 
     public void setStage(Stage stage) throws Exception{
         primaryStage = stage;
-        // set fileChooser extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        menuItemImport.setOnAction((event) -> ImportData(fileChooser.showOpenDialog(primaryStage)));
+        menuItemImport.setOnAction((event) -> ImportNewDataBook());
         menuItemOpen.setOnAction((event) -> Open());
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
+        if (settingsFileController.getImportOnStartUp())
+            ImportData(new File(settingsFileController.getImportPath()));
     }
+
+    private void setExcelExtentionFilter(){
+        fileChooser.getExtensionFilters().remove(pdfExtensionFilter);
+        fileChooser.getExtensionFilters().add(excelExtensionFilter);
+    }
+
+    private void setPdfExtentionFilter(){
+        fileChooser.getExtensionFilters().remove(excelExtensionFilter);
+        fileChooser.getExtensionFilters().add(pdfExtensionFilter);
+    }
+
 
     private void addTab(String catagory, List<Item> items){
         categoriesController.addTab(catagory.subSequence(26,catagory.length()-1).toString(),items);
+    }
+
+    private void ImportNewDataBook(){
+        setExcelExtentionFilter();
+        File file = fileChooser.showOpenDialog(primaryStage);
+        ImportData(file);
     }
 
     private void ImportData(File file){
@@ -121,15 +138,16 @@ public class MainController implements Initializable {
     }
 
     private void Open(){
+        setPdfExtentionFilter();
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file.exists()) {
             try {
                 activeFilePath = file.getAbsolutePath();
                 System.out.println("Opened file " + activeFilePath);
                 invoiceController.clearTables();
-
                 PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
                 pdfHandler.load();
+
             } catch(Exception ioe) {
                 ioe.printStackTrace();
             }
@@ -140,7 +158,8 @@ public class MainController implements Initializable {
         if (activeFilePath != null){
             File file = new File(activeFilePath);
             if (file!= null) {
-                SaveWorkbook(file);
+                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
+                pdfHandler.save(invoiceController.getItems());
                 System.out.println("File \"" +file.getAbsolutePath()+ "\" saved");
             }
             else{
@@ -153,28 +172,17 @@ public class MainController implements Initializable {
     }
 
     private void SaveAs(){
+        setPdfExtentionFilter();
         File file = fileChooser.showSaveDialog(primaryStage);
         if (file != null) {
             activeFilePath = file.getAbsolutePath();
-            SaveWorkbook(file);
+            PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
+            pdfHandler.save(invoiceController.getItems());
             System.out.println("File saved as " + file.getAbsolutePath());
         }
         else
         {
             System.out.println("File not found");
-        }
-    }
-
-    private void SaveWorkbook(File file){
-        try {
-            XSSFWorkbook  workbook = new XSSFWorkbook();
-            XSSFSheet sheet = workbook.createSheet();
-            addHeadingRowToSheet(sheet);
-            // TODO: Fix this call
-            //addItemsToSheet(sheet, invoiceController.getInvoiceItems());
-            workbook.write(new FileOutputStream(file));
-        } catch(Exception ioe) {
-            ioe.printStackTrace();
         }
     }
 
@@ -218,32 +226,6 @@ public class MainController implements Initializable {
         }
     }
 
-    private void addHeadingRowToSheet(XSSFSheet sheet){
-        String[] headings = {"Stock Code", "Description", "Quantity", "Unit", "Selling Price (R)", "Total Price (R)"};
-
-        XSSFRow row;
-        row = sheet.createRow(0);
-        for(int c = 0; c < headings.length; c++)
-        {
-            row.createCell(c).setCellValue(headings[c]);
-        }
-    }
-
-    private void addItemsToSheet(XSSFSheet sheet, List<Item> items){
-        XSSFRow row;
-        for(int i = 0; i < items.size(); i++)
-        {
-             //TODO: Add correct items
-//            row = sheet.createRow(i+1);
-//            row.createCell(0).setCellValue(items.get(i).getStockCode());
-//            row.createCell(1).setCellValue(items.get(i).getDescription());
-//            row.createCell(2).setCellValue(items.get(i).getSellingQuantityDouble());
-//            row.createCell(3).setCellValue(items.get(i).getUnit());
-//            row.createCell(4).setCellValue(items.get(i).getSellingPriceDouble());
-//            row.createCell(5).setCellValue(items.get(i).getTotalSellingPriceDouble());
-        }
-    }
-
     private void closeApplication(){
         Platform.exit();
         System.exit(0);
@@ -254,10 +236,6 @@ public class MainController implements Initializable {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
         settingsFileController = new SettingsFileController();
-        if(settingsFileController.getImportOnStartUp()){
-            File file = new File(settingsFileController.getImportPath());
-            ImportData(file);
-        }
     }
 
     @FXML
