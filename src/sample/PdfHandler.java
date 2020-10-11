@@ -9,10 +9,10 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.text.PDFTextStripper;
 import sample.controllers.InvoiceController;
 import sample.controllers.SettingsFileController;
 import sample.data.Item;
-
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PdfHandler {
     private  File pdfFile;
@@ -49,7 +51,94 @@ public class PdfHandler {
 
     public void load()
     {
+        try {
+            try {
+                doc = PDDocument.load(pdfFile);
+                PDFTextStripper pdfStripper = new PDFTextStripper();
+                String text = pdfStripper.getText(doc);
+                String costTableHeading = "Stock Code Description Quantity Unit Profit(%) Cost Price (R) Total Price (R)";
+                String costTableText = text.substring(text.indexOf(costTableHeading) + costTableHeading.length(), text.indexOf("Total:")).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
 
+                Pattern pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
+                Matcher matcher = pattern.matcher(costTableText);
+
+                int prevEndIndex = 0;
+                List<String> costTableRows = new ArrayList<>();
+                while(matcher.find())
+                {
+                    costTableRows.add(costTableText.substring(prevEndIndex, matcher.end()).trim());
+                    prevEndIndex = matcher.end();
+                }
+                List<Item> items = new ArrayList<>();
+                for(String row : costTableRows)
+                {
+                    String stockCode = row.substring(0, row.indexOf(" "));
+                    row = row.replace(stockCode, "");
+                    pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s([\\w\\W]+)\\s([0-9]+\\.[0-9]{2})");
+                    matcher = pattern.matcher(row);
+                    matcher.find();
+                    String description = row.substring(0, matcher.start()).trim();
+                    row = row.replace(description, "");
+                    String[] rowRemains = row.trim().split("\\s");
+                    Integer quantity = Integer.parseInt(rowRemains[0]);
+                    String unit = rowRemains[1];
+                    Double profitPercentage = Double.parseDouble(rowRemains[2]);
+                    Double costPrice = Double.parseDouble(rowRemains[3]);
+//                    Double totalPrice = Double.parseDouble(rowRemains[4]);
+//                    System.out.println("stockCode: " + stockCode);
+//                    System.out.println("description: " + description);
+//                    System.out.println("quantity: " + quantity);
+//                    System.out.println("unit: " + unit);
+//                    System.out.println("profitPercentage: " + profit);
+//                    System.out.println("costPrice: " + costPrice);
+//                    System.out.println("totalPrice: " + totalPrice);
+
+                    items.add(new Item(stockCode, description, quantity, unit, profitPercentage, costPrice));
+                }
+
+                invoiceController.clearTables();
+                for (Item item: items){
+                    invoiceController.add(item);
+                }
+
+//                String quotationTableHeading = "Stock Code Description Quantity Unit Selling Price (R) Total Price (R)";
+//                String quotationTableText = text.substring(text.indexOf(quotationTableHeading) + quotationTableHeading.length(), text.indexOf("Total without Tax:"));
+//
+//                pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
+//                matcher = pattern.matcher(quotationTableText);
+//
+//                prevEndIndex = 0;
+//                List<String> quotationTableRows = new ArrayList<>();
+//                while(matcher.find())
+//                {
+//                    quotationTableRows.add(quotationTableText.substring(prevEndIndex, matcher.end()).trim());
+//                    prevEndIndex = matcher.end();
+//                }
+//
+//                for(String row : quotationTableRows)
+//                {
+//                    String stockCode = row.substring(0, row.indexOf(" "));
+//                    row = row.replace(stockCode, "");
+//                    pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s([\\w\\W]+)\\s([0-9]+\\.[0-9]{2})");
+//                    matcher = pattern.matcher(row);
+//                    matcher.find();
+//                    String description = row.substring(0, matcher.start()).trim();
+//                    row = row.replace(description, "");
+//                    String[] rowRemains = row.trim().split("\\s");
+//                    Double quantity = Double.parseDouble(rowRemains[0]);
+//                    String unit = rowRemains[1];
+//                    Double sellingPrice = Double.parseDouble(rowRemains[2]);
+//                    Double totalPrice = Double.parseDouble(rowRemains[3]);
+//                }
+
+
+            }
+            finally {
+                doc.close();
+            }
+        } catch(Exception ioe) {
+            ioe.printStackTrace();
+        }
     }
 
     public void save(List<Item> items){
@@ -146,10 +235,10 @@ public class PdfHandler {
 
         // Add Table headings
         Row<PDPage> headerRow = table.createRow(15f);
-        headerRow.createCell(20, "Stock Code");
+        headerRow.createCell(22, "Stock Code");
         headerRow.createCell(30, "Description");
         headerRow.createCell(10, "Quantity");
-        headerRow.createCell(10, "Unit");
+        headerRow.createCell(8, "Unit");
         headerRow.createCell(15, "Selling Price (R)");
         headerRow.createCell(15, "Total Price (R)");
 
@@ -164,10 +253,10 @@ public class PdfHandler {
         for(int i = 0; i < items.size(); i++)
         {
             Row<PDPage> row = table.createRow(12f);
-            row.createCell(20, items.get(i).getStockCode());
+            row.createCell(22, items.get(i).getStockCode());
             row.createCell(30, items.get(i).getDescription());
             row.createCell(10, items.get(i).getQuantity());
-            row.createCell(10, items.get(i).getUnit());
+            row.createCell(8, items.get(i).getUnit());
             row.createCell(15, items.get(i).getSellingPrice());
             row.createCell(15, items.get(i).getTotalSellingPrice());
         }
@@ -206,10 +295,10 @@ public class PdfHandler {
 
         // Add table headings
         Row<PDPage> headerRow = table.createRow(15f);
-        headerRow.createCell(15, "Stock Code");
+        headerRow.createCell(17, "Stock Code");
         headerRow.createCell(25, "Description");
         headerRow.createCell(10, "Quantity");
-        headerRow.createCell(10, "Unit");
+        headerRow.createCell(8, "Unit");
         headerRow.createCell(10, "Profit(%)");
         headerRow.createCell(15, "Cost Price (R)");
         headerRow.createCell(15, "Total Price (R)");
@@ -227,10 +316,10 @@ public class PdfHandler {
         for(int i = 0; i < items.size(); i++)
         {
             Row<PDPage> row = table.createRow(12f);
-            row.createCell(15, items.get(i).getStockCode());
+            row.createCell(17, items.get(i).getStockCode());
             row.createCell(25, items.get(i).getDescription());
             row.createCell(10, items.get(i).getQuantity());
-            row.createCell(10, items.get(i).getUnit());
+            row.createCell(8, items.get(i).getUnit());
             row.createCell(10, items.get(i).getProfitPercent() );
             row.createCell(15, items.get(i).getCostPrice());
             row.createCell(15, items.get(i).getTotalCostPrice());
