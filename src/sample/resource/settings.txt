@@ -1,25 +1,17 @@
-#Which settings can be changes
-
-UsersTab.Enable = true
-UsersTab.Enable.MakeMainOnly = false
-UsersTab.Enable.AddButton = true
-UsersTab.Enable.ChangesButton = true
-UsersTab.Enable.RemoveButton = true
-PDFTab.Enable = true
-PDFTab.Enable.Text = true
-PathsTab.Enable = true
-PathsTab.Enable.Import = true
-PathsTab.Enable.Export = true
-
-#User data
-UsersTab.Data.Users = [{Users1,Test1,1111111111,User1Test1@gmail.com,true,UT1} , {Users2,Test2,2222222222,User2Test2@gmail.com,false,UT2}]
-UsersTab.Data.UsersCounter = 2
-
-#PDF data
-PDFTab.Data.Positions = [1 , 2 , 3 , 4]
-PDFTab.Data.Text = This is thus text to test the save.
-
-#Paths data
-PathsTab.Data.ImportOnStartUp = true
-PathsTab.Data.Import = D:\Users\Jeandre Botha\Documents\S-pInvoiceSystem\src\sample\resource\Data.xlsx
-PathsTab.Data.Export = D:\Users\Jeandre Botha\Documents\S-pInvoiceSystem\src\sample\resource
+PathsTab.Enable.Export=true 
+UsersTab.Data.Users=[{Users1,Test1,1111111111,User1Test1@gmail.com,true,UT1} ,  {Users2,Test2,2222222222,User2Test2@gmail.com,false,UT2}}}}}] 
+PathsTab.Data.Export=C:\Users\User\OneDrive\Work\SP\Invoice\src\sample\resource     
+UsersTab.Enable.AddButton=true 
+PathsTab.Data.ImportOnStartUp=true 
+PDFTab.Data.Positions=[1 ,  2 ,  3 ,  4] 
+PathsTab.Data.Import=C:\Users\User\OneDrive\Work\SP\Invoice\src\sample\resource\Data.xlsx     
+UsersTab.Data.UsersCounter=2 
+PDFTab.Data.Text=This is thus text to test the save.     
+PDFTab.Enable=true 
+UsersTab.Enable.MakeMainOnly=false 
+UsersTab.Enable=true 
+PathsTab.Enable.Import=true 
+PDFTab.Enable.Text=true 
+PathsTab.Enable=true 
+UsersTab.Enable.ChangesButton=true 
+UsersTab.Enable.RemoveButton=true

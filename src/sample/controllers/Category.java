@@ -26,10 +26,6 @@ public class Category extends Tab {
         this.categoriesController=categoriesController;
         table = new TableView<>();
         table.setEditable(false);
-        table.setFixedCellSize(50);
-        table.setPrefWidth(580);
-        table.setMaxWidth(580);
-        table.setMinWidth(580);
         colStockCode = new TableColumn<>("Stock Code");
         colDescription = new TableColumn<>("Description");
         colUnit = new TableColumn<>("Unit");
@@ -44,7 +40,6 @@ public class Category extends Tab {
         colCostPrice.setCellValueFactory(cellData->cellData.getValue().costPriceProperty());
         colSellingPrice.setCellValueFactory(cellData->cellData.getValue().sellingPriceProperty());
 
-
         table.getColumns().addAll(colStockCode, colDescription, colUnit,colProfit,colCostPrice,colSellingPrice);
 
         colStockCode.setSortType(TableColumn.SortType.ASCENDING);
@@ -55,10 +50,10 @@ public class Category extends Tab {
 
         table.setItems(sortedData);
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
         this.setId(name);
         this.setText(name);
         this.setContent(table);
+
     }
 
     public List<Item> getSelectedItems() {
