@@ -137,24 +137,8 @@ public class MainController implements Initializable {
                 System.out.println("Opened file " + activeFilePath);
                 invoiceController.clearTables();
 
-                XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                XSSFRow row;
-
-                int rows = sheet.getPhysicalNumberOfRows();
-
-                for(int r = 1; r < rows; r++) {
-                    row = sheet.getRow(r);
-                    if(row != null) {
-                        String stockCode = row.getCell(0).toString();
-                        String description = row.getCell(1).toString();
-                        double quantity = Double.parseDouble(row.getCell(2).toString());
-                        String unit = row.getCell(3).toString();
-                        double sellingPrice = Double.parseDouble(row.getCell(4).toString());
-                        //TODO: Add correct items to invoice table
-                        //addToInvoice(new Item(name, numberOfItems, units, price));
-                    }
-                }
+                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
+                pdfHandler.load();
             } catch(Exception ioe) {
                 ioe.printStackTrace();
             }

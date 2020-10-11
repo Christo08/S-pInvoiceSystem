@@ -47,6 +47,11 @@ public class PdfHandler {
         invoiceController = _invoiceController;
     }
 
+    public void load()
+    {
+
+    }
+
     public void save(List<Item> items){
         try {
             try {
