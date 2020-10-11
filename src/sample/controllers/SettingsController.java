@@ -372,10 +372,6 @@ public class SettingsController implements Initializable {
         setUpDataInTabs();
     }
 
-    public void showSettings() {
-        BorderPaneSettings.setVisible(true);
-    }
-
     public void setStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");

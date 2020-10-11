@@ -4,8 +4,12 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import sample.data.Item;
 
 import java.net.URL;
@@ -55,27 +59,19 @@ public class CostingSheetController implements Initializable {
     private int oldQuantity;
     private double oldProfit;
 
+    private Alert popup;
+    private GridPane popUpPane;
+    private HBox quantityHBox;
+    private String popUpQuantityLblString;
+    private Label popUpQuantityLbl;
+    private Spinner<Integer> popUpQuantitySpr;
+    private HBox profitHBox;
+    private Label popUpProfitLbl;
+    private Spinner<Double> popUpProfitSpr;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        CostingPopUp.setVisible(false);
-        initializeSpinners();
-    }
-
-    @FXML
-    private void changesCosting(ActionEvent event) {
-        CostingPopUp.setVisible(false);
-        Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
-        if(SprCostingQuantity.getValue() ==0)
-            invoiceController.remove(selectedItem);
-        selectedItem.setQuantity(SprCostingQuantity.getValue());
-        selectedItem.setProfitPercent(SprProfitPercent.getValue());
-        invoiceController.updateTotal();
-    }
-
-    @FXML
-    private void CloseCostingPopUp(ActionEvent event) {
-        CostingPopUp.setVisible(false);
+        initializePopUp();
     }
 
     private void initializeTable(){
@@ -99,68 +95,87 @@ public class CostingSheetController implements Initializable {
         TVCostTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         TVCostTable.setOnMousePressed(event -> {
-            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVCostTable.getSelectionModel().getSelectedItem()!=null) {
-                CostingPopUp.setVisible(true);
-                BtnCostingChanges.setDisable(true);
-                Item selectItem = TVCostTable.getSelectionModel().getSelectedItem();
-                oldQuantity =selectItem.getQuantityInt();
-                oldProfit =selectItem.getProfitPercentDouble();
-                lblCostingQuantity.setText(lblCostingQuantity.getText().replace("{{1}}",selectItem.getUnit()));
-                SprCostingQuantity.getValueFactory().setValue(oldQuantity);
-                SprProfitPercent.getValueFactory().setValue(oldProfit);
-            }
+          Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
+          if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
+              popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
+              popUpProfitSpr.getValueFactory().setValue(selectedItem.getProfitPercentDouble());
+              popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
+              popUpQuantitySpr.setStyle("");
+              popup.show();
+          }
         });
 
     }
 
-    private void initializeSpinners() {
-        SprCostingQuantity.setEditable(true);
-        SprCostingQuantity.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,10000,1,1));
-        SprCostingQuantity.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d{0,9}?")) {
-                SprCostingQuantity.getEditor().setText(oldValue);
-            }else{
-                int newQuantity=0;
-                if(!newValue.isEmpty()){
-                    newQuantity = Integer.parseInt(newValue);
-                }
-                SprCostingQuantity.getEditor().setText(newValue);
-                SprCostingQuantity.getValueFactory().setValue(newQuantity);
-            }
-        });
-        SprCostingQuantity.valueProperty().addListener((observable, oldValue, newValue) -> {
-                if(oldQuantity==newValue && oldProfit==SprProfitPercent.getValue()){
-                    BtnCostingChanges.setDisable(true);
+    private void initializePopUp() {
+        popUpProfitLbl = new Label("Profit Percent(%):");
+        popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
+        popUpProfitSpr.setEditable(true);
+        popUpProfitSpr.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) return;
+            String newText =popUpProfitSpr.getEditor().getText();
+            try
+            {
+                // checking valid integer using parseInt() method
+                double newNumber = Double.parseDouble(newText);
+                if(newNumber>=15&&newNumber<=100){
+                    popUpProfitSpr.getValueFactory().setValue(newNumber);
                 }else{
-                    BtnCostingChanges.setDisable(false);
+                    popUpProfitSpr.setStyle("-fx-border-color: red");
                 }
-        });
-
-        SprProfitPercent.setEditable(true);
-        SprProfitPercent.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1.0,100,1,0.1));
-        SprProfitPercent.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d{0,7}([\\.]\\d{0,4})?")) {
-                SprProfitPercent.getEditor().setText(oldValue);
-            }else{
-                double newProfit=1;
-                if(!newValue.isEmpty()){
-                    newProfit = Double.parseDouble(newValue);
-                    if(newProfit<=0){
-                        newProfit=1;
-                    }
-                }
-                SprProfitPercent.getEditor().setText(newValue);
-                SprProfitPercent.getValueFactory().setValue(newProfit);
             }
-        });
-        SprProfitPercent.valueProperty().addListener((obs,oldValue,newValue)->{
-            if(oldQuantity==SprCostingQuantity.getValue() && oldProfit==newValue){
-                BtnCostingChanges.setDisable(true);
-            }else{
-                BtnCostingChanges.setDisable(false);
+            catch (NumberFormatException e)
+            {
+                popUpProfitSpr.setStyle("-fx-border-color: red");
             }
         });
 
+        popUpQuantityLblString="Quantity ({{0}}):";
+        popUpQuantityLbl = new Label(popUpQuantityLblString);
+        popUpQuantitySpr = new Spinner<>(1,9999999,1,1);
+        popUpQuantitySpr.setEditable(true);
+        popUpQuantitySpr.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) return;
+            String newText =popUpQuantitySpr.getEditor().getText();
+            try
+            {
+                // checking valid integer using parseInt() method
+                int newNumber = Integer.parseInt(newText);
+                if(newNumber>=1&&newNumber<=9999999){
+                    popUpQuantitySpr.getValueFactory().setValue(newNumber);
+                }else{
+                    popUpQuantitySpr.setStyle("-fx-border-color: red");
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                popUpQuantitySpr.setStyle("-fx-border-color: red");
+            }
+        });
+
+        popUpPane = new GridPane();
+        popUpPane.setAlignment(Pos.CENTER);
+        popUpPane.setVgap(10);
+        popUpPane.setHgap(10);
+        popUpPane.add(popUpProfitLbl,0,0);
+        popUpPane.add(popUpProfitSpr,1,0);
+        popUpPane.add(popUpQuantityLbl,0,1);
+        popUpPane.add(popUpQuantitySpr,1,1);
+        popup = new Alert(Alert.AlertType.NONE,
+                "Item");
+        popup.setHeaderText("Changes item");
+        popup.getDialogPane().setContent(popUpPane);
+        popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
+        popup.setOnHidden(e -> {
+            if (popup.getResult() == ButtonType.APPLY) {
+                Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
+                if(selectedItem!=null){
+                    selectedItem.setProfitPercent(popUpProfitSpr.getValue());
+                    selectedItem.setQuantity(popUpQuantitySpr.getValue());
+                    invoiceController.updateTotal();
+                }
+            }
+        });
     }
 
     public void setInvoiceController(InvoiceController invoiceController) {

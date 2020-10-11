@@ -1,11 +1,13 @@
 package sample.controllers;
 
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import sample.data.Item;
 
 import java.net.URL;
@@ -37,42 +39,16 @@ public class QuotationController implements Initializable {
     @FXML
     private TableColumn<Item, String> colTotalSellingPrice;
 
-    @FXML
-    private Pane QuotationPopUp;
-
-    @FXML
-    private Label lblQuotationQuantity;
-
-    @FXML
-    private Spinner<Integer> SprQuotationQuantity;
-
-    @FXML
-    private Button BtnQuotationChanges;
-
     private InvoiceController invoiceController;
-
-    private int oldNumber=0;
-    private int newNumber=0;
+    private Alert popup;
+    private HBox popUpBox;
+    private String popUpQuantityLblString;
+    private Label popUpQuantityLbl;
+    private Spinner<Integer> popUpQuantitySpr;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        QuotationPopUp.setVisible(false);
-        initializeSpinners();
-    }
-
-    @FXML
-    private void ChangesQuotation(ActionEvent event) {
-        QuotationPopUp.setVisible(false);
-        Item selectedItem = TVQuotationTable.getSelectionModel().getSelectedItem();
-        if(SprQuotationQuantity.getValue()==0)
-            invoiceController.remove(selectedItem);
-        selectedItem.setQuantity(SprQuotationQuantity.getValue());
-        invoiceController.updateTotal();
-    }
-
-    @FXML
-    private void CloseQuotationPopUp(ActionEvent event) {
-        QuotationPopUp.setVisible(false);
+        initializePopUp();
     }
 
     private void initializeTable(){
@@ -94,37 +70,48 @@ public class QuotationController implements Initializable {
         TVQuotationTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         TVQuotationTable.setOnMousePressed(event -> {
-            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&TVQuotationTable.getSelectionModel().getSelectedItem()!=null) {
-                QuotationPopUp.setVisible(true);
-                BtnQuotationChanges.setDisable(true);
-                Item selectItem = TVQuotationTable.getSelectionModel().getSelectedItem();
-                oldNumber=selectItem.getQuantityInt();
-                lblQuotationQuantity.setText(lblQuotationQuantity.getText().replace("{{0}}",selectItem.getUnit()));
-                SprQuotationQuantity.getValueFactory().setValue(selectItem.getQuantityInt());
-            }
+          Item selectedItem = TVQuotationTable.getSelectionModel().getSelectedItem();
+          if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
+              popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
+              popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
+              popUpQuantitySpr.setStyle("");
+              popup.show();
+          }
         });
     }
 
-    private void initializeSpinners() {
-        SprQuotationQuantity.setEditable(true);
-        SprQuotationQuantity.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0,10000,1,1));
-        SprQuotationQuantity.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d{0,9}?")) {
-                SprQuotationQuantity.getEditor().setText(oldValue);
-            }else{
-                int newQuantity=0;
-                if(!newValue.isEmpty()){
-                    newQuantity = Integer.parseInt(newValue);
-                }
-                SprQuotationQuantity.getEditor().setText(newValue);
-                SprQuotationQuantity.getValueFactory().setValue(newQuantity);
+    private void initializePopUp() {
+        popUpQuantityLblString="Quantity ({{0}}):";
+        popUpQuantityLbl = new Label(popUpQuantityLblString);
+        popUpQuantitySpr = new Spinner<>(1,9999999,1,1);
+        popUpQuantitySpr.setEditable(true);
+        popUpQuantitySpr.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) return;
+            String newText =popUpQuantitySpr.getEditor().getText();
+            try
+            {
+                // checking valid integer using parseInt() method
+                popUpQuantitySpr.getValueFactory().setValue(Integer.parseInt(newText));
+            }
+            catch (NumberFormatException e)
+            {
+                popUpQuantitySpr.setStyle("-fx-border-color: red");
             }
         });
-        SprQuotationQuantity.valueProperty().addListener((obs,oldValue,newValue)->{
-            if(oldNumber==newValue){
-                BtnQuotationChanges.setDisable(true);
-            }else{
-                BtnQuotationChanges.setDisable(false);
+        popUpBox = new HBox(popUpQuantityLbl,popUpQuantitySpr);
+        popUpBox.setSpacing(10);
+        popup = new Alert(Alert.AlertType.NONE,
+                "Item");
+        popup.setHeaderText("Changes item");
+        popup.getDialogPane().setContent(popUpBox);
+        popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
+        popup.setOnHidden(e -> {
+            if (popup.getResult() == ButtonType.APPLY) {
+                Item selectedItem = TVQuotationTable.getSelectionModel().getSelectedItem();
+                if(selectedItem!=null){
+                    selectedItem.setQuantity(popUpQuantitySpr.getValue());
+                    invoiceController.updateTotal();
+                }
             }
         });
     }

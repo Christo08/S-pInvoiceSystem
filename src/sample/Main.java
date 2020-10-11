@@ -15,9 +15,11 @@ public class Main extends Application {
         Parent root = loader.load();
         MainController mainController = (MainController)loader.getController();
         mainController.setStage(primaryStage);
+        Scene mainScene = new Scene(root, 790, 666);
         primaryStage.setTitle("Invoice");
         primaryStage.getIcons().add(new Image("sample/resource/Logo.PNG"));
-        primaryStage.setScene(new Scene(root, 790, 666));
+        mainScene.getStylesheets().add("nigth.css");
+        primaryStage.setScene(mainScene);
         primaryStage.setResizable(false);
         primaryStage.show();
     }

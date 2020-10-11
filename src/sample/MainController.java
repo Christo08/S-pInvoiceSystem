@@ -236,6 +236,10 @@ public class MainController implements Initializable {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
         settingsFileController = new SettingsFileController();
+        if(settingsFileController.getImportOnStartUp()){
+            File file = new File(settingsFileController.getImportPath());
+            ImportData(file);
+        }
     }
 
     @FXML
