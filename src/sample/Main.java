@@ -18,7 +18,6 @@ public class Main extends Application {
         Scene mainScene = new Scene(root, 790, 666);
         primaryStage.setTitle("Invoice");
         primaryStage.getIcons().add(new Image("sample/resource/Logo.PNG"));
-        mainScene.getStylesheets().add("nigth.css");
         primaryStage.setScene(mainScene);
         primaryStage.setResizable(false);
         primaryStage.show();

@@ -232,14 +232,15 @@ public class SettingsController implements Initializable {
 
     @FXML
     void populateData(MouseEvent event) {
-        System.out.println(LVUsersList.getSelectionModel().getSelectedItem());
         if(loadedUser!=LVUsersList.getSelectionModel().getSelectedItem()) {
-            loadedUser=LVUsersList.getSelectionModel().getSelectedItem();
-            TxtNameInput.setText(loadedUser.getName());
-            TxtSurnameInput.setText(loadedUser.getSurname());
-            TxtEmailInput.setText(loadedUser.getEmail());
-            TxtNumberInput.setText(loadedUser.getNumber());
-            CheckMakeMainUsers.setSelected(loadedUser.isMainUser());
+            User tempUser=LVUsersList.getSelectionModel().getSelectedItem();
+            loadedUser=null;
+            TxtNameInput.setText(tempUser.getName());
+            TxtSurnameInput.setText(tempUser.getSurname());
+            TxtEmailInput.setText(tempUser.getEmail());
+            TxtNumberInput.setText(tempUser.getNumber());
+            CheckMakeMainUsers.setSelected(tempUser.isMainUser());
+            loadedUser=tempUser;
             if(settingsFileController.isUsersTabRemoveButtonEnable())
                 BtnRemoveUser.setDisable(false);
             BtnResetUser.setDisable(false);
