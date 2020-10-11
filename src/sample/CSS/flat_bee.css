@@ -19,7 +19,7 @@
 	The "color" is your main color (in this case greenish)
 	*/
 * {
-	-color : #2ecc71;
+	-color : #de232f;
 	-white : #efefef;
 	-gray : #dfdfdf;
 	-darkGray : derive(-gray,-20%);
