@@ -146,11 +146,11 @@ public class PdfHandler {
             try {
                 doc = new PDDocument();
                 page = new PDPage(PDRectangle.A4);
+                doc.addPage(page);
                 contentStream = new PDPageContentStream(doc, page);
                 yPosition = page.getMediaBox().getHeight() - margin;
                 addPdfContents(items);
                 contentStream.close();
-                doc.addPage(page);
                 doc.save(pdfFile.getAbsolutePath());
             }
             finally {
@@ -189,6 +189,14 @@ public class PdfHandler {
                     yPosition -= yMarginBetweenElements;
                     break;
                 case "additionalText":
+                    if(yPosition < margin * 2){
+                        addFooter();
+                        contentStream.close();
+                        page = new PDPage(PDRectangle.A4);
+                        doc.addPage(page);
+                        contentStream = new PDPageContentStream(doc, page, true, true);
+                        yPosition = page.getMediaBox().getHeight() - margin;
+                    }
                     PDStreamUtils.write(contentStream, settings.getPDFText(), font, fontSize, margin, yPosition, Color.BLACK);
                     yPosition -= yMarginBetweenElements;
                     break;
@@ -205,6 +213,14 @@ public class PdfHandler {
             Image image = new Image(ImageIO.read(new File(settings.recourcePath+"/Logo.PNG")));
             float imageWidth = 100;
             image = image.scaleByWidth(imageWidth);
+            if((yPosition - image.getHeight()) < margin){
+                addFooter();
+                contentStream.close();
+                page = new PDPage(PDRectangle.A4);
+                doc.addPage(page);
+                contentStream = new PDPageContentStream(doc, page, true, true);
+                yPosition = page.getMediaBox().getHeight() - margin;
+            }
             image.draw(doc, contentStream, margin, yPosition);
             float xPosition = page.getMediaBox().getWidth() - margin - 150;
             String[] info = settings.getMainUser().pdfString().split("\n");
@@ -277,6 +293,12 @@ public class PdfHandler {
 
 
         yPosition = table.draw();
+        if(page != table.getCurrentPage()){
+            addFooter();
+            contentStream.close();
+            page = table.getCurrentPage();
+            contentStream = new PDPageContentStream(doc, page, true, true);
+        }
     }
 
     private void addCostingSheet(List<Item> items)throws Exception
@@ -332,6 +354,12 @@ public class PdfHandler {
         row.createCell(15, decimalFormat.format(totalCostPrice)).setFont(fontBold);
 
         yPosition = table.draw();
+        if(page != table.getCurrentPage()){
+            addFooter();
+            contentStream.close();
+            page = table.getCurrentPage();
+            contentStream = new PDPageContentStream(doc, page, true, true);
+        }
     }
 
     private void addTableHeading(String text, boolean centerText) throws Exception{
