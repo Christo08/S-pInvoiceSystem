@@ -72,6 +72,18 @@ public class InvoiceController implements Initializable {
         }
         updateTotal();
     }
+    public void add(Item newItem) {
+        if (!itemData.contains(newItem)) {
+            itemData.add(newItem);
+            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() || BtnPrint.isDisable()) {
+                TxtSearch.setDisable(false);
+                BtnRemove.setDisable(false);
+                BtnClear.setDisable(false);
+                BtnPrint.setDisable(false);
+            }
+        }
+        updateTotal();
+    }
 
     public void remove(Item selectedItem) {
         selectedItem.setQuantity(0);
