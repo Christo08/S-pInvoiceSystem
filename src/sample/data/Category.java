@@ -4,6 +4,7 @@ package sample.data;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import sample.controllers.CategoriesController;
 import sample.data.Item;
 
@@ -21,6 +22,9 @@ public class Category extends Tab {
     private CategoriesController categoriesController;
     private ObservableList<Item> data;
     private int id;
+
+    private Alert popup;
+    private Spinner<Double> popUpProfitSpr;
 
     public Category(String name, int id,CategoriesController categoriesController) {
         table = new TableView<>();
@@ -49,6 +53,33 @@ public class Category extends Tab {
 
         table.setItems(sortedData);
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        table.setOnMousePressed(event -> {
+            Item selectedItem = table.getSelectionModel().getSelectedItem();
+            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
+                popUpProfitSpr.getValueFactory().setValue(selectedItem.getProfitPercentDouble());
+                popup.show();
+            }
+        });
+
+
+        Label popUpProfitLbl = new Label("Profit Percent(%):");
+        popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
+        HBox profitHBox = new HBox(popUpProfitLbl, popUpProfitSpr);
+        profitHBox.setSpacing(10);
+        popup = new Alert(Alert.AlertType.NONE,
+                "Item");
+        popup.setHeaderText("Changes item");
+        popup.getDialogPane().setContent(profitHBox);
+        popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
+        popup.setOnHidden(e -> {
+            if (popup.getResult() == ButtonType.APPLY) {
+                Item selectedItem = table.getSelectionModel().getSelectedItem();
+                if(selectedItem!=null){
+                    selectedItem.setProfitPercent(popUpProfitSpr.getValue());
+                }
+            }
+        });
 
         this.id=id;
         this.categoriesController=categoriesController;
