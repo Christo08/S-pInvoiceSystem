@@ -2,8 +2,10 @@ package sample.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -15,9 +17,14 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.MainController;
 import sample.data.User;
+import sample.tools.ChangeListener;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SettingsController implements Initializable {
 
@@ -25,148 +32,786 @@ public class SettingsController implements Initializable {
     private BorderPane BorderPaneSettings;
 
     @FXML
-    private Button BtnAddUsers;
-
-    @FXML
-    private Button BtnApply;
-
-    @FXML
-    private Button BtnChangesUser;
-
-    @FXML
-    private Button BtnRemoveUser;
-
-    @FXML
-    private Button BtnResetUser;
-
-    @FXML
-    private ComboBox<String> CbxUserInfoPosition;
-
-    @FXML
-    private ComboBox<String> CbxCostingSheetPosition;
-
-    @FXML
-    private ComboBox<String> CbxQuotationPosition;
-
-    @FXML
-    private ComboBox<String> CbxTextPosition;
-
-    @FXML
-    private CheckBox CheckMakeMainUsers;
+    private Tab UsersTab;
 
     @FXML
     private ListView<User> LVUsersList;
 
     @FXML
-    private Tab PDFTab;
-
-    @FXML
-    private Tab PathsTab;
-
-    @FXML
-    private Tab UsersTab;
-
-    @FXML
-    private TextArea TxtAreaTextInput;
-
-    @FXML
-    private TextField TxtExportURL;
-
-    @FXML
-    private TextField TxtEmailInput;
-
-    @FXML
-    private TextField TxtImportURL;
+    private TextField TxtNameInput;
 
     @FXML
     private TextField TxtSurnameInput;
 
     @FXML
-    private TextField TxtNameInput;
+    private TextField TxtNumberInput;
 
     @FXML
-    private TextField TxtNumberInput;
+    private TextField TxtEmailInput;
+
+    @FXML
+    private Button btnChangesUser;
+
+    @FXML
+    private Button btnResetUser;
+
+    @FXML
+    private CheckBox CheckMakeMainUsers;
+
+    @FXML
+    private Tab PDFTab;
+
+    @FXML
+    private CheckBox CheckbxAddQuotation;
+
+    @FXML
+    private ComboBox<String> CbxQuotationInfoPosition;
+
+    @FXML
+    private ComboBox<String> CbxQuotationTablePosition;
+
+    @FXML
+    private ComboBox<String> CbxQuotationTextPosition;
+
+    @FXML
+    private TextArea TxtAreaQuotationTextInput;
+
+    @FXML
+    private CheckBox CheckbxAddCostSheet;
+
+    @FXML
+    private ComboBox<String> CbxCostSheetInfoPosition;
+
+    @FXML
+    private ComboBox<String> CbxCostSheetTablePosition;
+
+    @FXML
+    private ComboBox<String> CbxCostSheetTextPosition;
+
+    @FXML
+    private TextArea TxtAreaCostSheetTextInput;
+
+    @FXML
+    private Tab PathsTab;
 
     @FXML
     private RadioButton RBtnImportStartUpYes;
 
     @FXML
+    private ToggleGroup importOnStartUp;
+
+    @FXML
     private RadioButton RBtnImportStartUpNo;
+
+    @FXML
+    private TextField TxtImportPath;
+
+    @FXML
+    private Button btnImportPath;
+
+    @FXML
+    private TextField TxtExportPath;
+
+    @FXML
+    private Button btnExportPath;
+
+    @FXML
+    private Button btnApply;
+
+    @FXML
+    private HBox UserControlHBox;
 
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private final FileChooser fileChooser = new FileChooser();
+    private FileChooser.ExtensionFilter excelExtensionFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
 
     private MainController mainController;
     private SettingsFileController settingsFileController;
-    private ObservableList<String> positions;
 
-    private Map<String,Boolean> changes;
+    private ChangeListener changeListener;
     private Stage primaryStage;
     private ObservableList<User>  listUser;
-    private User loadedUser;
+
+    private ContextMenu contextMenu;
+    private User selectUser;
+
+    Pattern phonePatterns = Pattern.compile("(?:\\(\\d{3}\\)|\\d{3}([-]|[\\s])*)\\d{3}([-]|[\\s])*\\d{4}");
+    private final String emailPattern= "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
 
     public SettingsController() {
-        changes=new HashMap<>();
-        changes.put("AddedUser",false);
-        changes.put("RemoveUser",false);
-        changes.put("ChangeUserName",false);
-        changes.put("ChangeUserSurname",false);
-        changes.put("ChangeUserNumber",false);
-        changes.put("ChangeUserEmail",false);
-        changes.put("ChangeMainUser",false);
-        changes.put("ChangePDFPosition",false);
-        changes.put("ChangePDFText",false);
-        changes.put("ChangePathsOnStartUp",false);
-        changes.put("ChangePathsImportPath",false);
-        changes.put("ChangePathsExportPath",false);
+        contextMenu = new ContextMenu();
+    }
 
-        List<String> list = new ArrayList<>();
-        positions = FXCollections.observableList(list);
-        positions.add("1");
-        positions.add("2");
-        positions.add("3");
-        positions.add("4");
-        positions.add("None");
+    @FXML
+    void addQuotation(ActionEvent event) {
+        disableEnableQuotation(!CheckbxAddQuotation.isSelected());
+        TxtAreaQuotationTextInput.setDisable(true);
+        if(!CheckbxAddQuotation.isSelected()){
+            CbxQuotationInfoPosition.setValue(positionsIntegerToString(-1));
+            CbxQuotationTablePosition.setValue(positionsIntegerToString(-1));
+            CbxQuotationTextPosition.setValue(positionsIntegerToString(-1));
+        }
+    }
+
+    @FXML
+    void addCostingSheet(ActionEvent event) {
+        disableEnableCosting(!CheckbxAddCostSheet.isSelected());
+        TxtAreaCostSheetTextInput.setDisable(true);
+        if(!CheckbxAddCostSheet.isSelected()){
+            CbxCostSheetInfoPosition.setValue(positionsIntegerToString(-1));
+            CbxCostSheetTablePosition.setValue(positionsIntegerToString(-1));
+            CbxCostSheetTextPosition.setValue(positionsIntegerToString(-1));
+        }
+    }
+
+    @FXML
+    void changesCostingsSheetInfoPosition(ActionEvent event) {
+        CbxCostSheetInfoPosition.setStyle("");
+        CbxCostSheetTablePosition.setStyle("");
+        CbxCostSheetTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxCostSheetInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxCostSheetTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxCostSheetTextPosition.getSelectionModel().getSelectedItem());
+        if (infoPosition==-1){
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.info",-1);
+        }else if(tablePosition==infoPosition){
+            CbxCostSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCostSheetTablePosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==infoPosition){
+            CbxCostSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCostSheetTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.info",infoPosition);
+        }
+    }
+
+    @FXML
+    void changesCostingsSheetTablePosition(ActionEvent event) {
+        CbxCostSheetInfoPosition.setStyle("");
+        CbxCostSheetTablePosition.setStyle("");
+        CbxCostSheetTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxCostSheetInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxCostSheetTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxCostSheetTextPosition.getSelectionModel().getSelectedItem());
+        if (tablePosition==-1){
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.table",-1);
+            CheckbxAddCostSheet.setSelected(false);
+            disableEnableCosting(true);
+        }else if(tablePosition==infoPosition){
+            CbxCostSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCostSheetTablePosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==tablePosition){
+            CbxCostSheetTablePosition.setStyle("-fx-border-color: red");
+            CbxCostSheetTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.table",tablePosition);
+        }
+    }
+
+    @FXML
+    void changesCostSheetTextPosition(ActionEvent event) {
+        CbxCostSheetInfoPosition.setStyle("");
+        CbxCostSheetTablePosition.setStyle("");
+        CbxCostSheetTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxCostSheetInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxCostSheetTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxCostSheetTextPosition.getSelectionModel().getSelectedItem());
+        if (textPosition==-1){
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.text",-1);
+            TxtAreaCostSheetTextInput.setDisable(true);
+        }else if(textPosition==infoPosition){
+            CbxCostSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCostSheetTextPosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==tablePosition){
+            CbxCostSheetTablePosition.setStyle("-fx-border-color: red");
+            CbxCostSheetTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.text",textPosition);
+            TxtAreaCostSheetTextInput.setDisable(false);
+        }
+    }
+
+    @FXML
+    void changesQuotationTextPosition(ActionEvent event) {
+        CbxQuotationInfoPosition.setStyle("");
+        CbxQuotationTablePosition.setStyle("");
+        CbxQuotationTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxQuotationInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxQuotationTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxQuotationTextPosition.getSelectionModel().getSelectedItem());
+        if (textPosition==-1){
+            changeListener.replace("PDFTab.Data.Quotation.Position.text",-1);
+            TxtAreaQuotationTextInput.setDisable(true);
+        }else if(textPosition==infoPosition){
+            CbxQuotationInfoPosition.setStyle("-fx-border-color: red");
+            CbxQuotationTextPosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==tablePosition){
+            CbxQuotationTablePosition.setStyle("-fx-border-color: red");
+            CbxQuotationTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.Quotation.Position.text",textPosition);
+            TxtAreaQuotationTextInput.setDisable(false);
+        }
+    }
+
+    @FXML
+    void changesQuotationTablePosition(ActionEvent event) {
+        CbxQuotationInfoPosition.setStyle("");
+        CbxQuotationTablePosition.setStyle("");
+        CbxQuotationTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxQuotationInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxQuotationTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxQuotationTextPosition.getSelectionModel().getSelectedItem());
+        if (tablePosition==-1){
+            changeListener.replace("PDFTab.Data.Quotation.Position.table",-1);
+        }else if(tablePosition==infoPosition){
+            CbxQuotationInfoPosition.setStyle("-fx-border-color: red");
+            CbxQuotationTablePosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==tablePosition){
+            CbxQuotationTablePosition.setStyle("-fx-border-color: red");
+            CbxQuotationTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.Quotation.Position.table",tablePosition);
+        }
+    }
+
+    @FXML
+    void changesQuotationInfoPosition(ActionEvent event) {
+        CbxQuotationInfoPosition.setStyle("");
+        CbxQuotationTablePosition.setStyle("");
+        CbxQuotationTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxQuotationInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxQuotationTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxQuotationTextPosition.getSelectionModel().getSelectedItem());
+        if (infoPosition==-1){
+            changeListener.replace("PDFTab.Data.Quotation.Position.info",-1);
+        }else if(tablePosition==infoPosition){
+            CbxQuotationInfoPosition.setStyle("-fx-border-color: red");
+            CbxQuotationTablePosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==infoPosition){
+            CbxQuotationInfoPosition.setStyle("-fx-border-color: red");
+            CbxQuotationTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.Quotation.Position.info",infoPosition);
+        }
     }
 
     @FXML
     void applyChanges(ActionEvent event) {
-        if(checkForChanges()){
-            if(changes.get("ChangePDFText")){
-                settingsFileController.setPDFText(TxtAreaTextInput.getText());
+            try {
+                settingsFileController.applyChanges(changeListener.getNewValues());
+                btnApply.setDisable(true);
+                changeListener.update(settingsFileController.getKeyValuePair());
+            } catch (IOException e) {
+                Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+                errorDialog.setTitle("Save settings");
+                errorDialog.setHeaderText("Can not save the settings.");
+                errorDialog.setContentText(e.toString());
+                errorDialog.showAndWait();
             }
-            if(changes.get("ChangePDFPosition")){
-                List<Integer> positions =new ArrayList();
-                positions.add(positionsToString(CbxUserInfoPosition.getValue()));
-                positions.add(positionsToString(CbxCostingSheetPosition.getValue()));
-                positions.add(positionsToString(CbxQuotationPosition.getValue()));
-                positions.add(positionsToString(CbxTextPosition.getValue()));
-                settingsFileController.setPDFPositions(positions);
+    }
+
+    @FXML
+    void closePopUp(ActionEvent event) {
+        closeStage(event);
+    }
+
+    @FXML
+    void changesUsers(ActionEvent event) {
+        String name =TxtNameInput.getText();
+        String surname =TxtSurnameInput.getText();
+        String number =TxtNumberInput.getText();
+        String email = TxtEmailInput.getText();
+        boolean isMainUser = CheckMakeMainUsers.isSelected();
+        if(!TxtNameInput.getStyle().isEmpty()||!TxtSurnameInput.getStyle().isEmpty()){
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Change user");
+            errorDialog.setHeaderText("Invalid name and surname.");
+            errorDialog.setContentText("This user is in the list. Change the name or surname to a valid email.");
+            errorDialog.showAndWait();
+            return;
+        }
+        if(!TxtNumberInput.getStyle().isEmpty()){
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Change user");
+            errorDialog.setHeaderText("Invalid number.");
+            errorDialog.setContentText("Change the phone number to a valid phone number.");
+            errorDialog.showAndWait();
+            return;
+        }
+        if(!TxtEmailInput.getStyle().isEmpty()){
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Change user");
+            errorDialog.setHeaderText("Invalid email.");
+            errorDialog.setContentText("Change the email to a valid email.");
+            errorDialog.showAndWait();
+            return;
+        }
+        listUser.remove(selectUser);
+        selectUser.setName(name);
+        selectUser.setSurname(surname);
+        selectUser.setNumber(number);
+        selectUser.setEmail(email);
+        selectUser.setMainUser(isMainUser);
+        if (isMainUser){
+            for (User user: listUser) {
+                if(!selectUser.getId().equals(user.getId())){
+                    user.setMainUser(false);
+                }
             }
-            if(changes.get("ChangePathsOnStartUp")){
-                settingsFileController.setImportOnStartUp(RBtnImportStartUpYes.isSelected());
-            }
-            if(changes.get("ChangePathsImportPath")){
-                settingsFileController.setImportPath(TxtImportURL.getText());
-            }
-            if(changes.get("ChangePathsExportPath")){
-                settingsFileController.setImportPath(TxtExportURL.getText());
-            }
-            if(changes.get("AddedUser")){
-                settingsFileController.addUser(new ArrayList<>(listUser));
-            }
-            if(changes.get("RemoveUser")){
-                settingsFileController.removeUser(new ArrayList<>(listUser));
-            }
-            if(changes.get("ChangeUserSurname")||changes.get("ChangeUserName")||changes.get("ChangeUserNumber")||changes.get("ChangeUserEmail")||changes.get("ChangeMainUser")){
-                settingsFileController.changesUser(new ArrayList<>(listUser));
-            }
-            settingsFileController.applyChanges();
-            BtnApply.setDisable(true);
+            selectMainUser();
+        }
+        listUser.add(selectUser);
+        btnChangesUser.setDisable(true);
+        btnResetUser.setDisable(true);
+    }
+
+    @FXML
+    void disableEnableImportPathTextField(ActionEvent event) {
+        if(RBtnImportStartUpYes.isSelected()){
+            TxtImportPath.setDisable(false);
+            btnImportPath.setDisable(false);
+            changeListener.replace("PathsTab.Data.ImportOnStartUp",true);
+        }else{
+            TxtImportPath.setDisable(true);
+            btnImportPath.setDisable(true);
+            changeListener.replace("PathsTab.Data.ImportOnStartUp",false);
         }
     }
 
-    private Integer positionsToString(String value) {
+    @FXML
+    void showFileChooser(ActionEvent event) {
+        File file = fileChooser.showOpenDialog(primaryStage);
+        if(file != null){
+            TxtImportPath.setText(file.getPath());
+            changeListener.replace("PathsTab.Data.Import",file.getPath());
+        }
+    }
+
+    @FXML
+    void showFolderChooser(ActionEvent event) {
+        File folder =directoryChooser.showDialog(primaryStage);
+        if(folder != null){
+            TxtExportPath.setText(folder.getPath());
+            changeListener.replace("PathsTab.Data.Export",folder.getPath());
+        }
+
+    }
+
+    @FXML
+    void resetUser(ActionEvent event){
+        List<User> copyOfUsers = new ArrayList<>();
+        for(User user: settingsFileController.getAllUsers()){
+            copyOfUsers.add(new User(user));
+        }
+        listUser= FXCollections.observableArrayList(copyOfUsers);
+        LVUsersList.setItems(listUser);
+        TxtNameInput.setText("");
+        TxtSurnameInput.setText("");
+        TxtEmailInput.setText("");
+        TxtNumberInput.setText("");
+        TxtNameInput.setStyle("");
+        TxtSurnameInput.setStyle("");
+        TxtEmailInput.setStyle("");
+        TxtNumberInput.setStyle("");
+        CheckMakeMainUsers.setSelected(false);
+        selectMainUser();
+        btnChangesUser.setDisable(true);
+        btnResetUser.setDisable(true);
+        changeListener.replace("UsersTab.Data.Users",null);
+        changeListener.replace("UsersTab.Data.UsersCounter",null);
+    }
+
+    @FXML
+    void changeMainUser(ActionEvent event) {
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
+
+    public void setMainController(MainController mainController) {
+        this.mainController=mainController;
+        settingsFileController = new SettingsFileController();
+        changeListener = new ChangeListener(this, settingsFileController.getKeyValuePair());
+
+        setUpEnableOrDisableTabs();
+        setUpDataInTabs();
+    }
+
+    public void setStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+
+        fileChooser.getExtensionFilters().add(excelExtensionFilter);
+        fileChooser.setTitle("Get File Path");
+        directoryChooser.setTitle("Get Folder Path");
+    }
+
+    private void setUpDataInTabs() {
+        setUpDataPDF();
+        setUpDataPaths();
+        setUpDataUsers();
+    }
+
+    private void setUpDataUsers() {
+        List<User> copyOfUsers = new ArrayList<>();
+        for(User user: settingsFileController.getAllUsers()){
+            copyOfUsers.add(new User(user));
+        }
+        listUser= FXCollections.observableArrayList(copyOfUsers);
+        listUser.addListener((ListChangeListener<User>) changes -> {
+            List<User> list =  listUser.stream().collect(Collectors.toList());
+            Collections.sort(list, Comparator.comparing(User::toString));
+            changeListener.replace("UsersTab.Data.Users",list);
+            changeListener.replace("UsersTab.Data.UsersCounter",list.size());
+        });
+        listUser.removeListener((ListChangeListener<User>) changes -> {
+            List<User> list =  listUser.stream().collect(Collectors.toList());
+            Collections.sort(list, Comparator.comparing(User::toString));
+            changeListener.replace("UsersTab.Data.Users",list);
+            changeListener.replace("UsersTab.Data.UsersCounter",list.size());
+        });
+        LVUsersList.setItems(listUser);
+        LVUsersList.setCellFactory(param -> new ListCell<User>() {
+            @Override
+            protected void updateItem(User user, boolean empty) {
+                super.updateItem(user, empty);
+
+                if (empty || user == null || user.getName() == null|| user.getSurname() == null) {
+                    setText(null);
+                } else {
+                    setText(user.getName()+" "+user.getSurname());
+                }
+            }
+        });
+        LVUsersList.setOnMouseClicked(event -> {
+            showUserData(LVUsersList.getSelectionModel().getSelectedItem());
+            btnChangesUser.setDisable(true);
+            btnResetUser.setDisable(true);
+        });
+        selectMainUser();
+        TxtNameInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue){
+                boolean nameCheck;
+                boolean surname;
+                boolean sameUser;
+                for(User user:listUser){
+                    nameCheck = user.getName().equals(TxtNameInput.getText());
+                    surname=user.getSurname().equals(TxtSurnameInput.getText());
+                    sameUser=!user.getId().equals(selectUser.getId());
+                    if(nameCheck&&surname&&sameUser){
+                        TxtNameInput.setStyle("-fx-border-color: red");
+                        TxtSurnameInput.setStyle("-fx-border-color: red");
+                        btnChangesUser.setDisable(false);
+                        btnResetUser.setDisable(false);
+                    }
+                }
+                TxtNameInput.setStyle("");
+                TxtSurnameInput.setStyle("");
+                for (User user: listUser) {
+                    if(user.getId().equals(selectUser.getId())){
+                        if(settingsFileController.isUsersTabChangesButtonEnable()) {
+                            btnChangesUser.setDisable(false);
+                            btnResetUser.setDisable(false);
+                        }
+                    }
+                }
+            }
+        });
+        TxtSurnameInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue){
+                boolean nameCheck;
+                boolean surname;
+                boolean sameUser;
+                for(User user:listUser){
+                    nameCheck = user.getName().equals(TxtNameInput.getText());
+                    surname=user.getSurname().equals(TxtSurnameInput.getText());
+                    sameUser=!user.getId().equals(selectUser.getId());
+                    if(nameCheck&&surname&&sameUser){
+                        TxtNameInput.setStyle("-fx-border-color: red");
+                        TxtSurnameInput.setStyle("-fx-border-color: red");
+                        btnChangesUser.setDisable(false);
+                        btnResetUser.setDisable(false);
+                    }
+                }
+                TxtNameInput.setStyle("");
+                TxtSurnameInput.setStyle("");
+                for (User user: listUser) {
+                    if(user.getId().equals(selectUser.getId())){
+                        if(settingsFileController.isUsersTabChangesButtonEnable()) {
+                            btnChangesUser.setDisable(false);
+                            btnResetUser.setDisable(false);
+                        }
+                    }
+                }
+            }
+        });
+        TxtEmailInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue && selectUser!=null){
+                String newEmail = TxtEmailInput.getText();
+                Pattern pattern = Pattern.compile(emailPattern);
+                if(pattern.matcher(newEmail).matches()) {
+                    for (User user: listUser) {
+                        if(user.getId().equals(selectUser.getId())){
+                            if(settingsFileController.isUsersTabChangesButtonEnable()) {
+                                btnChangesUser.setDisable(false);
+                                btnResetUser.setDisable(false);
+                            }
+                        }
+                    }
+                    TxtEmailInput.setStyle("");
+                }else{
+                    TxtEmailInput.setStyle("-fx-border-color: red");
+                    btnChangesUser.setDisable(false);
+                    btnResetUser.setDisable(false);
+                }
+            }
+        });
+        TxtNumberInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue){
+                String newNumber = TxtNumberInput.getText();
+                if(phonePatterns.matcher(newNumber).matches()) {
+                    for (User user : listUser) {
+                        if (user.getId().equals(selectUser.getId())) {
+                            if (settingsFileController.isUsersTabChangesButtonEnable()) {
+                                btnChangesUser.setDisable(false);
+                                btnResetUser.setDisable(false);
+                            }
+                        }
+                    }
+                    TxtNumberInput.setStyle("");
+                }else{
+                    TxtNumberInput.setStyle("-fx-border-color: red");
+                    btnChangesUser.setDisable(false);
+                    btnResetUser.setDisable(false);
+                }
+            }
+        });
+        CheckMakeMainUsers.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            btnChangesUser.setDisable(false);
+            btnResetUser.setDisable(false);
+        });
+
+        MenuItem addNewUserMenuItem = new MenuItem("Add new user");
+        addNewUserMenuItem.setOnAction(event->{
+            Button btnDone = new Button("Done");
+            btnDone.setOnAction(event1 -> {
+                createUser();
+            });
+            showUserData(null);
+            UserControlHBox.getChildren().add(btnDone);
+        });
+        MenuItem removeUserMenuItem = new MenuItem("Remove user");
+        removeUserMenuItem.setOnAction(event->{
+            User user= LVUsersList.getSelectionModel().getSelectedItem();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Remove User");
+            alert.setHeaderText("Remove User");
+            alert.setContentText("Are you sure you want to remove "+user.getName()+" "+user.getSurname()+"?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                if(user.isMainUser()){
+                    Alert alertWarning = new Alert(Alert.AlertType.WARNING);
+                    alertWarning.setTitle("Remove User");
+                    alertWarning.setHeaderText("Can not remove user");
+                    alertWarning.setContentText("Can not remove "+user.getName()+" "+user.getSurname()+", because it is the main user");
+                    alertWarning.showAndWait();
+                }else{
+                    btnResetUser.setDisable(false);
+                    listUser.remove(user);
+                    List<User> list =  listUser.stream().collect(Collectors.toList());;
+                    changeListener.replace("UsersTab.Data.Users",list);
+                    selectMainUser();
+                }
+            }
+        });
+        if(settingsFileController.isUsersTabAddButtonEnable()){
+            contextMenu.getItems().add(addNewUserMenuItem);
+        }
+        contextMenu.showingProperty().addListener((observable, oldValue, newValue) -> {
+            contextMenu.getItems().remove(removeUserMenuItem);
+            if(settingsFileController.isUsersTabRemoveButtonEnable()&&LVUsersList.getSelectionModel().getSelectedItem()!=null){
+                contextMenu.getItems().add(removeUserMenuItem);
+            }
+        });
+        LVUsersList.setContextMenu(contextMenu);
+    }
+
+    private void selectMainUser() {
+        for (User user:listUser) {
+            if(user.isMainUser()){
+                Platform.runLater(() -> {
+                    LVUsersList.scrollTo(LVUsersList.getItems().indexOf(user));
+                    LVUsersList.getSelectionModel().select(LVUsersList.getItems().indexOf(user));
+                    showUserData(user);
+                    btnChangesUser.setDisable(true);
+                    btnResetUser.setDisable(true);
+                });
+            }
+        }
+    }
+
+    private void createUser() {
+        String name =TxtNameInput.getText();
+        String surname =TxtSurnameInput.getText();
+        String number =TxtNumberInput.getText();
+        String email = TxtEmailInput.getText();
+        boolean isMainUser = CheckMakeMainUsers.isSelected();
+        if(!TxtNumberInput.getStyle().isEmpty()){
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Add user");
+            errorDialog.setHeaderText("Invalid number.");
+            errorDialog.setContentText("Change the phone number to a valid phone number.");
+            errorDialog.showAndWait();
+            return;
+        }
+        if(!TxtEmailInput.getStyle().isEmpty()){
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Add user");
+            errorDialog.setHeaderText("Invalid email.");
+            errorDialog.setContentText("Change the email to a valid email.");
+            errorDialog.showAndWait();
+            return;
+        }
+        if(!TxtNameInput.getStyle().isEmpty()||!TxtSurnameInput.getStyle().isEmpty()){
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Add user");
+            errorDialog.setHeaderText("Invalid name and surname.");
+            errorDialog.setContentText("This user is in the list. Change the name or surname to a valid email.");
+            errorDialog.showAndWait();
+            return;
+        }
+        selectUser.setName(name);
+        selectUser.setSurname(surname);
+        selectUser.setNumber(number);
+        selectUser.setEmail(email);
+        selectUser.setMainUser(isMainUser);
+        TxtNameInput.clear();
+        TxtSurnameInput.clear();
+        TxtNumberInput.clear();
+        TxtEmailInput.clear();
+        UserControlHBox.getChildren().remove(2);
+        if (isMainUser){
+            for (User user: listUser) {
+                if(!selectUser.getId().equals(user.getId())){
+                    user.setMainUser(false);
+                }
+            }
+            selectMainUser();
+        }
+        listUser.add(selectUser);
+        btnResetUser.setDisable(false);
+    }
+
+    private void showUserData(User user) {
+        if(UserControlHBox.getChildren().size()==3)
+            UserControlHBox.getChildren().remove(2);
+        if(user!=null) {
+            selectUser=user;
+            TxtNameInput.setText(user.getName());
+            TxtSurnameInput.setText(user.getSurname());
+            TxtNumberInput.setText(user.getNumber());
+            TxtEmailInput.setText(user.getEmail());
+            CheckMakeMainUsers.setSelected(user.isMainUser());
+        }else{
+            selectUser=new User();
+            TxtNameInput.setText("");
+            TxtSurnameInput.setText("");
+            TxtNumberInput.setText("");
+            TxtEmailInput.setText("");
+            CheckMakeMainUsers.setSelected(false);
+            btnChangesUser.setDisable(true);
+            btnResetUser.setDisable(true);
+        }
+    }
+
+    private void setUpDataPaths() {
+        if(settingsFileController.getImportOnStartUp()){
+            RBtnImportStartUpYes.setSelected(true);
+            RBtnImportStartUpNo.setSelected(false);
+        }else{
+            RBtnImportStartUpYes.setSelected(false);
+            RBtnImportStartUpNo.setSelected(true);
+            TxtImportPath.setDisable(true);
+        }
+        TxtImportPath.setText(settingsFileController.getImportPath());
+        TxtImportPath.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue){
+                changeListener.replace("PathsTab.Data.Import",TxtImportPath.getText());
+            }
+        });
+        TxtExportPath.setText(settingsFileController.getExportPath());
+        TxtExportPath.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue){
+                changeListener.replace("PathsTab.Data.Export",TxtExportPath.getText());
+            }
+        });
+    }
+
+    private void setUpDataPDF() {
+        List<String> options = new ArrayList<>();
+        options.add("Do not add");
+        options.add("1");
+        options.add("2");
+        options.add("3");
+        for (String option: options){
+            CbxQuotationInfoPosition.getItems().add(option);
+            CbxQuotationTablePosition.getItems().add(option);
+            CbxQuotationTextPosition.getItems().add(option);
+
+            CbxCostSheetInfoPosition.getItems().add(option);
+            CbxCostSheetTablePosition.getItems().add(option);
+            CbxCostSheetTextPosition.getItems().add(option);
+        }
+
+        Map<String, Integer> quotationPosition =settingsFileController.getQuotationPositions();
+        CbxQuotationInfoPosition.setValue(positionsIntegerToString(quotationPosition.get("PDFTab.Data.Quotation.Position.info")));
+        CbxQuotationTablePosition.setValue(positionsIntegerToString(quotationPosition.get("PDFTab.Data.Quotation.Position.table")));
+        CbxQuotationTextPosition.setValue(positionsIntegerToString(quotationPosition.get("PDFTab.Data.Quotation.Position.text")));
+        TxtAreaQuotationTextInput.setText(settingsFileController.getQuotationText());
+        if(quotationPosition.get("PDFTab.Data.Quotation.Position.table")==-1)
+            disableEnableQuotation(true);
+        CheckbxAddQuotation.setSelected(quotationPosition.get("PDFTab.Data.Quotation.Position.table")!=-1);
+        CbxQuotationTablePosition.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue&&positionsStringToInteger(CbxQuotationTablePosition.getSelectionModel().getSelectedItem())==-1){
+                CheckbxAddQuotation.setSelected(false);
+                disableEnableQuotation(true);
+            }
+        });
+        TxtAreaQuotationTextInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue&&!TxtAreaQuotationTextInput.isDisable()){
+                changeListener.replace("PDFTab.Data.Quotation.Text",TxtAreaQuotationTextInput.getText());
+            }
+        });
+
+        Map<String, Integer> costSheetPosition =settingsFileController.getCostingPositions();
+        CbxCostSheetInfoPosition.setValue(positionsIntegerToString(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.info")));
+        CbxCostSheetTablePosition.setValue(positionsIntegerToString(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.table")));
+        CbxCostSheetTextPosition.setValue(positionsIntegerToString(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.text")));
+        TxtAreaCostSheetTextInput.setText(settingsFileController.getCostingText());
+        if(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.table")==-1)
+            disableEnableCosting(true);
+        CheckbxAddCostSheet.setSelected(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.table")!=-1);
+        CbxCostSheetTablePosition.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue&&positionsStringToInteger(CbxCostSheetTablePosition.getSelectionModel().getSelectedItem())==-1){
+                CheckbxAddCostSheet.setSelected(false);
+                disableEnableCosting(true);
+            }
+        });
+        TxtAreaCostSheetTextInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue&&!TxtAreaCostSheetTextInput.isDisable()){
+                changeListener.replace("PDFTab.Data.CostingSheet.Text",TxtAreaCostSheetTextInput.getText());
+            }
+        });
+    }
+
+    private String positionsIntegerToString(int position){
+        return (position==-1)?"Do not add":Integer.toString(position);
+    }
+
+    private Integer positionsStringToInteger(String value) {
         if(value.equals("1")){
             return 1;
         }else if(value.equals("2")){
@@ -180,434 +825,6 @@ public class SettingsController implements Initializable {
         }
     }
 
-    @FXML
-    void closePopUp(ActionEvent event) {
-        closeStage(event);
-    }
-
-    @FXML
-    void addNewUser(ActionEvent event) {
-        User newUser = new User(TxtNameInput.getText(),TxtSurnameInput.getText(),TxtNumberInput.getText(),TxtEmailInput.getText(),CheckMakeMainUsers.isSelected());
-        for(User oldUser: listUser){
-            if(oldUser.getName().equals(newUser.getName())&&oldUser.getSurname().equals(newUser.getSurname())){
-                System.out.println("error");
-                return;
-            }
-        }
-        loadedUser=newUser;
-        listUser.add(newUser);
-        BtnApply.setDisable(!checkForChanges());
-        changes.put("AddedUser",true);
-    }
-
-    @FXML
-    void changesUsers(ActionEvent event) {
-        if(loadedUser!=null&&checkForUserChanges()){
-            loadedUser.setName(TxtNameInput.getText());
-            loadedUser.setSurname(TxtSurnameInput.getText());
-            loadedUser.setNumber(TxtNumberInput.getText());
-            loadedUser.setEmail(TxtEmailInput.getText());
-            loadedUser.setMainUser(settingsFileController.isUsersTabChangesButtonEnable());
-            if(loadedUser.isMainUser()==true){}
-            int counter=0;
-            for (User oldUser:listUser) {
-                if(oldUser.getId().equals(loadedUser.getId()))
-                    break;
-                counter++;
-            }
-            listUser.set(counter,loadedUser);
-            BtnApply.setDisable(!checkForChanges());
-        }
-    }
-
-    @FXML
-    void disableImportPathTextField(ActionEvent event) {
-
-    }
-
-    @FXML
-    void enableImportPathTextField(ActionEvent event) {
-
-    }
-
-    @FXML
-    void populateData(MouseEvent event) {
-        if(loadedUser!=LVUsersList.getSelectionModel().getSelectedItem()) {
-            User tempUser=LVUsersList.getSelectionModel().getSelectedItem();
-            loadedUser=null;
-            TxtNameInput.setText(tempUser.getName());
-            TxtSurnameInput.setText(tempUser.getSurname());
-            TxtEmailInput.setText(tempUser.getEmail());
-            TxtNumberInput.setText(tempUser.getNumber());
-            CheckMakeMainUsers.setSelected(tempUser.isMainUser());
-            loadedUser=tempUser;
-            if(settingsFileController.isUsersTabRemoveButtonEnable())
-                BtnRemoveUser.setDisable(false);
-            BtnResetUser.setDisable(false);
-        }
-    }
-
-    @FXML
-    void removeUser(ActionEvent event) {
-        if(loadedUser!=null){
-            listUser.remove(loadedUser);
-            changes.replace("RemoveUser",true);
-            TxtNameInput.setText("");
-            TxtSurnameInput.setText("");
-            TxtNumberInput.setText("");
-            TxtEmailInput.setText("");
-            CheckMakeMainUsers.setSelected(false);
-            TxtNameInput.setStyle("");
-            TxtSurnameInput.setStyle("");
-            TxtNumberInput.setStyle("");
-            TxtEmailInput.setStyle("");
-            BtnApply.setDisable(true);
-        }
-    }
-
-    @FXML
-    void resetUser(ActionEvent event){
-        changes.put("AddedUser",false);
-        changes.put("RemoveUser",false);
-        changes.put("ChangeUserName",false);
-        changes.put("ChangeUserSurname",false);
-        changes.put("ChangeUserNumber",false);
-        changes.put("ChangeUserEmail",false);
-        changes.put("ChangeMainUser",false);
-
-        TxtNameInput.setText("");
-        TxtSurnameInput.setText("");
-        TxtNumberInput.setText("");
-        TxtEmailInput.setText("");
-        CheckMakeMainUsers.setSelected(false);
-
-        TxtNameInput.setStyle("");
-        TxtSurnameInput.setStyle("");
-        TxtNumberInput.setStyle("");
-        TxtEmailInput.setStyle("");
-
-        BtnAddUsers.setDisable(true);
-        BtnChangesUser.setDisable(true);
-        BtnRemoveUser.setDisable(true);
-        BtnApply.setDisable(!checkForChanges());
-
-        listUser = FXCollections.observableArrayList(settingsFileController.getAllUsers());
-        LVUsersList.setItems(listUser);
-
-        for(User user:listUser){
-            if(user.isMainUser()){
-                LVUsersList.scrollTo(user);
-                LVUsersList.getSelectionModel().select(user);
-                TxtNameInput.setText(user.getName());
-                TxtSurnameInput.setText(user.getSurname());
-                TxtNumberInput.setText(user.getNumber());
-                TxtEmailInput.setText(user.getEmail());
-                CheckMakeMainUsers.setSelected(user.isMainUser());
-                break;
-            }
-        }
-    }
-
-    @FXML
-    void errorChecking(ActionEvent event) {
-        ComboBox<String> comboBox=(ComboBox<String>) event.getSource();
-        if(CbxUserInfoPosition.getValue().equals(comboBox.getValue())&&!comboBox.getValue().equals("None")&&!CbxUserInfoPosition.getId().equals(comboBox.getId())){
-            CbxUserInfoPosition.setStyle("-fx-border-color: red");
-            comboBox.setStyle("-fx-border-color: red");
-        }
-        else if(CbxCostingSheetPosition.getValue().equals(comboBox.getValue())&&!comboBox.getValue().equals("None")&&!CbxCostingSheetPosition.getId().equals(comboBox.getId())){
-            CbxCostingSheetPosition.setStyle("-fx-border-color: red");
-            comboBox.setStyle("-fx-border-color: red");
-        }
-        else if(CbxQuotationPosition.getValue().equals(comboBox.getValue())&&!comboBox.getValue().equals("None")&&!CbxQuotationPosition.getId().equals(comboBox.getId())){
-            CbxQuotationPosition.setStyle("-fx-border-color: red");
-            comboBox.setStyle("-fx-border-color: red");
-        }
-        else if(CbxTextPosition.getValue().equals(comboBox.getValue())&&!comboBox.getValue().equals("None")&&!CbxTextPosition.getId().equals(comboBox.getId())){
-            CbxTextPosition.setStyle("-fx-border-color: red");
-            comboBox.setStyle("-fx-border-color: red");
-        }
-        else{
-            CbxUserInfoPosition.setStyle("");
-            CbxCostingSheetPosition.setStyle("");
-            CbxQuotationPosition.setStyle("");
-            CbxTextPosition.setStyle("");
-            List<String> newValues= new ArrayList<>();
-            newValues.add(CbxUserInfoPosition.getValue());
-            newValues.add(CbxCostingSheetPosition.getValue());
-            newValues.add(CbxQuotationPosition.getValue());
-            newValues.add(CbxTextPosition.getValue());
-            List<Integer> newIntValues = new ArrayList<>();
-            for (String value: newValues) {
-                if(value.equals("None")){
-                    newIntValues.add(-1);
-                }else{
-                    newIntValues.add(Integer.parseInt(value));
-                }
-            }
-
-            changes.replace("ChangePDFPosition",false);
-            boolean hasChanged =CbxUserInfoPosition.getValue().equals("1")&&CbxCostingSheetPosition.getValue().equals("2")&&CbxQuotationPosition.getValue().equals("3")&&CbxTextPosition.getValue().equals("4");
-            if(!checkForChanges()){
-                BtnApply.setDisable(hasChanged);
-            }
-            changes.replace("ChangePDFPosition",!hasChanged);
-
-            if(CbxTextPosition.getValue().equals("None")){
-                TxtAreaTextInput.setDisable(true);
-            }else{
-                TxtAreaTextInput.setDisable(false);
-            }
-        }
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-    }
-
-    public void setMainController(MainController mainController) {
-        this.mainController=mainController;
-        settingsFileController = new SettingsFileController();
-        setUpEnableOrDisableTabs();
-        setUpDataInTabs();
-    }
-
-    public void setStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
-        fileChooser.getExtensionFilters().add(extFilter);
-    }
-
-    private boolean checkForChanges() {
-        for (boolean changes: changes.values()) {
-            if(changes)
-                return true;
-        }
-        return false;
-    }
-
-    private boolean checkForUserChanges(){
-        return changes.get("ChangeUserName")||
-        changes.get("ChangeUserSurname")||
-        changes.get("ChangeUserNumber")||
-        changes.get("ChangeUserEmail")||
-        changes.get("ChangeMainUser");
-    }
-
-    private void setUpDataInTabs() {
-        setUpDataPDF();
-        setUpDataPaths();
-        setUpDataUsers();
-    }
-
-    private void setUpDataUsers() {
-        LVUsersList.setCellFactory(param -> new ListCell<User>() {
-            @Override
-            protected void updateItem(User item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null || item.getName()== null||item.getSurname()==null) {
-                    setText(null);
-                } else {
-                    setText((item.getName()+" "+item.getSurname()));
-                }
-            }
-        });
-        listUser = FXCollections.observableArrayList(settingsFileController.getAllUsers());
-        LVUsersList.setItems(listUser);
-        TxtNameInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.isEmpty()&&loadedUser!=null&&!newValue.isEmpty()){
-                changes.replace("ChangeUserName",false);
-                boolean hasChanged =newValue.equals(loadedUser.getName());
-                if(!checkForChanges()){
-                    BtnApply.setDisable(hasChanged);
-                }
-                if(settingsFileController.isUsersTabChangesButtonEnable())
-                    BtnChangesUser.setDisable(hasChanged);
-                changes.replace("ChangeUserName",!hasChanged);
-            }
-            if(newValue.isEmpty()){
-                TxtNameInput.setStyle("-fx-border-color: red");
-                BtnAddUsers.setDisable(true);
-                BtnChangesUser.setDisable(true);
-            }else{
-                TxtNameInput.setStyle("");
-                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
-                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
-            }
-            BtnResetUser.setDisable(false);
-        });
-        TxtSurnameInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.isEmpty()&&loadedUser!=null&&newValue.isEmpty()){
-                changes.replace("ChangeUserSurname",false);
-                boolean hasChanged =newValue.equals(loadedUser.getName());
-                if(!checkForChanges()){
-                    BtnApply.setDisable(hasChanged);
-                }
-                if(settingsFileController.isUsersTabChangesButtonEnable())
-                    BtnChangesUser.setDisable(hasChanged);
-                changes.replace("ChangeUserSurname",!hasChanged);
-            }
-            if(newValue.isEmpty()){
-                TxtSurnameInput.setStyle("-fx-border-color: red");
-                BtnAddUsers.setDisable(true);
-                BtnChangesUser.setDisable(true);
-            }else{
-                TxtSurnameInput.setStyle("");
-                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
-                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
-            }
-            BtnResetUser.setDisable(false);
-        });
-        TxtNumberInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            String pattern = "\\d{10}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
-            if (newValue.matches(pattern)) {
-                if (!oldValue.isEmpty()&&loadedUser!=null){
-                    changes.replace("ChangeUserSurname",false);
-                    boolean hasChanged =newValue.equals(loadedUser.getNumber());
-                    if(!checkForChanges()){
-                        BtnApply.setDisable(hasChanged);
-                    }
-                    if(settingsFileController.isUsersTabChangesButtonEnable())
-                        BtnChangesUser.setDisable(hasChanged);
-                    changes.replace("ChangeUserSurname",!hasChanged);
-                }
-                TxtNumberInput.setStyle("");
-                BtnResetUser.setDisable(false);
-                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
-                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
-            } else {
-                TxtNumberInput.setStyle("-fx-border-color: red");
-                BtnAddUsers.setDisable(true);
-                BtnChangesUser.setDisable(true);
-            }
-        });
-        TxtEmailInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            String pattern = "^(.+)@(.+)$";
-            if (newValue.matches(pattern)) {
-                if (!oldValue.isEmpty()&&loadedUser!=null){
-                    changes.replace("ChangeUserEmail",false);
-                    boolean hasChanged =newValue.equals(loadedUser.getEmail());
-                    if(!checkForChanges()){
-                        BtnApply.setDisable(hasChanged);
-                    }
-                    if(settingsFileController.isUsersTabChangesButtonEnable())
-                        BtnChangesUser.setDisable(hasChanged);
-                    changes.replace("ChangeUserEmail",!hasChanged);
-                }
-                TxtEmailInput.setStyle("");
-                BtnResetUser.setDisable(false);
-                BtnAddUsers.setDisable(!settingsFileController.isUsersTabAddButtonEnable());
-                BtnChangesUser.setDisable(!settingsFileController.isUsersTabChangesButtonEnable());
-            } else {
-                TxtEmailInput.setStyle("-fx-border-color: red");
-                BtnAddUsers.setDisable(true);
-                BtnChangesUser.setDisable(true);
-            }
-        });
-        CheckMakeMainUsers.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (loadedUser!=null){
-                changes.replace("ChangeMainUser",false);
-                boolean hasChanged =newValue==loadedUser.isMainUser();
-                if(!checkForChanges()){
-                    BtnApply.setDisable(hasChanged);
-                }
-                if(settingsFileController.isUsersTabChangesButtonEnable())
-                    BtnChangesUser.setDisable(hasChanged);
-                for(User user:listUser){
-                    user.setMainUser(false);
-                }
-                changes.replace("ChangeMainUser",!hasChanged);
-            }
-            BtnResetUser.setDisable(false);
-        });
-        for(User user:listUser){
-            if(user.isMainUser()){
-                Platform.runLater(() -> {
-                    LVUsersList.scrollTo(user);
-                    LVUsersList.getSelectionModel().select(user);
-                    TxtNameInput.setText(user.getName());
-                    TxtSurnameInput.setText(user.getSurname());
-                    TxtNumberInput.setText(user.getNumber());
-                    TxtEmailInput.setText(user.getEmail());
-                    CheckMakeMainUsers.setSelected(user.isMainUser());
-                });
-                break;
-            }
-        }
-    }
-
-    private void setUpDataPaths() {
-        if(settingsFileController.getImportOnStartUp()){
-            RBtnImportStartUpYes.setSelected(true);
-            RBtnImportStartUpNo.setSelected(false);
-        }else{
-            RBtnImportStartUpYes.setSelected(false);
-            RBtnImportStartUpNo.setSelected(true);
-        }
-        RBtnImportStartUpYes.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            changes.replace("ChangePathsOnStartUp",false);
-            boolean hasChanged =newValue&& settingsFileController.getImportOnStartUp();
-            if(!checkForChanges()){
-                BtnApply.setDisable(hasChanged);
-            }
-            changes.replace("ChangePathsOnStartUp",!hasChanged);
-            TxtImportURL.setDisable(false);
-        });
-        RBtnImportStartUpNo.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            changes.replace("ChangePathsOnStartUp",false);
-            boolean hasChanged =(newValue)&& (!settingsFileController.getImportOnStartUp());
-            if(!checkForChanges()){
-                BtnApply.setDisable(hasChanged);
-            }
-            changes.replace("ChangePathsOnStartUp",!hasChanged);
-            TxtImportURL.setDisable(true);
-        });
-        TxtImportURL.setText(settingsFileController.getImportPath());
-        TxtImportURL.textProperty().addListener((observable, oldValue, newValue) -> {
-            changes.replace("ChangePathsImportPath",false);
-            boolean hasChanged =newValue.equals(settingsFileController.getImportPath());
-            if(!checkForChanges()){
-                BtnApply.setDisable(hasChanged);
-            }
-            changes.replace("ChangePathsImportPath",!hasChanged);
-        });
-        TxtExportURL.setText(settingsFileController.getExportPath());
-        TxtExportURL.textProperty().addListener((observable, oldValue, newValue) -> {
-            changes.replace("ChangePathsExportPath",false);
-            boolean hasChanged =newValue.equals(settingsFileController.getExportPath());
-            if(!checkForChanges()){
-                BtnApply.setDisable(hasChanged);
-            }
-            changes.replace("ChangePathsExportPath",!hasChanged);
-        });
-    }
-
-    private void setUpDataPDF() {
-        CbxUserInfoPosition.setItems(positions);
-        CbxCostingSheetPosition.setItems(positions);
-        CbxQuotationPosition.setItems(positions);
-        CbxTextPosition.setItems(positions);
-        CbxUserInfoPosition.getSelectionModel().select(0);
-        CbxCostingSheetPosition.getSelectionModel().select(1);
-        CbxQuotationPosition.getSelectionModel().select(2);
-        CbxTextPosition.getSelectionModel().select(3);
-        TxtAreaTextInput.setText(settingsFileController.getPDFText());
-        TxtAreaTextInput.textProperty().addListener((observable, oldValue, newValue) ->{
-            if(settingsFileController.getPDFText().equals(newValue)){
-                BtnApply.setDisable(true);
-            }else{
-                BtnApply.setDisable(false);
-            }
-            changes.replace("ChangePDFText",false);
-            boolean hasChanged =settingsFileController.getPDFText().equals(newValue);
-            if(!checkForChanges()){
-                BtnApply.setDisable(hasChanged);
-            }
-            changes.replace("ChangePDFText",!hasChanged);
-        });
-    }
-
     public void setUpEnableOrDisableTabs(){
         if(settingsFileController.isUsersTabEnable())
             enableUsersTab();
@@ -617,108 +834,84 @@ public class SettingsController implements Initializable {
             enablePathsTab();
         else
             disablePathsTab();
-       if(settingsFileController.isPDFTabEnable())
+       if(settingsFileController.isPDFTadEnable())
             enablePDFTab();
        else
             disablePDFTab();
     }
 
     private void enableUsersTab() {
-        UsersTab.setDisable(false);
-        LVUsersList.setDisable(false);
         if(settingsFileController.isUsersTabMakeMainOnlyEnable()){
-            TxtNameInput.setDisable(true);
-            TxtSurnameInput.setDisable(true);
-            TxtNumberInput.setDisable(true);
-            TxtEmailInput.setDisable(true);
+            disableUsersTab();
+            LVUsersList.setDisable(false);
             CheckMakeMainUsers.setDisable(false);
-            BtnAddUsers.setDisable(true);
-            BtnChangesUser.setDisable(true);
-            BtnRemoveUser.setDisable(true);
         }else{
+            LVUsersList.setDisable(false);
+            TxtNameInput.setDisable(false);
+            TxtSurnameInput.setDisable(false);
+            TxtNumberInput.setDisable(false);
+            TxtEmailInput.setDisable(false);
             CheckMakeMainUsers.setDisable(false);
-            BtnAddUsers.setDisable(true);
-            BtnChangesUser.setDisable(true);
-            BtnRemoveUser.setDisable(true);
-            if(!settingsFileController.isUsersTabAddButtonEnable()&&!settingsFileController.isUsersTabChangesButtonEnable()&&!settingsFileController.isUsersTabRemoveButtonEnable()){
-                TxtNameInput.setDisable(true);
-                TxtSurnameInput.setDisable(true);
-                TxtNumberInput.setDisable(true);
-                TxtEmailInput.setDisable(true);
-            }else{
-                TxtNameInput.setDisable(false);
-                TxtSurnameInput.setDisable(false);
-                TxtNumberInput.setDisable(false);
-                TxtEmailInput.setDisable(false);
-            }
+            btnChangesUser.setDisable(true);
         }
     }
 
     private void disableUsersTab() {
-        UsersTab.setDisable(true);
         LVUsersList.setDisable(true);
         TxtNameInput.setDisable(true);
         TxtSurnameInput.setDisable(true);
         TxtNumberInput.setDisable(true);
         TxtEmailInput.setDisable(true);
         CheckMakeMainUsers.setDisable(true);
-        BtnAddUsers.setDisable(true);
-        BtnChangesUser.setDisable(true);
-        BtnRemoveUser.setDisable(true);
+        btnChangesUser.setDisable(true);
     }
 
     private void enablePathsTab() {
-        PathsTab.setDisable(false);
-        if(settingsFileController.isPathsImportEnable()){
-            RBtnImportStartUpYes.setDisable(false);
-            RBtnImportStartUpNo.setDisable(false);
-            if(settingsFileController.getImportOnStartUp()) {
-                TxtImportURL.setDisable(false);
-            }else{
-                TxtImportURL.setDisable(true);
-            }
-        }else{
-            RBtnImportStartUpYes.setDisable(true);
-            RBtnImportStartUpNo.setDisable(true);
-            TxtImportURL.setDisable(true);
-
-        }
-        TxtExportURL.setDisable(!settingsFileController.isPathsExportEnable());
-
+        RBtnImportStartUpYes.setDisable(!settingsFileController.isPathsImportEnable());
+        RBtnImportStartUpNo.setDisable(!settingsFileController.isPathsImportEnable());
+        TxtImportPath.setDisable(!settingsFileController.isPathsImportEnable()&&settingsFileController.getImportOnStartUp());
+        btnImportPath.setDisable(!settingsFileController.isPathsImportEnable()&&settingsFileController.getImportOnStartUp());
+        TxtExportPath.setDisable(!settingsFileController.isPathsExportEnable());
+        btnExportPath.setDisable(!settingsFileController.isPathsExportEnable());
     }
 
     private void disablePathsTab() {
-        PathsTab.setDisable(true);
         RBtnImportStartUpYes.setDisable(true);
         RBtnImportStartUpNo.setDisable(true);
-        TxtImportURL.setDisable(true);
-        TxtExportURL.setDisable(true);
+        btnImportPath.setDisable(true);
+        TxtImportPath.setDisable(true);
+        btnExportPath.setDisable(true);
+        TxtExportPath.setDisable(true);
     }
 
     private void enablePDFTab() {
-        PDFTab.setDisable(false);
-        CbxUserInfoPosition.setDisable(false);
-        CbxCostingSheetPosition.setDisable(false);
-        CbxQuotationPosition.setDisable(false);
-        CbxTextPosition.setDisable(!settingsFileController.isPDFTextEnable());
-        TxtAreaTextInput.setDisable(!settingsFileController.isPDFTextEnable());
+        CheckbxAddQuotation.setDisable(false);
+        disableEnableQuotation(false);
+
+        CheckbxAddCostSheet.setDisable(false);
+        disableEnableCosting(false);
     }
 
     private void disablePDFTab() {
-        PDFTab.setDisable(true);
-        CbxUserInfoPosition.setDisable(true);
-        CbxCostingSheetPosition.setDisable(true);
-        CbxQuotationPosition.setDisable(true);
-        CbxTextPosition.setDisable(true);
-        TxtAreaTextInput.setDisable(true);
+        CheckbxAddQuotation.setDisable(true);
+        disableEnableQuotation(true);
+
+        CheckbxAddCostSheet.setDisable(true);
+        disableEnableCosting(true);
     }
 
-    public SettingsFileController getSettingsFileController() {
-        return settingsFileController;
+    private void disableEnableCosting(boolean disable){
+        CbxCostSheetInfoPosition.setDisable(disable);
+        CbxCostSheetTablePosition.setDisable(disable);
+        CbxCostSheetTextPosition.setDisable(disable);
+        TxtAreaCostSheetTextInput.setDisable((disable)?true:settingsFileController.hasCostingText());
     }
 
-    public Node getMainNode() {
-        return BorderPaneSettings;
+    private void disableEnableQuotation(boolean disable){
+        CbxQuotationInfoPosition.setDisable(disable);
+        CbxQuotationTablePosition.setDisable(disable);
+        CbxQuotationTextPosition.setDisable(disable);
+        TxtAreaQuotationTextInput.setDisable((disable)?true:settingsFileController.hasQuotationText());
     }
 
     private void closeStage(ActionEvent event) {
@@ -726,4 +919,9 @@ public class SettingsController implements Initializable {
         Stage stage  = (Stage) source.getScene().getWindow();
         stage.close();
     }
+
+    public void enableDisableApplyButton(boolean newValue) {
+        btnApply.setDisable(newValue);
+    }
+
 }

@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import sample.MainController;
+import sample.data.Category;
 import sample.data.Item;
 
 import java.net.URL;

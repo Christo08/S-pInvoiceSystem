@@ -1,7 +1,9 @@
 package sample.controllers;
 
+import com.google.common.collect.Lists;
 import sample.data.User;
 import java.io.*;
+import java.security.Key;
 import java.util.*;
 
 public class SettingsFileController {
@@ -26,14 +28,6 @@ public class SettingsFileController {
                    }else if(lineSplit[1].trim().contentEquals("false")){
                        keyValuePair.put(lineSplit[0],false);
                    }else if(lineSplit[1].charAt(0)=='['&&lineSplit[1].trim().charAt(lineSplit[1].trim().length()-1)==']'){
-                       if (lineSplit[0].equals("PDFTab.Data.Positions")) {
-                           String[] stringNumber = lineSplit[1].substring(1,lineSplit[1].trim().length()-1).split(" , ");
-                           List<Integer> positions = new ArrayList<>();
-                           for (int counter=0; counter< stringNumber.length;counter++ ){
-                               positions.add(Integer.parseInt(stringNumber[counter].trim()));
-                           }
-                           keyValuePair.put(lineSplit[0],positions);
-                       }
                        if(lineSplit[0].equals("UsersTab.Data.Users")){
                            String[] stringUsers = lineSplit[1].substring(1,lineSplit[1].length()-1).split(", ");
                            List<User> users = new ArrayList<>();
@@ -42,7 +36,7 @@ public class SettingsFileController {
                            }
                            keyValuePair.put(lineSplit[0],users);
                        }
-                   }else if(lineSplit[0].equals("UsersTab.Data.UsersCounter")) {
+                   }else if(lineSplit[0].contains("UsersCounter")||lineSplit[0].contains("Position")) {
                        keyValuePair.put(lineSplit[0],Integer.parseInt(lineSplit[1].trim()));
                    }else{
                        keyValuePair.put(lineSplit[0],lineSplit[1]);
@@ -56,53 +50,74 @@ public class SettingsFileController {
 
     }
 
-    public List<Integer> getPDFPositions(){
-        if(keyValuePair.containsKey("PDFTab.Data.Positions"))
-            return (ArrayList<Integer>)keyValuePair.get("PDFTab.Data.Positions");
-        List<Integer> defaultValues = new ArrayList<>();
-        defaultValues.add(1);
-        defaultValues.add(2);
-        defaultValues.add(4);
-        defaultValues.add(3);
-        return defaultValues;
+    public Map<String, Integer> getQuotationPositions(){
+        Map<String,Integer> results = new HashMap<>();
+        if (keyValuePair.containsKey("PDFTab.Data.Quotation.Position.info"))
+            results.put("PDFTab.Data.Quotation.Position.info",  (int)keyValuePair.get("PDFTab.Data.Quotation.Position.info"));
+        else
+            results.put("PDFTab.Data.Quotation.Position.info",  -1);
+        if (keyValuePair.containsKey("PDFTab.Data.Quotation.Position.table"))
+            results.put("PDFTab.Data.Quotation.Position.table",  (int)keyValuePair.get("PDFTab.Data.Quotation.Position.table"));
+        else
+            results.put("PDFTab.Data.Quotation.Position.table",  -1);
+        if (keyValuePair.containsKey("PDFTab.Data.Quotation.Position.text"))
+            results.put("PDFTab.Data.Quotation.Position.text",  (int)keyValuePair.get("PDFTab.Data.Quotation.Position.text"));
+        else
+            results.put("PDFTab.Data.Quotation.Position.text",  -1);
+        return results;
     }
 
-    public Map<String,Integer> getPDFPositionMap(){
-        List<Integer> positions = getPDFPositions();
-        Map<String,Integer> positionMap = new HashMap<>();
-        positionMap.put("info", positions.get(0));
-        positionMap.put("costingSheet", positions.get(1));
-        positionMap.put("quotationSheet", positions.get(2));
-        positionMap.put("additionalText", positions.get(3));
-        return positionMap;
+    public Map<String, Integer> getCostingPositions(){
+        Map<String,Integer> results = new HashMap<>();
+        if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Position.info"))
+            results.put("PDFTab.Data.CostingSheet.Position.info",  (int)keyValuePair.get("PDFTab.Data.CostingSheet.Position.info"));
+        else
+            results.put("PDFTab.Data.CostingSheet.Position.info",  -1);
+        if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Position.table"))
+            results.put("PDFTab.Data.CostingSheet.Position.table",  (int)keyValuePair.get("PDFTab.Data.CostingSheet.Position.table"));
+        else
+            results.put("PDFTab.Data.CostingSheet.Position.table",  -1);
+        if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Position.text"))
+            results.put("PDFTab.Data.CostingSheet.Position.text",  (int)keyValuePair.get("PDFTab.Data.CostingSheet.Position.text"));
+        else
+            results.put("PDFTab.Data.CostingSheet.Position.text", -1);
+        return results;
     }
 
-    public void setPDFPositions(List<Integer> newPositions){
-        keyValuePair.replace("PDFTab.Data.Positions",newPositions);
-        pdfDataHasChanged=true;
-    }
-
-    public String getPDFText(){
-        if(keyValuePair.containsKey("PDFTab.Data.Text"))
-            return (String) keyValuePair.get("PDFTab.Data.Text");
+    public String getQuotationText(){
+        if (keyValuePair.containsKey("PDFTab.Data.Quotation.Text"))
+             return (String)keyValuePair.get("PDFTab.Data.Quotation.Text");
         return "";
     }
 
-    public void setPDFText(String newPDFText){
-        pdfDataHasChanged=true;
-        keyValuePair.replace("PDFTab.Data.Text",newPDFText);
+    public String getCostingText(){
+        if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Text"))
+             return (String)keyValuePair.get("PDFTab.Data.CostingSheet.Text");
+        return "";
     }
 
+    public boolean hasQuotationText(){
+        if (keyValuePair.containsKey("PDFTab.Enable.Quotation.Text"))
+            return !(boolean)keyValuePair.get("PDFTab.Enable.Quotation.Text");
+        return false;
+    }
+
+    public boolean hasCostingText(){
+        if (keyValuePair.containsKey("PDFTab.Enable.CostingSheet.Text"))
+            return !(boolean)keyValuePair.get("PDFTab.Enable.CostingSheet.Text");
+        return false;
+    }
+
+    public boolean isPDFTadEnable(){
+        if (keyValuePair.containsKey("PDFTab.Enable"))
+            return (boolean)keyValuePair.get("PDFTab.Enable");
+        return false;
+    }
 
     public String getImportPath(){
         if(keyValuePair.containsKey("PathsTab.Data.Import"))
             return (String) keyValuePair.get("PathsTab.Data.Import");
         return "";
-    }
-
-    public void setImportPath(String newPath){
-        keyValuePair.replace("PathsTab.Data.Import",newPath);
-        pathsDataHasChanged=true;
     }
 
     public String getExportPath(){
@@ -111,20 +126,10 @@ public class SettingsFileController {
         return "";
     }
 
-    public void setExportPath(String newPath){
-        keyValuePair.replace("PathsTab.Data.Export",newPath);
-        pathsDataHasChanged=true;
-    }
-
     public boolean getImportOnStartUp(){
         if(keyValuePair.containsKey("PathsTab.Data.ImportOnStartUp"))
             return (boolean) keyValuePair.get("PathsTab.Data.ImportOnStartUp");
         return false;
-    }
-
-    public void setImportOnStartUp(boolean newValue){
-        keyValuePair.replace("PathsTab.Data.ImportOnStartUp",newValue);
-        pathsDataHasChanged=true;
     }
 
     public List<User> getAllUsers(){
@@ -143,61 +148,8 @@ public class SettingsFileController {
                     .orElse(null);
     }
 
-    public void removeUser(List<User> users){
-        usersDataHasChanged=true;
-        List<User> oldUsers=((List<User>)keyValuePair.get("UsersTab.Data.Users"));
-        for(User oldUser: oldUsers){
-            if(!users.contains(oldUser)){
-                oldUsers.remove(oldUser);
-            }
-        }
-        keyValuePair.replace("UsersTab.Data.Users",oldUsers);
-    }
-
-    public void addUser(List<User> users){
-        usersDataHasChanged=true;
-        int usersCounter=(int)keyValuePair.get("UsersTab.Data.UsersCounter");
-        for (User newUser: users) {
-            newUser.setId(usersCounter);
-            if(!((List<User>) keyValuePair.get("UsersTab.Data.Users")).contains(newUser)) {
-                ((List<User>) keyValuePair.get("UsersTab.Data.Users")).add(newUser);
-            }
-        }
-        usersCounter++;
-        keyValuePair.replace("UsersTab.Data.UsersCounter",usersCounter);
-    }
-
-    public void changesUser(List<User> users){
-        usersDataHasChanged=true;
-        users.stream().forEach(newUser->{
-            ((List<User>)keyValuePair.get("UsersTab.Data.Users")).stream().forEach(oldUser->{
-                if(newUser.equals(oldUser)){
-                    ((List<User>)keyValuePair.get("UsersTab.Data.Users")).remove(oldUser);
-                    ((List<User>)keyValuePair.get("UsersTab.Data.Users")).add(newUser);
-                }
-            });
-        });
-
-    }
-
-    public boolean isUsersDataHasChanged() {
-        return usersDataHasChanged;
-    }
-
     public boolean isChanged(){
         return (usersDataHasChanged||pdfDataHasChanged||pathsDataHasChanged);
-    }
-
-    public boolean isPDFTabEnable(){
-        if(keyValuePair.containsKey("PDFTab.Enable"))
-            return (boolean) keyValuePair.get("PDFTab.Enable");
-        return true;
-    }
-
-    public boolean isPDFTextEnable(){
-        if(keyValuePair.containsKey("PDFTab.Enable.Text"))
-            return (boolean) keyValuePair.get("PDFTab.Enable.Text");
-        return true;
     }
 
     public boolean isPathsTabEnable(){
@@ -248,15 +200,21 @@ public class SettingsFileController {
         return true;
     }
 
-    public void applyChanges(){
-        if(isChanged()){
-            String data = formatData();
-            try(BufferedWriter  bufferedReader = new BufferedWriter (new FileWriter(absolutePath))) {
-                bufferedReader.write(data);
-            }catch (Exception e){
-                System.out.println(e);
-            }
+    public void applyChanges(Map<String, Object> newValues) throws IOException {
+        List<String> keys = Lists.newArrayList(newValues.keySet());
+        boolean hasChanged=false;
+        for (String key:  keys) {
+            keyValuePair.replace(key,newValues.get(key));
+            hasChanged=true;
         }
+        if (hasChanged){
+            FileWriter file = new FileWriter(absolutePath);
+            BufferedWriter output = new BufferedWriter(file);
+            String data = formatData();
+            output.write(data);
+            output.close();
+        }
+
     }
 
     private String formatData(){
@@ -296,4 +254,7 @@ public class SettingsFileController {
         return outputText;
     }
 
+    public Map<String,Object> getKeyValuePair() {
+        return keyValuePair;
+    }
 }

@@ -10,6 +10,15 @@ public class User {
     private boolean mainUser=false;
     private String id="";
 
+    public User(User other){
+        this.name = other.name;
+        this.surname = other.surname;
+        this.number = other.number;
+        this.email = other.email;
+        this.mainUser = other.mainUser;
+        this.id =other.id;
+    }
+
     public User(String inputData){
         inputData = inputData.substring(1,inputData.length()-1);
         String[] data = inputData.split(",");
@@ -30,6 +39,10 @@ public class User {
         this.number = number;
         this.email = email;
         this.mainUser = mainUser;
+    }
+
+    public User() {
+        this("","","","",false);
     }
 
     @Override
