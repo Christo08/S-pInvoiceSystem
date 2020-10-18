@@ -266,4 +266,8 @@ public class MainController implements Initializable {
     public SettingsFileController getSettingsFileController() {
         return settingsFileController;
     }
+
+    public String getTheme() {
+        return settingsFileController.getTheme();
+    }
 }

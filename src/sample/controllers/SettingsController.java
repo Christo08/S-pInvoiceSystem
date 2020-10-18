@@ -1,6 +1,9 @@
 package sample.controllers;
 
+import com.sun.javafx.css.StyleManager;
+import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -121,6 +124,15 @@ public class SettingsController implements Initializable {
     @FXML
     private HBox UserControlHBox;
 
+    @FXML
+    private ToggleGroup themeGroup;
+
+    @FXML
+    private RadioButton rbDark;
+
+    @FXML
+    private RadioButton rbLight;
+
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private final FileChooser fileChooser = new FileChooser();
     private FileChooser.ExtensionFilter excelExtensionFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
@@ -137,6 +149,7 @@ public class SettingsController implements Initializable {
 
     Pattern phonePatterns = Pattern.compile("(?:\\(\\d{3}\\)|\\d{3}([-]|[\\s])*)\\d{3}([-]|[\\s])*\\d{4}");
     private final String emailPattern= "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+    public static String CSSPath = new File("src/sample/CSS/").getAbsolutePath();
 
     public SettingsController() {
         contextMenu = new ContextMenu();
@@ -452,8 +465,33 @@ public class SettingsController implements Initializable {
         setUpDataPDF();
         setUpDataPaths();
         setUpDataUsers();
+        setUpDataTheme();
     }
 
+    private void setUpDataTheme() {
+        if(settingsFileController.getTheme().contains("dark")){
+            rbDark.setSelected(true);
+            rbLight.setSelected(false);
+        }else{
+            rbLight.setSelected(true);
+            rbDark.setSelected(false);
+        }
+        themeGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            String file1 =((RadioButton)newValue).getText().toLowerCase()+"Theme.css";
+            String file2 =((RadioButton)oldValue).getText().toLowerCase()+"Theme.css";
+            String absoluteCSSPath1= CSSPath+"\\"+ file1;
+            String absoluteCSSPath2 = CSSPath+"\\"+ file2;
+            File f1 = new File(absoluteCSSPath1);
+            File f2 = new File(absoluteCSSPath2);
+            String finalFilePath1="file:///" + f1.getAbsolutePath().replace("\\", "/");
+            String finalFilePath2="file:///" + f2.getAbsolutePath().replace("\\", "/");
+            Platform.runLater(()->{
+                StyleManager.getInstance().removeUserAgentStylesheet(finalFilePath2);
+                StyleManager.getInstance().addUserAgentStylesheet(finalFilePath1);
+                changeListener.replace("ThemeTab.Theme",finalFilePath1.trim());
+            });
+        });
+    }
     private void setUpDataUsers() {
         List<User> copyOfUsers = new ArrayList<>();
         for(User user: settingsFileController.getAllUsers()){
