@@ -6,12 +6,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import sample.data.Item;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -68,6 +73,9 @@ public class CostingSheetController implements Initializable {
     private HBox profitHBox;
     private Label popUpProfitLbl;
     private Spinner<Double> popUpProfitSpr;
+    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    String logoName = "Logo.PNG";
+    String absoluteLogoPath = recourcePath+"\\"+ logoName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -161,8 +169,13 @@ public class CostingSheetController implements Initializable {
         popUpPane.add(popUpProfitSpr,1,0);
         popUpPane.add(popUpQuantityLbl,0,1);
         popUpPane.add(popUpQuantitySpr,1,1);
-        popup = new Alert(Alert.AlertType.NONE,
-                "Item");
+        popup = new Alert(Alert.AlertType.NONE,"Item");
+        popup.setTitle("Quick Quotes - Changes Item");
+        try {
+            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         popup.setHeaderText("Changes item");
         popup.getDialogPane().setContent(popUpPane);
         popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);

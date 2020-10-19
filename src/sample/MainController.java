@@ -21,10 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
 import java.net.URL;
@@ -65,6 +62,9 @@ public class MainController implements Initializable {
     private MenuItem menuItemQuit;
 
     private SettingsFileController settingsFileController;
+    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    String logoName = "Logo.PNG";
+    String absoluteLogoPath = recourcePath+"\\"+ logoName;
 
     public void setStage(Stage stage) throws Exception{
         primaryStage = stage;
@@ -191,7 +191,12 @@ public class MainController implements Initializable {
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Save");
+            alert.setTitle("Quick Quotes - Save");
+            try {
+                ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
             String fileName = (activeFilePath != null)? Paths.get(activeFilePath).getFileName().toString(): "Untitled";
             alert.setHeaderText("Save changes to document “"+fileName+"” before closing?");
             alert.setContentText("Your changes will be lost if you don’t save them.");

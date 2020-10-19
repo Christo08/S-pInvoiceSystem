@@ -13,8 +13,6 @@ import java.io.FileInputStream;
 
 public class Main extends Application {
     public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
-    public static String CSSPath = new File("src/sample/CSS/").getAbsolutePath();
-
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recourcePath+"\\"+ logoName;
 
@@ -31,7 +29,7 @@ public class Main extends Application {
         String CSSName = mainController.getTheme();
         Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);
         StyleManager.getInstance().addUserAgentStylesheet(CSSName);
-        primaryStage.setTitle("Invoice");
+        primaryStage.setTitle("Quick Quotes");
         primaryStage.getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
         primaryStage.setScene(mainScene);
         primaryStage.setResizable(false);

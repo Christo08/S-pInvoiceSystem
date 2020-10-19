@@ -4,10 +4,15 @@ package sample.data;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import sample.controllers.CategoriesController;
 import sample.data.Item;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +30,10 @@ public class Category extends Tab {
 
     private Alert popup;
     private Spinner<Double> popUpProfitSpr;
+
+    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    String logoName = "Logo.PNG";
+    String absoluteLogoPath = recourcePath+"\\"+ logoName;
 
     public Category(String name, int id,CategoriesController categoriesController) {
         table = new TableView<>();
@@ -67,8 +76,13 @@ public class Category extends Tab {
         popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
         HBox profitHBox = new HBox(popUpProfitLbl, popUpProfitSpr);
         profitHBox.setSpacing(10);
-        popup = new Alert(Alert.AlertType.NONE,
-                "Item");
+        popup = new Alert(Alert.AlertType.NONE,"Item");
+        popup.setTitle("Quick Quotes - Changes Profit Percent");
+        try {
+            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         popup.setHeaderText("Changes item");
         popup.getDialogPane().setContent(profitHBox);
         popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);

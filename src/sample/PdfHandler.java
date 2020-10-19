@@ -18,11 +18,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Calendar;
+import java.util.*;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -164,7 +162,7 @@ public class PdfHandler {
     private void addPdfContents(List<Item> items) throws Exception
     {
         List<String> sortedHeadingPositions = new ArrayList<>();
-        Map<String, Integer> headingPositions = settings.getPDFPositionMap();
+        Map<String, Integer> headingPositions = new HashMap<>();//settings.getPDFPositionMap();
 
         // Remove all entries that wont be displayed
         headingPositions.values().remove(-1);
@@ -197,7 +195,7 @@ public class PdfHandler {
                         contentStream = new PDPageContentStream(doc, page, true, true);
                         yPosition = page.getMediaBox().getHeight() - margin;
                     }
-                    PDStreamUtils.write(contentStream, settings.getPDFText(), font, fontSize, margin, yPosition, Color.BLACK);
+                    PDStreamUtils.write(contentStream, "", font, fontSize, margin, yPosition, Color.BLACK);
                     yPosition -= yMarginBetweenElements;
                     break;
                 default: System.out.println("Unsuported heading \"" + heading + "\"");

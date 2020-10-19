@@ -4,12 +4,17 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import sample.data.Item;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -45,6 +50,10 @@ public class QuotationController implements Initializable {
     private String popUpQuantityLblString;
     private Label popUpQuantityLbl;
     private Spinner<Integer> popUpQuantitySpr;
+
+    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    String logoName = "Logo.PNG";
+    String absoluteLogoPath = recourcePath+"\\"+ logoName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -102,6 +111,12 @@ public class QuotationController implements Initializable {
         popUpBox.setSpacing(10);
         popup = new Alert(Alert.AlertType.NONE,
                 "Item");
+        try {
+            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        popup.setTitle("Quick Quotes - Changes Quantity");
         popup.setHeaderText("Changes item");
         popup.getDialogPane().setContent(popUpBox);
         popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
