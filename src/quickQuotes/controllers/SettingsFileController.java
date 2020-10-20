@@ -1,15 +1,14 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import com.google.common.collect.Lists;
-import sample.data.User;
+import quickQuotes.data.User;
 import java.io.*;
-import java.security.Key;
 import java.util.*;
 
 public class SettingsFileController {
     String fileName = "settings.txt";
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
-    String absolutePath = recourcePath+"/"+fileName;
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
+    String absolutePath = recoursePath +"/"+fileName;
     Map<String,Object> keyValuePair;
     private boolean usersDataHasChanged=false;
     private boolean pdfDataHasChanged=false;
@@ -39,7 +38,7 @@ public class SettingsFileController {
                    }else if(lineSplit[0].contains("UsersCounter")||lineSplit[0].contains("Position")) {
                        keyValuePair.put(lineSplit[0],Integer.parseInt(lineSplit[1].trim()));
                    }else{
-                       keyValuePair.put(lineSplit[0],lineSplit[1]);
+                       keyValuePair.put(lineSplit[0],lineSplit[1].trim());
                    }
                 }
                 line = bufferedReader.readLine();
@@ -204,7 +203,10 @@ public class SettingsFileController {
         List<String> keys = Lists.newArrayList(newValues.keySet());
         boolean hasChanged=false;
         for (String key:  keys) {
-            keyValuePair.replace(key,newValues.get(key));
+            if(keyValuePair.containsKey(key))
+                keyValuePair.replace(key,newValues.get(key));
+            else
+                keyValuePair.put(key,newValues.get(key));
             hasChanged=true;
         }
         if (hasChanged){
@@ -256,5 +258,11 @@ public class SettingsFileController {
 
     public Map<String,Object> getKeyValuePair() {
         return keyValuePair;
+    }
+
+    public String getTheme() {
+        if(keyValuePair.containsKey("ThemeTab.Theme"))
+            return (String)keyValuePair.get("ThemeTab.Theme");
+        return "darkTheme.css";
     }
 }

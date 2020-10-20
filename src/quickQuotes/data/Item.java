@@ -1,4 +1,4 @@
-package sample.data;
+package quickQuotes.data;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

@@ -1,25 +1,26 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
+import com.sun.javafx.css.StyleManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import sample.MainController;
-import sample.data.User;
-import sample.tools.ChangeListener;
+import quickQuotes.data.User;
+import quickQuotes.tools.ChangeListener;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -121,6 +122,15 @@ public class SettingsController implements Initializable {
     @FXML
     private HBox UserControlHBox;
 
+    @FXML
+    private ToggleGroup themeGroup;
+
+    @FXML
+    private RadioButton rbDark;
+
+    @FXML
+    private RadioButton rbLight;
+
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private final FileChooser fileChooser = new FileChooser();
     private FileChooser.ExtensionFilter excelExtensionFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
@@ -137,9 +147,20 @@ public class SettingsController implements Initializable {
 
     Pattern phonePatterns = Pattern.compile("(?:\\(\\d{3}\\)|\\d{3}([-]|[\\s])*)\\d{3}([-]|[\\s])*\\d{4}");
     private final String emailPattern= "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+    public static String CSSPath = new File("src/quickQuotes/CSS/").getAbsolutePath();
+
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
+    String logoName = "Logo.PNG";
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
+    private Image logo;
 
     public SettingsController() {
         contextMenu = new ContextMenu();
+        try {
+            logo =new Image(new FileInputStream(absoluteLogoPath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -304,7 +325,8 @@ public class SettingsController implements Initializable {
                 changeListener.update(settingsFileController.getKeyValuePair());
             } catch (IOException e) {
                 Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-                errorDialog.setTitle("Save settings");
+                errorDialog.setTitle("Quick Quotes - Save Error");
+                ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
                 errorDialog.setHeaderText("Can not save the settings.");
                 errorDialog.setContentText(e.toString());
                 errorDialog.showAndWait();
@@ -325,6 +347,8 @@ public class SettingsController implements Initializable {
         boolean isMainUser = CheckMakeMainUsers.isSelected();
         if(!TxtNameInput.getStyle().isEmpty()||!TxtSurnameInput.getStyle().isEmpty()){
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Quick Quotes - Error");
+            ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             errorDialog.setTitle("Change user");
             errorDialog.setHeaderText("Invalid name and surname.");
             errorDialog.setContentText("This user is in the list. Change the name or surname to a valid email.");
@@ -333,7 +357,8 @@ public class SettingsController implements Initializable {
         }
         if(!TxtNumberInput.getStyle().isEmpty()){
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-            errorDialog.setTitle("Change user");
+            errorDialog.setTitle("Quick Quotes - Error");
+            ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             errorDialog.setHeaderText("Invalid number.");
             errorDialog.setContentText("Change the phone number to a valid phone number.");
             errorDialog.showAndWait();
@@ -341,7 +366,8 @@ public class SettingsController implements Initializable {
         }
         if(!TxtEmailInput.getStyle().isEmpty()){
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-            errorDialog.setTitle("Change user");
+            errorDialog.setTitle("Quick Quotes - Error");
+            ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             errorDialog.setHeaderText("Invalid email.");
             errorDialog.setContentText("Change the email to a valid email.");
             errorDialog.showAndWait();
@@ -452,8 +478,33 @@ public class SettingsController implements Initializable {
         setUpDataPDF();
         setUpDataPaths();
         setUpDataUsers();
+        setUpDataTheme();
     }
 
+    private void setUpDataTheme() {
+        if(settingsFileController.getTheme().contains("dark")){
+            rbDark.setSelected(true);
+            rbLight.setSelected(false);
+        }else{
+            rbLight.setSelected(true);
+            rbDark.setSelected(false);
+        }
+        themeGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            String file1 =((RadioButton)newValue).getText().toLowerCase()+"Theme.css";
+            String file2 =((RadioButton)oldValue).getText().toLowerCase()+"Theme.css";
+            String absoluteCSSPath1= CSSPath+"\\"+ file1;
+            String absoluteCSSPath2 = CSSPath+"\\"+ file2;
+            File f1 = new File(absoluteCSSPath1);
+            File f2 = new File(absoluteCSSPath2);
+            String finalFilePath1="file:///" + f1.getAbsolutePath().replace("\\", "/");
+            String finalFilePath2="file:///" + f2.getAbsolutePath().replace("\\", "/");
+            Platform.runLater(()->{
+                StyleManager.getInstance().removeUserAgentStylesheet(finalFilePath2);
+                StyleManager.getInstance().addUserAgentStylesheet(finalFilePath1);
+                changeListener.replace("ThemeTab.Theme",finalFilePath1.trim());
+            });
+        });
+    }
     private void setUpDataUsers() {
         List<User> copyOfUsers = new ArrayList<>();
         for(User user: settingsFileController.getAllUsers()){
@@ -606,7 +657,8 @@ public class SettingsController implements Initializable {
         removeUserMenuItem.setOnAction(event->{
             User user= LVUsersList.getSelectionModel().getSelectedItem();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Remove User");
+            alert.setTitle("Quick Quotes - Remove User");
+            ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             alert.setHeaderText("Remove User");
             alert.setContentText("Are you sure you want to remove "+user.getName()+" "+user.getSurname()+"?");
 
@@ -614,7 +666,8 @@ public class SettingsController implements Initializable {
             if (result.get() == ButtonType.OK){
                 if(user.isMainUser()){
                     Alert alertWarning = new Alert(Alert.AlertType.WARNING);
-                    alertWarning.setTitle("Remove User");
+                    alertWarning.setTitle("Quick Quotes -Remove User");
+                    ((Stage)alertWarning.getDialogPane().getScene().getWindow()).getIcons().add(logo);
                     alertWarning.setHeaderText("Can not remove user");
                     alertWarning.setContentText("Can not remove "+user.getName()+" "+user.getSurname()+", because it is the main user");
                     alertWarning.showAndWait();
@@ -661,7 +714,8 @@ public class SettingsController implements Initializable {
         boolean isMainUser = CheckMakeMainUsers.isSelected();
         if(!TxtNumberInput.getStyle().isEmpty()){
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-            errorDialog.setTitle("Add user");
+            errorDialog.setTitle("Quick Quotes - Error");
+            ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             errorDialog.setHeaderText("Invalid number.");
             errorDialog.setContentText("Change the phone number to a valid phone number.");
             errorDialog.showAndWait();
@@ -669,7 +723,8 @@ public class SettingsController implements Initializable {
         }
         if(!TxtEmailInput.getStyle().isEmpty()){
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-            errorDialog.setTitle("Add user");
+            errorDialog.setTitle("Quick Quotes -Error");
+            ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             errorDialog.setHeaderText("Invalid email.");
             errorDialog.setContentText("Change the email to a valid email.");
             errorDialog.showAndWait();
@@ -677,7 +732,8 @@ public class SettingsController implements Initializable {
         }
         if(!TxtNameInput.getStyle().isEmpty()||!TxtSurnameInput.getStyle().isEmpty()){
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-            errorDialog.setTitle("Add user");
+            errorDialog.setTitle("Quick Quotes - Error");
+            ((Stage)errorDialog.getDialogPane().getScene().getWindow()).getIcons().add(logo);
             errorDialog.setHeaderText("Invalid name and surname.");
             errorDialog.setContentText("This user is in the list. Change the name or surname to a valid email.");
             errorDialog.showAndWait();

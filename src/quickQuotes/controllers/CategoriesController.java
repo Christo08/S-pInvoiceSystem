@@ -1,4 +1,4 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,9 +9,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import sample.MainController;
-import sample.data.Category;
-import sample.data.Item;
+import quickQuotes.data.Category;
+import quickQuotes.data.Item;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -67,13 +66,13 @@ public class CategoriesController implements Initializable {
         TxtSearch.setDisable(true);
     }
 
-    public void addTab(String catagory, List<Item> items){
+    public void addTab(String category, List<Item> items){
         numberOfCategories++;
         ObservableList<Item> newItems = FXCollections.observableArrayList(items);
         this.items.add(newItems);
         FilteredList<Item> newFilteredData = new FilteredList<>(newItems, p -> true);
         filteredItems.add(newFilteredData);
-        Category newCategory=new Category(catagory,numberOfCategories,this);
+        Category newCategory=new Category(category,numberOfCategories,this);
         BtnAddToInvoice.setDisable(false);
         BtnResetItems.setDisable(false);
         TxtSearch.setDisable(false);

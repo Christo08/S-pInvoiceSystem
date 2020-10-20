@@ -1,4 +1,4 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,8 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import sample.MainController;
-import sample.data.Item;
+import quickQuotes.data.Item;
 
 import java.net.URL;
 import java.util.List;
@@ -39,9 +38,6 @@ public class InvoiceController implements Initializable {
     private Button BtnClear;
 
     @FXML
-    private Button BtnPrint;
-
-    @FXML
     private TabPane Tables;
 
     @FXML
@@ -63,11 +59,10 @@ public class InvoiceController implements Initializable {
         newItem.setQuantity((newItem.getQuantityInt() + quantity));
         if (!itemData.contains(newItem)) {
             itemData.add(newItem);
-            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() || BtnPrint.isDisable()) {
+            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() ) {
                 TxtSearch.setDisable(false);
                 BtnRemove.setDisable(false);
                 BtnClear.setDisable(false);
-                BtnPrint.setDisable(false);
             }
         }
         updateTotal();
@@ -75,11 +70,10 @@ public class InvoiceController implements Initializable {
     public void add(Item newItem) {
         if (!itemData.contains(newItem)) {
             itemData.add(newItem);
-            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() || BtnPrint.isDisable()) {
+            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() ) {
                 TxtSearch.setDisable(false);
                 BtnRemove.setDisable(false);
                 BtnClear.setDisable(false);
-                BtnPrint.setDisable(false);
             }
         }
         updateTotal();
@@ -92,7 +86,6 @@ public class InvoiceController implements Initializable {
             TxtSearch.setDisable(true);
             BtnRemove.setDisable(true);
             BtnClear.setDisable(true);
-            BtnPrint.setDisable(true);
         }
         updateTotal();
     }
@@ -102,7 +95,6 @@ public class InvoiceController implements Initializable {
         TxtSearch.setDisable(true);
         BtnRemove.setDisable(true);
         BtnClear.setDisable(true);
-        BtnPrint.setDisable(true);
         updateTotal();
     }
 
