@@ -1,4 +1,4 @@
-package sample;
+package quickQuotes.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,11 +10,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
-import sample.controllers.CategoriesController;
-import sample.controllers.InvoiceController;
-import sample.controllers.SettingsController;
-import sample.controllers.SettingsFileController;
-import sample.data.Item;
+import quickQuotes.tools.PdfHandler;
+import quickQuotes.data.Item;
 import javafx.application.Platform;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -62,9 +59,9 @@ public class MainController implements Initializable {
     private MenuItem menuItemQuit;
 
     private SettingsFileController settingsFileController;
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
-    String absoluteLogoPath = recourcePath+"\\"+ logoName;
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     public void setStage(Stage stage) throws Exception{
         primaryStage = stage;
@@ -77,23 +74,23 @@ public class MainController implements Initializable {
             ImportData(new File(settingsFileController.getImportPath()));
     }
 
-    private void setExcelExtentionFilter(){
+    private void setExcelExtensionFilter(){
         fileChooser.getExtensionFilters().remove(pdfExtensionFilter);
         fileChooser.getExtensionFilters().add(excelExtensionFilter);
     }
 
-    private void setPdfExtentionFilter(){
+    private void setPdfExtensionFilter(){
         fileChooser.getExtensionFilters().remove(excelExtensionFilter);
         fileChooser.getExtensionFilters().add(pdfExtensionFilter);
     }
 
 
-    private void addTab(String catagory, List<Item> items){
-        categoriesController.addTab(catagory.subSequence(26,catagory.length()-1).toString(),items);
+    private void addTab(String category, List<Item> items){
+        categoriesController.addTab(category.subSequence(26,category.length()-1).toString(),items);
     }
 
     private void ImportNewDataBook(){
-        setExcelExtentionFilter();
+        setExcelExtensionFilter();
         File file = fileChooser.showOpenDialog(primaryStage);
         ImportData(file);
     }
@@ -139,7 +136,7 @@ public class MainController implements Initializable {
     }
 
     private void Open(){
-        setPdfExtentionFilter();
+        setPdfExtensionFilter();
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file.exists()) {
             try {
@@ -173,7 +170,7 @@ public class MainController implements Initializable {
     }
 
     private void SaveAs(){
-        setPdfExtentionFilter();
+        setPdfExtensionFilter();
         File file = fileChooser.showSaveDialog(primaryStage);
         if (file != null) {
             activeFilePath = file.getAbsolutePath();
@@ -250,7 +247,7 @@ public class MainController implements Initializable {
 
     @FXML
     void showSettings() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Settings.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/Settings.fxml"));
         Parent parent = fxmlLoader.load();
         SettingsController dialogController = fxmlLoader.getController();
         dialogController.setMainController(this);
@@ -259,7 +256,7 @@ public class MainController implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
-        stage.getIcons().add(new Image("sample/resource/Logo.PNG"));
+        stage.getIcons().add(new Image("quickQuotes/resource/Logo.PNG"));
         stage.setScene(scene);
         stage.showAndWait();
     }

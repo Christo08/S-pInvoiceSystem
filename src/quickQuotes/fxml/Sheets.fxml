@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<SplitPane dividerPositions="0.25" prefHeight="316.0" prefWidth="790.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quickQuotes.controllers.InvoiceController">
+    <items>
+      <VBox alignment="CENTER" spacing="10.0">
+         <children>
+            <HBox alignment="CENTER" spacing="10.0">
+               <children>
+                      <Label text="Search:">
+                          <font>
+                              <Font size="14.0" />
+                          </font>
+                      </Label>
+                      <TextField fx:id="TxtSearch" disable="true" prefHeight="25.0" prefWidth="122.0" visible="true" />
+               </children>
+            </HBox>
+                <Label fx:id="LblGrossTotal" text="Gross Total: R0.00" textAlignment="CENTER">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <Label fx:id="LblVAT" text="VAT: R0.00" textAlignment="CENTER">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <Label fx:id="LblTotal" text="Total: R0.00">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <Button fx:id="BtnRemove" disable="true" mnemonicParsing="false" onAction="#removeItem" prefHeight="35.0" prefWidth="114.0" text="Remove " wrapText="true" />
+                <Button fx:id="BtnClear" disable="true" mnemonicParsing="false" onAction="#clearItems" prefHeight="35.0" prefWidth="114.0" text="Clear " wrapText="true" />
+         </children>
+      </VBox>
+        <TabPane fx:id="Tables">
+            <tabs>
+                <Tab closable="false" text="Quotation">
+                    <content>
+                        <fx:include fx:id="quotation" source="Quotation.fxml" />
+                    </content>
+                </Tab>
+                <Tab closable="false" text="Costing sheet">
+                    <content>
+                        <fx:include fx:id="costingSheet" source="CostingSheet.fxml" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </items>
+</SplitPane>

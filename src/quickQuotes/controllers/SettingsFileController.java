@@ -1,15 +1,14 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import com.google.common.collect.Lists;
-import sample.data.User;
+import quickQuotes.data.User;
 import java.io.*;
-import java.security.Key;
 import java.util.*;
 
 public class SettingsFileController {
     String fileName = "settings.txt";
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
-    String absolutePath = recourcePath+"/"+fileName;
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
+    String absolutePath = recoursePath +"/"+fileName;
     Map<String,Object> keyValuePair;
     private boolean usersDataHasChanged=false;
     private boolean pdfDataHasChanged=false;

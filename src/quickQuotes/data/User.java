@@ -1,4 +1,4 @@
-package sample.data;
+package quickQuotes.data;
 
 import java.util.Objects;
 

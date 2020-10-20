@@ -4,7 +4,7 @@
 <?import javafx.scene.control.TableView?>
 
 
-    <TableView fx:id="TVCostTable" editable="true" minWidth="580.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controllers.CostingSheetController">
+    <TableView fx:id="TVCostTable" editable="true" minWidth="580.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quickQuotes.controllers.CostingSheetController">
         <columns>
             <TableColumn fx:id="colCostStockCode" editable="false" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" text="Stock Code" />
             <TableColumn fx:id="colCostDescription" editable="false" prefWidth="87.0" text="Description" />

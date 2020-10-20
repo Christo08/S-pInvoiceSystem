@@ -1,4 +1,4 @@
-package sample.data;
+package quickQuotes.data;
 
 
 import javafx.collections.ObservableList;
@@ -7,8 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import sample.controllers.CategoriesController;
-import sample.data.Item;
+import quickQuotes.controllers.CategoriesController;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,9 +30,9 @@ public class Category extends Tab {
     private Alert popup;
     private Spinner<Double> popUpProfitSpr;
 
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
-    String absoluteLogoPath = recourcePath+"\\"+ logoName;
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     public Category(String name, int id,CategoriesController categoriesController) {
         table = new TableView<>();

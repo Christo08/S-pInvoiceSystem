@@ -1,8 +1,8 @@
-package sample.tools;
+package quickQuotes.tools;
 
 import com.google.common.collect.Lists;
-import sample.controllers.SettingsController;
-import sample.data.User;
+import quickQuotes.controllers.SettingsController;
+import quickQuotes.data.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;

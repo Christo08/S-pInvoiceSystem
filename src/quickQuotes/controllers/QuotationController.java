@@ -1,16 +1,13 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
-import sample.data.Item;
+import quickQuotes.data.Item;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,9 +48,9 @@ public class QuotationController implements Initializable {
     private Label popUpQuantityLbl;
     private Spinner<Integer> popUpQuantitySpr;
 
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
-    String absoluteLogoPath = recourcePath+"\\"+ logoName;
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

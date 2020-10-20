@@ -1,27 +1,22 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import com.sun.javafx.css.StyleManager;
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import sample.MainController;
-import sample.data.User;
-import sample.tools.ChangeListener;
+import quickQuotes.data.User;
+import quickQuotes.tools.ChangeListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -152,11 +147,11 @@ public class SettingsController implements Initializable {
 
     Pattern phonePatterns = Pattern.compile("(?:\\(\\d{3}\\)|\\d{3}([-]|[\\s])*)\\d{3}([-]|[\\s])*\\d{4}");
     private final String emailPattern= "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
-    public static String CSSPath = new File("src/sample/CSS/").getAbsolutePath();
+    public static String CSSPath = new File("src/quickQuotes/CSS/").getAbsolutePath();
 
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
-    String absoluteLogoPath = recourcePath+"\\"+ logoName;
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
     private Image logo;
 
     public SettingsController() {

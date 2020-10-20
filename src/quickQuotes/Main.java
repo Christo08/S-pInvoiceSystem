@@ -1,4 +1,4 @@
-package sample;
+package quickQuotes;
 
 import com.sun.javafx.css.StyleManager;
 import javafx.application.Application;
@@ -7,19 +7,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import quickQuotes.controllers.MainController;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 public class Main extends Application {
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
-    String absoluteLogoPath = recourcePath+"\\"+ logoName;
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/main.fxml"));
 
         Parent root = loader.load();
         MainController mainController = (MainController)loader.getController();

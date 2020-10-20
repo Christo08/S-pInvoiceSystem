@@ -1,7 +1,6 @@
-package sample.controllers;
+package quickQuotes.controllers;
 
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -10,9 +9,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import sample.data.Item;
+import quickQuotes.data.Item;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,9 +71,9 @@ public class CostingSheetController implements Initializable {
     private HBox profitHBox;
     private Label popUpProfitLbl;
     private Spinner<Double> popUpProfitSpr;
-    public static String recourcePath = new File("src/sample/resource/").getAbsolutePath();
+    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
-    String absoluteLogoPath = recourcePath+"\\"+ logoName;
+    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
