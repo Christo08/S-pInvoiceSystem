@@ -3,7 +3,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -43,19 +42,6 @@
                 <Button fx:id="BtnClear" disable="true" mnemonicParsing="false" onAction="#clearItems" prefHeight="35.0" prefWidth="114.0" text="Clear " wrapText="true" />
          </children>
       </VBox>
-        <TabPane fx:id="Tables">
-            <tabs>
-                <Tab closable="false" text="Quotation">
-                    <content>
-                        <fx:include fx:id="quotation" source="Quotation.fxml" />
-                    </content>
-                </Tab>
-                <Tab closable="false" text="Costing sheet">
-                    <content>
-                        <fx:include fx:id="costingSheet" source="CostingSheet.fxml" />
-                    </content>
-                </Tab>
-            </tabs>
-        </TabPane>
+        <TabPane fx:id="Tables" />
     </items>
 </SplitPane>

@@ -1,92 +1,89 @@
-package quickQuotes.controllers;
+package quickQuotes.data;
 
 import javafx.collections.transformation.SortedList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import quickQuotes.data.Item;
+import quickQuotes.controllers.InvoiceController;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class QuotationController implements Initializable {
-
-
-    @FXML
-    private TableView<Item> TVQuotationTable;
-
-    @FXML
-    private TableColumn<Item, String> colQuotationStockCode;
-
-    @FXML
-    private TableColumn<Item, String> colQuotationDescription;
-
-    @FXML
-    private TableColumn<Item, String> colQuotationQuantity;
-
-    @FXML
-    private TableColumn<Item, String> colQuotationUnit;
-
-    @FXML
+public class Quotation extends Tab {
+    TableView<Item> table;
+    private TableColumn<Item, String> colStockCode;
+    private TableColumn<Item, String> colDescription;
+    private TableColumn<Item, String> colQuantity;
+    private TableColumn<Item, String> colUnit;
     private TableColumn<Item, String> colSellingPrice;
-
-    @FXML
     private TableColumn<Item, String> colTotalSellingPrice;
 
-    private InvoiceController invoiceController;
     private Alert popup;
     private HBox popUpBox;
     private String popUpQuantityLblString;
     private Label popUpQuantityLbl;
     private Spinner<Integer> popUpQuantitySpr;
+    private InvoiceController invoiceController;
 
     public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        initializePopUp();
-    }
+    public Quotation(InvoiceController invoiceController){
+        this.invoiceController=invoiceController;
 
-    private void initializeTable(){
+        table = new TableView<>();
+        table.setEditable(false);
 
-        colQuotationStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
-        colQuotationDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
-        colQuotationQuantity.setCellValueFactory(cellData->cellData.getValue().quantityProperty());
-        colQuotationUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
+        colStockCode = new TableColumn<>("Stock Code");
+        colDescription = new TableColumn<>("Description");
+        colQuantity = new TableColumn<>("Quantity");
+        colUnit = new TableColumn<>("Unit");
+        colSellingPrice = new TableColumn<>("Selling Price");
+        colTotalSellingPrice = new TableColumn<>("Total Selling Price");
+
+        colStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
+        colDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
+        colQuantity.setCellValueFactory(cellData->cellData.getValue().quantityProperty());
+        colUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
         colSellingPrice.setCellValueFactory(cellData->cellData.getValue().sellingPriceProperty());
         colTotalSellingPrice.setCellValueFactory(cellData->cellData.getValue().totalSellingPriceProperty());
 
-        colQuotationStockCode.setSortType(TableColumn.SortType.ASCENDING);
+        table.getColumns().addAll(colStockCode,colDescription,colQuantity,colUnit,colSellingPrice,colTotalSellingPrice);
 
-        SortedList<Item> sortedData = new SortedList<>(invoiceController.getItemData());
+        colStockCode.setSortType(TableColumn.SortType.ASCENDING);
 
-        sortedData.comparatorProperty().bind(TVQuotationTable.comparatorProperty());
+        SortedList<Item> sortedData= new SortedList<Item>(this.invoiceController.getItemData());
 
-        TVQuotationTable.setItems(sortedData);
-        TVQuotationTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        sortedData.comparatorProperty().bind(table.comparatorProperty());
 
-        TVQuotationTable.setOnMousePressed(event -> {
-          Item selectedItem = TVQuotationTable.getSelectionModel().getSelectedItem();
-          if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
-              popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
-              popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
-              popUpQuantitySpr.setStyle("");
-              popup.show();
-          }
+        table.setItems(sortedData);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        table.setOnMousePressed(event -> {
+            Item selectedItem = table.getSelectionModel().getSelectedItem();
+            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
+                popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
+                popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
+                popUpQuantitySpr.setStyle("");
+                popup.show();
+            }
         });
+
+        initializePopup();
+
+        this.invoiceController=invoiceController;
+        this.setId("Quotation");
+        this.setText("Quotation");
+        this.setContent(table);
+        this.setClosable(false);
     }
 
-    private void initializePopUp() {
+    private void initializePopup(){
         popUpQuantityLblString="Quantity ({{0}}):";
         popUpQuantityLbl = new Label(popUpQuantityLblString);
         popUpQuantitySpr = new Spinner<>(1,9999999,1,1);
@@ -119,7 +116,7 @@ public class QuotationController implements Initializable {
         popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
         popup.setOnHidden(e -> {
             if (popup.getResult() == ButtonType.APPLY) {
-                Item selectedItem = TVQuotationTable.getSelectionModel().getSelectedItem();
+                Item selectedItem = table.getSelectionModel().getSelectedItem();
                 if(selectedItem!=null){
                     selectedItem.setQuantity(popUpQuantitySpr.getValue());
                     invoiceController.updateTotal();
@@ -129,12 +126,6 @@ public class QuotationController implements Initializable {
     }
 
     public List<Item> getSelectionModel() {
-        return TVQuotationTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+        return table.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
     }
-
-    public void setInvoiceController(InvoiceController invoiceController) {
-        this.invoiceController=invoiceController;
-        initializeTable();
-    }
-
 }

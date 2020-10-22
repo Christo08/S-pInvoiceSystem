@@ -61,6 +61,7 @@ public class CategoriesController implements Initializable {
     private void resetItems(ActionEvent event) {
         Tables.getTabs().removeAll(categories);
         categories = new ArrayList<>();
+        mainController.reset();
         BtnAddToInvoice.setDisable(true);
         BtnResetItems.setDisable(true);
         TxtSearch.setDisable(true);
@@ -111,5 +112,9 @@ public class CategoriesController implements Initializable {
                 } else return item.getSellingPrice().toLowerCase().contains(lowerCaseFilter);
             });
         });
+    }
+
+    public void refresh(Item selectedItem) {
+        mainController.refresh(selectedItem);
     }
 }

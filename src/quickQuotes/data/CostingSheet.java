@@ -1,119 +1,97 @@
-package quickQuotes.controllers;
+package quickQuotes.data;
 
 import javafx.collections.transformation.SortedList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import quickQuotes.data.Item;
+import quickQuotes.controllers.InvoiceController;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class CostingSheetController implements Initializable {
-    @FXML
-    private TableView<Item> TVCostTable;
-
-    @FXML
-    private TableColumn<Item, String> colCostStockCode;
-
-    @FXML
-    private TableColumn<Item, String> colCostDescription;
-
-    @FXML
-    private TableColumn<Item, String> colCostQuantity;
-
-    @FXML
-    private TableColumn<Item, String> colCostUnit;
-
-    @FXML
-    private TableColumn<Item, String> colCostProfit;
-
-    @FXML
-    private TableColumn<Item, String> colCostPrice;
-
-    @FXML
-    private TableColumn<Item, String> colCostTotalPrice;
-
-    @FXML
-    private Pane CostingPopUp;
-
-    @FXML
-    private Label lblCostingQuantity;
-
-    @FXML
-    private Button BtnCostingChanges;
-
-    @FXML
-    private Spinner<Integer> SprCostingQuantity;
-
-    @FXML
-    private Spinner<Double> SprProfitPercent;
+public class CostingSheet extends Tab {
+    TableView<Item> table;
+    private TableColumn<Item, String> colStockCode;
+    private TableColumn<Item, String> colDescription;
+    private TableColumn<Item, String> colQuantity;
+    private TableColumn<Item, String> colUnit;
+    private TableColumn<Item, String> colProfit;
+    private TableColumn<Item, String> colCostingPrice;
+    private TableColumn<Item, String> colTotalCostingPrice;
 
     private InvoiceController invoiceController;
-    private int oldQuantity;
-    private double oldProfit;
 
     private Alert popup;
     private GridPane popUpPane;
-    private HBox quantityHBox;
     private String popUpQuantityLblString;
     private Label popUpQuantityLbl;
     private Spinner<Integer> popUpQuantitySpr;
-    private HBox profitHBox;
     private Label popUpProfitLbl;
     private Spinner<Double> popUpProfitSpr;
+
     public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        initializePopUp();
-    }
+    public CostingSheet(InvoiceController invoiceController){
+        this.invoiceController=invoiceController;
 
-    private void initializeTable(){
+        table = new TableView<>();
+        table.setEditable(false);
 
-        colCostStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
-        colCostDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
-        colCostQuantity.setCellValueFactory(cellData->cellData.getValue().quantityProperty());
-        colCostUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
-        colCostProfit.setCellValueFactory(cellData->cellData.getValue().profitPercentProperty());
-        colCostPrice.setCellValueFactory(cellData->cellData.getValue().costPriceProperty());
-        colCostTotalPrice.setCellValueFactory(cellData->cellData.getValue().totalCostPriceProperty());
+        colStockCode = new TableColumn<>("Stock Code");
+        colDescription = new TableColumn<>("Description");
+        colQuantity = new TableColumn<>("Quantity");
+        colUnit = new TableColumn<>("Unit");
+        colProfit = new TableColumn<>("Profit (%)");
+        colCostingPrice = new TableColumn<>("Costing Price");
+        colTotalCostingPrice = new TableColumn<>("Total Costing Price");
 
-        colCostStockCode.setSortType(TableColumn.SortType.ASCENDING);
+        colStockCode.setCellValueFactory(cellData -> cellData.getValue().stockCodeProperty());
+        colDescription.setCellValueFactory(cellData->cellData.getValue().descriptionProperty());
+        colQuantity.setCellValueFactory(cellData->cellData.getValue().quantityProperty());
+        colUnit.setCellValueFactory(cellData->cellData.getValue().unitProperty());
+        colProfit.setCellValueFactory(cellData->cellData.getValue().profitPercentProperty());
+        colCostingPrice.setCellValueFactory(cellData->cellData.getValue().costPriceProperty());
+        colTotalCostingPrice.setCellValueFactory(cellData->cellData.getValue().totalCostPriceProperty());
 
+        table.getColumns().addAll(colStockCode,colDescription,colQuantity,colUnit,colProfit,colCostingPrice,colTotalCostingPrice);
 
-        SortedList<Item> sortedData = new SortedList<>(invoiceController.getItemData());
+        colStockCode.setSortType(TableColumn.SortType.ASCENDING);
 
-        sortedData.comparatorProperty().bind(TVCostTable.comparatorProperty());
+        SortedList<Item> sortedData= new SortedList<Item>(this.invoiceController.getItemData());
 
-        TVCostTable.setItems(sortedData);
-        TVCostTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        sortedData.comparatorProperty().bind(table.comparatorProperty());
 
-        TVCostTable.setOnMousePressed(event -> {
-          Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
-          if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
-              popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
-              popUpProfitSpr.getValueFactory().setValue(selectedItem.getProfitPercentDouble());
-              popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
-              popUpQuantitySpr.setStyle("");
-              popup.show();
-          }
+        table.setItems(sortedData);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        table.setOnMousePressed(event -> {
+            Item selectedItem = table.getSelectionModel().getSelectedItem();
+            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
+                popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
+                popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
+                popUpQuantitySpr.setStyle("");
+                popup.show();
+            }
         });
 
+        initializePopup();
+
+        this.invoiceController=invoiceController;
+        this.setId("Costing sheet");
+        this.setText("Costing sheet");
+        this.setContent(table);
+        this.setClosable(false);
     }
 
-    private void initializePopUp() {
+    private void initializePopup(){
         popUpProfitLbl = new Label("Profit Percent(%):");
         popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
         popUpProfitSpr.setEditable(true);
@@ -179,7 +157,7 @@ public class CostingSheetController implements Initializable {
         popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
         popup.setOnHidden(e -> {
             if (popup.getResult() == ButtonType.APPLY) {
-                Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
+                Item selectedItem = table.getSelectionModel().getSelectedItem();
                 if(selectedItem!=null){
                     selectedItem.setProfitPercent(popUpProfitSpr.getValue());
                     selectedItem.setQuantity(popUpQuantitySpr.getValue());
@@ -189,8 +167,7 @@ public class CostingSheetController implements Initializable {
         });
     }
 
-    public void setInvoiceController(InvoiceController invoiceController) {
-        this.invoiceController=invoiceController;
-        initializeTable();
+    public List<Item> getSelectionModel() {
+        return table.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
     }
 }
