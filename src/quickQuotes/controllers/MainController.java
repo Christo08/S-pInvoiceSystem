@@ -70,8 +70,6 @@ public class MainController implements Initializable {
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
-        if (settingsFileController.getImportOnStartUp())
-            ImportData(new File(settingsFileController.getImportPath()));
     }
 
     private void setExcelExtensionFilter(){
