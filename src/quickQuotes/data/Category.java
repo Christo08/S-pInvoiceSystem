@@ -69,8 +69,17 @@ public class Category extends Tab {
                 popup.show();
             }
         });
+        initializePopup();
 
+        this.id=id;
+        this.categoriesController=categoriesController;
+        this.setId(name);
+        this.setText(name);
+        this.setContent(table);
+        this.setClosable(false);
+    }
 
+    private void initializePopup(){
         Label popUpProfitLbl = new Label("Profit Percent(%):");
         popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
         HBox profitHBox = new HBox(popUpProfitLbl, popUpProfitSpr);
@@ -90,17 +99,10 @@ public class Category extends Tab {
                 Item selectedItem = table.getSelectionModel().getSelectedItem();
                 if(selectedItem!=null){
                     selectedItem.setProfitPercent(popUpProfitSpr.getValue());
+                    categoriesController.refresh(selectedItem);
                 }
             }
         });
-
-        this.id=id;
-        this.categoriesController=categoriesController;
-        this.setId(name);
-        this.setText(name);
-        this.setContent(table);
-        this.setClosable(false);
-
     }
 
     public List<Item> getSelectedItems() {

@@ -70,8 +70,6 @@ public class MainController implements Initializable {
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
-        if (settingsFileController.getImportOnStartUp())
-            ImportData(new File(settingsFileController.getImportPath()));
     }
 
     private void setExcelExtensionFilter(){
@@ -83,7 +81,6 @@ public class MainController implements Initializable {
         fileChooser.getExtensionFilters().remove(excelExtensionFilter);
         fileChooser.getExtensionFilters().add(pdfExtensionFilter);
     }
-
 
     private void addTab(String category, List<Item> items){
         categoriesController.addTab(category.subSequence(26,category.length()-1).toString(),items);
@@ -217,10 +214,6 @@ public class MainController implements Initializable {
         });
     }
 
-    public void addToInvoice(Item newItem, int quantity){
-        invoiceController.add(newItem,quantity);
-    }
-
     public void addToInvoice(List<Item> newItems, List<Integer> quantities){
         int counter=0;
         for (Item newItem: newItems) {
@@ -265,8 +258,20 @@ public class MainController implements Initializable {
         invoiceController.clearTables();
     }
 
-    public SettingsFileController getSettingsFileController() {
-        return settingsFileController;
+    public String getTheme() {
+        return settingsFileController.getTheme();
+    }
+
+    public void refresh(Item selectedItem) {
+        invoiceController.refresh(selectedItem);
+    }
+
+    public void reset() {
+        invoiceController.clearTables();
+        if(settingsFileController.getImportOnStartUp()){
+            File file = new File(settingsFileController.getImportPath());
+            ImportData(file);
+        }
     }
 
     public String getTheme() {

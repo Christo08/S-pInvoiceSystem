@@ -620,7 +620,7 @@ public class SettingsController implements Initializable {
             }
         });
         TxtNumberInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(!newValue){
+            if(!newValue && selectUser!=null){
                 String newNumber = TxtNumberInput.getText();
                 if(phonePatterns.matcher(newNumber).matches()) {
                     for (User user : listUser) {
@@ -744,6 +744,7 @@ public class SettingsController implements Initializable {
         selectUser.setNumber(number);
         selectUser.setEmail(email);
         selectUser.setMainUser(isMainUser);
+        selectUser.setId(listUser.size()+1);
         TxtNameInput.clear();
         TxtSurnameInput.clear();
         TxtNumberInput.clear();

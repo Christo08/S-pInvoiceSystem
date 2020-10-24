@@ -10,7 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import quickQuotes.data.CostingSheet;
 import quickQuotes.data.Item;
+import quickQuotes.data.Quotation;
 
 import java.net.URL;
 import java.util.List;
@@ -40,16 +42,12 @@ public class InvoiceController implements Initializable {
     @FXML
     private TabPane Tables;
 
-    @FXML
-    private QuotationController quotationController;
-
-    @FXML
-    private CostingSheetController costingSheetController;
-
     private ObservableList<Item> itemData;
     private FilteredList<Item> filteredData;
 
     private MainController mainController;
+    private Quotation quotationTab;
+    private CostingSheet costingSheetTab;
 
     private double grossTotal = 0.0;
     private double VAT = 0.0;
@@ -57,23 +55,38 @@ public class InvoiceController implements Initializable {
 
     public void add(Item newItem, int quantity) {
         newItem.setQuantity((newItem.getQuantityInt() + quantity));
-        if (!itemData.contains(newItem)) {
+        if(itemData.size()==0){
             itemData.add(newItem);
-            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() ) {
-                TxtSearch.setDisable(false);
-                BtnRemove.setDisable(false);
-                BtnClear.setDisable(false);
+            TxtSearch.setDisable(false);
+            BtnRemove.setDisable(false);
+            BtnClear.setDisable(false);
+            quotationTab = new Quotation(this);
+            costingSheetTab = new CostingSheet(this);
+            Tables.getTabs().add(quotationTab);
+            Tables.getTabs().add(costingSheetTab);
+        }else{
+            if(!itemData.contains(newItem)){
+                itemData.add(newItem);
             }
         }
         updateTotal();
     }
+
     public void add(Item newItem) {
-        if (!itemData.contains(newItem)) {
+        if(itemData.size()==0){
             itemData.add(newItem);
-            if (TxtSearch.isDisable() || BtnRemove.isDisable() || BtnClear.isDisable() ) {
-                TxtSearch.setDisable(false);
-                BtnRemove.setDisable(false);
-                BtnClear.setDisable(false);
+            TxtSearch.setDisable(false);
+            BtnRemove.setDisable(false);
+            BtnClear.setDisable(false);
+            quotationTab = new Quotation(this);
+            costingSheetTab = new CostingSheet(this);
+            Tables.getTabs().add(quotationTab);
+            Tables.getTabs().add(costingSheetTab);
+        }else{
+            if(itemData.contains(newItem)){
+                itemData.add(newItem);
+            }else{
+                itemData.remove(newItem);
             }
         }
         updateTotal();
@@ -83,6 +96,8 @@ public class InvoiceController implements Initializable {
         selectedItem.setQuantity(0);
         itemData.remove(selectedItem);
         if (itemData.size() == 0) {
+            Tables.getTabs().remove(quotationTab);
+            Tables.getTabs().remove(costingSheetTab);
             TxtSearch.setDisable(true);
             BtnRemove.setDisable(true);
             BtnClear.setDisable(true);
@@ -91,7 +106,13 @@ public class InvoiceController implements Initializable {
     }
 
     public void clearTables() {
-        itemData.clear();
+
+        List<Item> items = itemData.stream().collect(Collectors.toList());
+        for (Item item : items) {
+            remove(item);
+        }
+        Tables.getTabs().remove(quotationTab);
+        Tables.getTabs().remove(costingSheetTab);
         TxtSearch.setDisable(true);
         BtnRemove.setDisable(true);
         BtnClear.setDisable(true);
@@ -116,9 +137,6 @@ public class InvoiceController implements Initializable {
 
     public void initialize(URL location, ResourceBundle resources) {
         initializeDataList();
-
-        quotationController.setInvoiceController(this);
-        costingSheetController.setInvoiceController(this);
     }
 
     public void updateTotal() {
@@ -138,23 +156,16 @@ public class InvoiceController implements Initializable {
     }
 
     @FXML
-    private void CloseCostingPopUp(ActionEvent event) {
-
-    }
-
-    @FXML
     private void clearItems(ActionEvent event) {
         clearTables();
     }
 
     @FXML
-    private void printTable(ActionEvent event) {
-
-    }
-
-    @FXML
     private void removeItem(ActionEvent event) {
-        for (Item item : quotationController.getSelectionModel()) {
+        for (Item item : quotationTab.getSelectionModel()) {
+            remove(item);
+        }
+        for (Item item : costingSheetTab.getSelectionModel()) {
             remove(item);
         }
     }
@@ -189,5 +200,13 @@ public class InvoiceController implements Initializable {
                 } else return item.getSellingPrice().toLowerCase().contains(lowerCaseFilter);
             });
         });
+    }
+
+    public void refresh(Item selectedItem) {
+        if(itemData.contains(selectedItem)){
+            itemData.remove(selectedItem);
+            itemData.add(selectedItem);
+            updateTotal();
+        }
     }
 }
