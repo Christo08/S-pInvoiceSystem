@@ -273,8 +273,4 @@ public class MainController implements Initializable {
             ImportData(file);
         }
     }
-
-    public String getTheme() {
-        return settingsFileController.getTheme();
-    }
 }
