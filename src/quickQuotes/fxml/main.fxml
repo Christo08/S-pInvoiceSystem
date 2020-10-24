@@ -5,7 +5,6 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quickQuotes.controllers.MainController">
@@ -29,16 +28,8 @@
         </MenuBar>
         <SplitPane dividerPositions="0.5" focusTraversable="false" orientation="VERTICAL">
             <items>
-                <Pane>
-                    <children>
-                        <fx:include fx:id="categories" source="Categories.fxml" />
-                    </children>
-                </Pane>
-                <Pane>
-                    <children>
-                        <fx:include fx:id="invoice" source="Sheets.fxml" />
-                    </children>
-                </Pane>
+                  <fx:include fx:id="categories" source="Categories.fxml" />
+                  <fx:include fx:id="invoice" source="Sheets.fxml" />
             </items>
         </SplitPane>
     </children>

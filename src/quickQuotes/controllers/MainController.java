@@ -93,7 +93,7 @@ public class MainController implements Initializable {
     }
 
     private void ImportData(File file){
-        if (file.exists()) {
+        if (file!=null&&file.exists()) {
             try {
                 XSSFWorkbook  workbook = new XSSFWorkbook(new FileInputStream(file));
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -127,24 +127,40 @@ public class MainController implements Initializable {
                 items = null;
 
             } catch(Exception ioe) {
-                ioe.printStackTrace();
+                Alert errorMessage =new Alert(Alert.AlertType.ERROR);
+                try {
+                    ((Stage)errorMessage.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                errorMessage.setTitle("Quick Quotes - Error");
+                errorMessage.setHeaderText("Can not open file.");
             }
         }
     }
 
     private void Open(){
         setPdfExtensionFilter();
+        fileChooser.setInitialDirectory(new File(settingsFileController.getExportPath()));
         File file = fileChooser.showOpenDialog(primaryStage);
-        if (file.exists()) {
+        fileChooser.setInitialDirectory(null);
+        if (file!=null&&file.exists()) {
             try {
                 activeFilePath = file.getAbsolutePath();
-                System.out.println("Opened file " + activeFilePath);
+                System.out.println("Opened file - Error" );
                 invoiceController.clearTables();
                 PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
                 pdfHandler.load();
 
             } catch(Exception ioe) {
-                ioe.printStackTrace();
+                Alert errorMessage =new Alert(Alert.AlertType.ERROR);
+                try {
+                    ((Stage)errorMessage.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                errorMessage.setTitle("Quick Quotes - Error");
+                errorMessage.setHeaderText("Can not open file.");
             }
         }
     }
@@ -195,7 +211,7 @@ public class MainController implements Initializable {
             alert.setHeaderText("Save changes to document “"+fileName+"” before closing?");
             alert.setContentText("Your changes will be lost if you don’t save them.");
             ButtonType save = new ButtonType("Save");
-            ButtonType saveAs = new ButtonType("SaveAs");
+            ButtonType saveAs = new ButtonType("Save As");
             ButtonType dontSave = new ButtonType("Don't save");
             ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 

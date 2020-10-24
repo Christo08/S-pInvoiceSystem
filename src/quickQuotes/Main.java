@@ -25,7 +25,7 @@ public class Main extends Application {
         Parent root = loader.load();
         MainController mainController = (MainController)loader.getController();
         mainController.setStage(primaryStage);
-        Scene mainScene = new Scene(root, 790, 666);
+        Scene mainScene = new Scene(root, 900, 666);
 
         String CSSName = mainController.getTheme();
         Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);

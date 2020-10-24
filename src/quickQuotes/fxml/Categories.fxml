@@ -5,23 +5,28 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.25" prefHeight="316.0" prefWidth="790.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quickQuotes.controllers.CategoriesController">
+<SplitPane dividerPositions="0.22" minHeight="316.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quickQuotes.controllers.CategoriesController">
     <items>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="195.0">
-            <children>
-                <TextField fx:id="TxtSearch" disable="true" layoutX="56.0" layoutY="23.0" prefHeight="25.0" prefWidth="122.0" />
-                <Label layoutX="8.0" layoutY="25.0" text="Search:">
-                    <font>
-                        <Font size="14.0" />
-                    </font>
-                </Label>
-                <Button fx:id="BtnAddToInvoice" disable="true" layoutX="42.0" layoutY="78.0" mnemonicParsing="false" onAction="#moveItemToInvoice" prefHeight="35.0" prefWidth="114.0" text="Add To Invoice" wrapText="true" />
-                <Button fx:id="BtnResetItems" disable="true" layoutX="39.0" layoutY="142.0" mnemonicParsing="false" onAction="#resetItems" prefHeight="35.0" prefWidth="114.0" text="Reset items" wrapText="true" />
-            </children>
-        </AnchorPane>
+      <VBox alignment="CENTER" spacing="10.0">
+         <children>
+            <HBox alignment="CENTER" spacing="10.0">
+               <children>
+                      <Label text="Search:">
+                          <font>
+                              <Font size="14.0" />
+                          </font>
+                      </Label>
+                      <TextField fx:id="TxtSearch" disable="true" prefHeight="25.0" prefWidth="122.0" />
+               </children>
+            </HBox>
+                <Button fx:id="BtnAddToInvoice" disable="true" mnemonicParsing="false" onAction="#moveItemToInvoice" prefHeight="35.0" prefWidth="114.0" text="Add To Invoice" wrapText="true" />
+                <Button fx:id="BtnResetItems" disable="true" mnemonicParsing="false" onAction="#resetItems" prefHeight="35.0" prefWidth="114.0" text="Reset items" wrapText="true" />
+         </children>
+      </VBox>
         <TabPane fx:id="Tables" minWidth="595.0">
             <tabs>
             </tabs>
