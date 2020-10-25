@@ -55,7 +55,7 @@ public class PdfHandler {
                 PDFTextStripper pdfStripper = new PDFTextStripper();
                 String text = pdfStripper.getText(doc);
                 String costTableHeading = "Stock Code Description Quantity Unit Profit(%) Cost Price (R) Total Price (R)";
-                String costTableText = text.substring(text.indexOf(costTableHeading) + costTableHeading.length(), text.indexOf("Total:")).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
+                String costTableText = text.substring(text.indexOf(costTableHeading)+ costTableHeading.length(), text.lastIndexOf("Total:")).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
 
                 Pattern pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
                 Matcher matcher = pattern.matcher(costTableText);
@@ -72,7 +72,7 @@ public class PdfHandler {
                 {
                     String stockCode = row.substring(0, row.indexOf(" "));
                     row = row.replace(stockCode, "");
-                    pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s([\\w\\W]+)\\s([0-9]+\\.[0-9]{2})");
+                    pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s\\S+\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
                     matcher = pattern.matcher(row);
                     matcher.find();
                     String description = row.substring(0, matcher.start()).trim();
@@ -82,14 +82,7 @@ public class PdfHandler {
                     String unit = rowRemains[1];
                     Double profitPercentage = Double.parseDouble(rowRemains[2]);
                     Double costPrice = Double.parseDouble(rowRemains[3]);
-//                    Double totalPrice = Double.parseDouble(rowRemains[4]);
-//                    System.out.println("stockCode: " + stockCode);
-//                    System.out.println("description: " + description);
-//                    System.out.println("quantity: " + quantity);
-//                    System.out.println("unit: " + unit);
-//                    System.out.println("profitPercentage: " + profit);
-//                    System.out.println("costPrice: " + costPrice);
-//                    System.out.println("totalPrice: " + totalPrice);
+                    Double totalPrice = Double.parseDouble(rowRemains[4]);
 
                     items.add(new Item(stockCode, description, quantity, unit, profitPercentage, costPrice));
                 }
@@ -98,38 +91,6 @@ public class PdfHandler {
                 for (Item item: items){
                     invoiceController.add(item);
                 }
-
-//                String quotationTableHeading = "Stock Code Description Quantity Unit Selling Price (R) Total Price (R)";
-//                String quotationTableText = text.substring(text.indexOf(quotationTableHeading) + quotationTableHeading.length(), text.indexOf("Total without Tax:"));
-//
-//                pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
-//                matcher = pattern.matcher(quotationTableText);
-//
-//                prevEndIndex = 0;
-//                List<String> quotationTableRows = new ArrayList<>();
-//                while(matcher.find())
-//                {
-//                    quotationTableRows.add(quotationTableText.substring(prevEndIndex, matcher.end()).trim());
-//                    prevEndIndex = matcher.end();
-//                }
-//
-//                for(String row : quotationTableRows)
-//                {
-//                    String stockCode = row.substring(0, row.indexOf(" "));
-//                    row = row.replace(stockCode, "");
-//                    pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s([\\w\\W]+)\\s([0-9]+\\.[0-9]{2})");
-//                    matcher = pattern.matcher(row);
-//                    matcher.find();
-//                    String description = row.substring(0, matcher.start()).trim();
-//                    row = row.replace(description, "");
-//                    String[] rowRemains = row.trim().split("\\s");
-//                    Double quantity = Double.parseDouble(rowRemains[0]);
-//                    String unit = rowRemains[1];
-//                    Double sellingPrice = Double.parseDouble(rowRemains[2]);
-//                    Double totalPrice = Double.parseDouble(rowRemains[3]);
-//                }
-
-
             }
             finally {
                 doc.close();
@@ -143,12 +104,8 @@ public class PdfHandler {
         try {
             try {
                 doc = new PDDocument();
-                page = new PDPage(PDRectangle.A4);
-                doc.addPage(page);
-                contentStream = new PDPageContentStream(doc, page);
-                yPosition = page.getMediaBox().getHeight() - margin;
-                addPdfContents(items);
-                contentStream.close();
+                addQuotationSheet(items);
+                addCostingSheet(items);
                 doc.save(pdfFile.getAbsolutePath());
             }
             finally {
@@ -159,34 +116,34 @@ public class PdfHandler {
         }
     }
 
-    private void addPdfContents(List<Item> items) throws Exception
-    {
-        List<String> sortedHeadingPositions = new ArrayList<>();
-        Map<String, Integer> headingPositions = new HashMap<>();//settings.getPDFPositionMap();
+    private void addQuotationSheet(List<Item> items) throws Exception {
+        page = new PDPage(PDRectangle.A4);
+        doc.addPage(page);
+        contentStream = new PDPageContentStream(doc, page);
+        yPosition = page.getMediaBox().getHeight() - margin;
+
+        List<String> sortedSheetItemKeys = new ArrayList<>();
+        Map<String, Integer> sheetItems = settings.getQuotationPositions();
 
         // Remove all entries that wont be displayed
-        headingPositions.values().remove(-1);
+        sheetItems.values().remove(-1);
 
         //Sort headings according to their positions
-        headingPositions.entrySet().stream()
+        sheetItems.entrySet().stream()
                 .sorted((k1, k2) -> -k2.getValue().compareTo(k1.getValue()))
-                .forEach(k -> sortedHeadingPositions.add(k.getKey()));
+                .forEach(k -> sortedSheetItemKeys.add(k.getKey()));
 
-        for (String heading: sortedHeadingPositions) {
-            switch (heading){
-                case "info":
+        for (String sheetItemKey: sortedSheetItemKeys) {
+            switch (sheetItemKey){
+                case "PDFTab.Data.Quotation.Position.info":
                     addCompanyInfo();
                     yPosition -= yMarginBetweenElements;
                     break;
-                case "costingSheet":
-                    addCostingSheet(items);
+                case "PDFTab.Data.Quotation.Position.table":
+                    addQuotationTable(items);
                     yPosition -= yMarginBetweenElements;
                     break;
-                case "quotationSheet":
-                    addQuotationSheet(items);
-                    yPosition -= yMarginBetweenElements;
-                    break;
-                case "additionalText":
+                case "PDFTab.Data.Quotation.Position.text":
                     if(yPosition < margin * 2){
                         addFooter();
                         contentStream.close();
@@ -195,15 +152,62 @@ public class PdfHandler {
                         contentStream = new PDPageContentStream(doc, page, true, true);
                         yPosition = page.getMediaBox().getHeight() - margin;
                     }
-                    PDStreamUtils.write(contentStream, "", font, fontSize, margin, yPosition, Color.BLACK);
+                    PDStreamUtils.write(contentStream, settings.getQuotationText(), font, fontSize, margin, yPosition, Color.BLACK);
                     yPosition -= yMarginBetweenElements;
                     break;
-                default: System.out.println("Unsuported heading \"" + heading + "\"");
+                default: System.out.println("Unsuported heading \"" + sheetItemKey + "\"");
             }
         }
 
         addFooter();
+        contentStream.close();
+    }
 
+    private void addCostingSheet(List<Item> items) throws Exception {
+        page = new PDPage(PDRectangle.A4);
+        doc.addPage(page);
+        contentStream = new PDPageContentStream(doc, page);
+        yPosition = page.getMediaBox().getHeight() - margin;
+
+        List<String> sortedSheetItemKeys = new ArrayList<>();
+        Map<String, Integer> sheetItems = settings.getCostingPositions();
+
+        // Remove all entries that wont be displayed
+        sheetItems.values().remove(-1);
+
+        //Sort headings according to their positions
+        sheetItems.entrySet().stream()
+                .sorted((k1, k2) -> -k2.getValue().compareTo(k1.getValue()))
+                .forEach(k -> sortedSheetItemKeys.add(k.getKey()));
+
+        for (String sheetItemKey: sortedSheetItemKeys) {
+            switch (sheetItemKey){
+                case "PDFTab.Data.CostingSheet.Position.info":
+                    addCompanyInfo();
+                    yPosition -= yMarginBetweenElements;
+                    break;
+                case "PDFTab.Data.CostingSheet.Position.table":
+                    addCostingTable(items);
+                    yPosition -= yMarginBetweenElements;
+                    break;
+                case "PDFTab.Data.CostingSheet.Position.text":
+                    if(yPosition < margin * 2){
+                        addFooter();
+                        contentStream.close();
+                        page = new PDPage(PDRectangle.A4);
+                        doc.addPage(page);
+                        contentStream = new PDPageContentStream(doc, page, true, true);
+                        yPosition = page.getMediaBox().getHeight() - margin;
+                    }
+                    PDStreamUtils.write(contentStream, settings.getCostingText(), font, fontSize, margin, yPosition, Color.BLACK);
+                    yPosition -= yMarginBetweenElements;
+                    break;
+                default: System.out.println("Unsuported heading \"" + sheetItemKey + "\"");
+            }
+        }
+
+        addFooter();
+        contentStream.close();
     }
 
     private void addCompanyInfo(){
@@ -233,7 +237,7 @@ public class PdfHandler {
 
     }
 
-    private void addQuotationSheet(List<Item> items)throws Exception
+    private void addQuotationTable(List<Item> items)throws Exception
     {
         // starting y position is whole page height subtracted by top and bottom margin
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
@@ -299,7 +303,7 @@ public class PdfHandler {
         }
     }
 
-    private void addCostingSheet(List<Item> items)throws Exception
+    private void addCostingTable(List<Item> items)throws Exception
     {
         // starting y position is whole page height subtracted by top and bottom margin
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);

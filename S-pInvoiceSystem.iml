@@ -10,7 +10,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/commons-logging-1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/boxable-1.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -19,7 +19,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/dom4j-1.6.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/commons-logging-1.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -28,7 +28,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/log4j-1.2.13.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/dom4j-1.6.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -37,7 +37,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/logkit-1.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/fontbox-2.0.21.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -46,7 +46,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/poi-3.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/guava-11.0.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -55,7 +55,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/poi-ooxml-3.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/log4j-1.2.13.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -64,7 +64,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/poi-ooxml-schemas-3.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/logkit-1.0.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -73,7 +73,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/xml-apis-1.0.b2.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/pdfbox-2.0.21.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -82,7 +82,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/xmlbeans-2.3.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/poi-3.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -91,7 +91,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/pdfbox-2.0.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/poi-ooxml-3.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -100,7 +100,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/fontbox-2.0.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/poi-ooxml-schemas-3.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -109,7 +109,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/boxable-1.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/slf4j-api-1.7.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -118,7 +118,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/guava-11.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/slf4j-simple-1.7.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -127,7 +127,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/slf4j-api-1.7.9.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/xml-apis-1.0.b2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -136,7 +136,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/sample/lib/slf4j-simple-1.7.9.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/quickQuotes/lib/xmlbeans-2.3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

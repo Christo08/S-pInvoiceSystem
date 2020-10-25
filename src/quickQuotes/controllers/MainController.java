@@ -147,7 +147,7 @@ public class MainController implements Initializable {
         if (file!=null&&file.exists()) {
             try {
                 activeFilePath = file.getAbsolutePath();
-                System.out.println("Opened file - Error" );
+                System.out.println("Opened file: " + activeFilePath );
                 invoiceController.clearTables();
                 PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
                 pdfHandler.load();

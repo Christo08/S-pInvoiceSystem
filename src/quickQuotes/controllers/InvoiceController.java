@@ -84,9 +84,9 @@ public class InvoiceController implements Initializable {
             Tables.getTabs().add(costingSheetTab);
         }else{
             if(itemData.contains(newItem)){
-                itemData.add(newItem);
-            }else{
                 itemData.remove(newItem);
+            }else{
+                itemData.add(newItem);
             }
         }
         updateTotal();
