@@ -15,10 +15,7 @@ import quickQuotes.data.Item;
 import quickQuotes.data.MainCategory;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class CategoriesController implements Initializable {
 
@@ -36,14 +33,14 @@ public class CategoriesController implements Initializable {
 
     private MainController mainController;
     private List<MainCategory> mainCategories;
-    private List<ObservableList<Item> > items;
-    private List<FilteredList<Item>> filteredItems;
+    private Map<String,ObservableList<Item> > items;
+    private Map<String,FilteredList<Item>> filteredItems;
 
     private int numberOfCategories =0;
 
     public CategoriesController() {
-        items= new ArrayList<>();
-        filteredItems = new ArrayList<>();
+        items= new HashMap<>();
+        filteredItems = new HashMap<>();
         mainCategories = new ArrayList<>();
     }
 
@@ -62,12 +59,13 @@ public class CategoriesController implements Initializable {
 
     @FXML
     private void resetItems(ActionEvent event) {
+        TxtSearch.clear();
         for (MainCategory mainCategory:mainCategories){
             mainCategory.removeTabs();
             Tables.getTabs().remove(mainCategory);
         }
-        items= new ArrayList<>();
-        filteredItems = new ArrayList<>();
+        items= new HashMap<>();
+        filteredItems = new HashMap<>();
         mainCategories = new ArrayList<>();
         numberOfCategories =0;
         BtnAddToInvoice.setDisable(true);
@@ -106,9 +104,9 @@ public class CategoriesController implements Initializable {
         }
         numberOfCategories++;
         ObservableList<Item> newItems = FXCollections.observableArrayList(items);
-        this.items.add(newItems);
+        this.items.put(categoryName,newItems);
         FilteredList<Item> newFilteredData = new FilteredList<>(newItems, p -> true);
-        filteredItems.add(newFilteredData);
+        filteredItems.put(categoryName,newFilteredData);
         Category newCategory=new Category(categoryName,numberOfCategories,this);
         mainCategory.addSubCategory(newCategory);
         sortTabs();
@@ -120,8 +118,8 @@ public class CategoriesController implements Initializable {
         Tables.getTabs().setAll(mainCategories);
     }
 
-    public FilteredList<Item> getItemData( int index) {
-        return filteredItems.get(index-1);
+    public FilteredList<Item> getItemData( String id) {
+        return filteredItems.get(id);
     }
 
     @Override
@@ -131,25 +129,27 @@ public class CategoriesController implements Initializable {
 
     private void initializeDataList() {
         TxtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredItems.get(Tables.getSelectionModel().getSelectedIndex()).setPredicate(item -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
+            for ( FilteredList<Item> items:filteredItems.values()) {
+                items.setPredicate(item -> {
+                    if (newValue == null || newValue.isEmpty()) {
+                        return true;
+                    }
 
-                String lowerCaseFilter = newValue.toLowerCase();
+                    String lowerCaseFilter = newValue.toLowerCase();
 
-                if (item.getStockCode().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (item.getDescription().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (item.getUnit().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (item.getProfitPercent().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (item.getCostPrice().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else return item.getSellingPrice().toLowerCase().contains(lowerCaseFilter);
-            });
+                    if (item.getStockCode().toLowerCase().contains(lowerCaseFilter)) {
+                        return true;
+                    } else if (item.getDescription().toLowerCase().contains(lowerCaseFilter)) {
+                        return true;
+                    } else if (item.getUnit().toLowerCase().contains(lowerCaseFilter)) {
+                        return true;
+                    } else if (item.getProfitPercent().toLowerCase().contains(lowerCaseFilter)) {
+                        return true;
+                    } else if (item.getCostPrice().toLowerCase().contains(lowerCaseFilter)) {
+                        return true;
+                    } else return item.getSellingPrice().toLowerCase().contains(lowerCaseFilter);
+                });
+            }
         });
     }
 

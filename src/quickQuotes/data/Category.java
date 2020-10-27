@@ -25,7 +25,7 @@ public class Category extends Tab {
     private TableColumn<Item, String> colSellingPrice;
     private CategoriesController categoriesController;
     private ObservableList<Item> data;
-    private int id;
+    private int index;
 
     private Alert popup;
     private Spinner<Double> popUpProfitSpr;
@@ -34,7 +34,7 @@ public class Category extends Tab {
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
-    public Category(String name, int id,CategoriesController categoriesController) {
+    public Category(String name, int index,CategoriesController categoriesController) {
         table = new TableView<>();
         table.setEditable(false);
         colStockCode = new TableColumn<>("Stock Code");
@@ -55,7 +55,7 @@ public class Category extends Tab {
 
         colStockCode.setSortType(TableColumn.SortType.ASCENDING);
 
-        SortedList<Item> sortedData = new SortedList<>(categoriesController.getItemData(id));
+        SortedList<Item> sortedData = new SortedList<>(categoriesController.getItemData(name));
 
         sortedData.comparatorProperty().bind(table.comparatorProperty());
 
@@ -71,7 +71,7 @@ public class Category extends Tab {
         });
         initializePopup();
 
-        this.id=id;
+        this.index=index;
         this.categoriesController=categoriesController;
         this.setId(name);
         this.setText(name);
@@ -110,4 +110,7 @@ public class Category extends Tab {
     }
 
 
+    public int getIndex() {
+        return index;
+    }
 }
