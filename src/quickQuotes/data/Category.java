@@ -28,7 +28,6 @@ public class Category extends Tab {
     private int index;
 
     private Alert popup;
-    private Spinner<Double> popUpProfitSpr;
 
     public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
@@ -63,9 +62,7 @@ public class Category extends Tab {
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         table.setOnMousePressed(event -> {
-            Item selectedItem = table.getSelectionModel().getSelectedItem();
-            if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
-                popUpProfitSpr.getValueFactory().setValue(selectedItem.getProfitPercentDouble());
+            if (event.isPrimaryButtonDown() && event.getClickCount() == 2){
                 popup.show();
             }
         });
@@ -80,26 +77,25 @@ public class Category extends Tab {
     }
 
     private void initializePopup(){
-        Label popUpProfitLbl = new Label("Profit Percent(%):");
-        popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
-        HBox profitHBox = new HBox(popUpProfitLbl, popUpProfitSpr);
-        profitHBox.setSpacing(10);
+        Label popUpQuotationLbl = new Label("Number of items to add to the quotation:");
+        Spinner<Integer> popUpQuotationSpr = new Spinner<>(1,10000,1,1);
+        HBox quotationHBox = new HBox(popUpQuotationLbl, popUpQuotationSpr);
+        quotationHBox.setSpacing(10);
         popup = new Alert(Alert.AlertType.NONE,"Item");
-        popup.setTitle("Quick Quotes - Changes Profit Percent");
+        popup.setTitle("Quick Quotes - Add Item");
         try {
             ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        popup.setHeaderText("Changes item");
-        popup.getDialogPane().setContent(profitHBox);
+        popup.setHeaderText("Add item");
+        popup.getDialogPane().setContent(quotationHBox);
         popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
         popup.setOnHidden(e -> {
             if (popup.getResult() == ButtonType.APPLY) {
                 Item selectedItem = table.getSelectionModel().getSelectedItem();
-                if(selectedItem!=null){
-                    selectedItem.setProfitPercent(popUpProfitSpr.getValue());
-                    categoriesController.refresh(selectedItem);
+                if (selectedItem!=null) {
+                    categoriesController.moveToQuotation(selectedItem,popUpQuotationSpr.getValue());
                 }
             }
         });

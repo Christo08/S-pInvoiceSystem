@@ -23,7 +23,7 @@
                       <TextField fx:id="TxtSearch" disable="true" prefHeight="25.0" prefWidth="122.0" />
                </children>
             </HBox>
-                <Button fx:id="BtnAddToInvoice" disable="true" mnemonicParsing="false" onAction="#moveItemToInvoice" prefHeight="35.0" prefWidth="114.0" text="Add To Invoice" wrapText="true" />
+                <Button fx:id="BtnAddToQuotation" disable="true" mnemonicParsing="false" onAction="#moveItemToQuotation" prefHeight="35.0" prefWidth="114.0" text="Add To Quotation" wrapText="true" />
                 <Button fx:id="BtnResetItems" disable="true" mnemonicParsing="false" onAction="#resetItems" prefHeight="35.0" prefWidth="114.0" text="Reset items" wrapText="true" />
          </children>
       </VBox>

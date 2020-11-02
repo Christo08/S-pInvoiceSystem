@@ -238,6 +238,10 @@ public class MainController implements Initializable {
         }
     }
 
+    public void addToInvoice(Item newItem, int quantity) {
+        invoiceController.add(newItem, quantity);
+    }
+
     private void closeApplication(){
         Platform.exit();
         System.exit(0);

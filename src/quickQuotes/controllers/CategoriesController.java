@@ -23,7 +23,7 @@ public class CategoriesController implements Initializable {
     private TextField TxtSearch;
 
     @FXML
-    private Button BtnAddToInvoice;
+    private Button BtnAddToQuotation;
 
     @FXML
     private Button BtnResetItems;
@@ -49,7 +49,7 @@ public class CategoriesController implements Initializable {
     }
 
     @FXML
-    private void moveItemToInvoice(ActionEvent event) {
+    private void moveItemToQuotation(ActionEvent event) {
         int index =Tables.getSelectionModel().getSelectedIndex();
         List<Item>items =mainCategories.get(index).getSelectedItems();
         List<Integer>quantities =new ArrayList<>();
@@ -68,7 +68,7 @@ public class CategoriesController implements Initializable {
         filteredItems = new HashMap<>();
         mainCategories = new ArrayList<>();
         numberOfCategories =0;
-        BtnAddToInvoice.setDisable(true);
+        BtnAddToQuotation.setDisable(true);
         BtnResetItems.setDisable(true);
         TxtSearch.setDisable(true);
         mainController.reset();
@@ -87,7 +87,7 @@ public class CategoriesController implements Initializable {
             createAddMainCategory("Other", categoryName, items);
         }
         if (mainCategories.size()!=0){
-            BtnAddToInvoice.setDisable(false);
+            BtnAddToQuotation.setDisable(false);
             BtnResetItems.setDisable(false);
             TxtSearch.setDisable(false);
         }
@@ -155,5 +155,9 @@ public class CategoriesController implements Initializable {
 
     public void refresh(Item selectedItem) {
         mainController.refresh(selectedItem);
+    }
+
+    public void moveToQuotation(Item newItem, int quantity) {
+        mainController.addToInvoice(newItem,quantity);
     }
 }
