@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
+import quickQuotes.data.Group;
 import quickQuotes.tools.PdfHandler;
 import quickQuotes.data.Item;
 import javafx.application.Platform;
@@ -59,6 +60,7 @@ public class MainController implements Initializable {
     private MenuItem menuItemQuit;
 
     private SettingsFileController settingsFileController;
+    private GroupFileController groupFileController;
     public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recoursePath +"\\"+ logoName;
@@ -86,6 +88,10 @@ public class MainController implements Initializable {
         categoriesController.addTab(category.subSequence(26,category.length()-1).toString(),items);
     }
 
+    private void addGroups(){
+        categoriesController.addGroups(groupFileController.getGroups());
+    }
+
     private void ImportNewDataBook(){
         setExcelExtensionFilter();
         File file = fileChooser.showOpenDialog(primaryStage);
@@ -101,6 +107,7 @@ public class MainController implements Initializable {
 
 
                 int rows = sheet.getPhysicalNumberOfRows();
+                List<Item> allItems = new ArrayList<>();
                 List<Item> items = new ArrayList<>();
                 String currentCategory = sheet.getRow(5).getCell(0).toString();
                 for(int r = 6; r < rows - 1; r++) {
@@ -119,12 +126,14 @@ public class MainController implements Initializable {
                             String unit = row.getCell(2).toString();
                             double costPrice = Double.parseDouble(row.getCell(3).toString());
                             items.add(new Item(code, description, unit, costPrice));
+                            allItems.add(new Item(code, description, unit, costPrice));
                         }
 
                     }
                 }
                 addTab(currentCategory, items);
-                items = null;
+                groupFileController = new GroupFileController(allItems);
+                addGroups();
 
             } catch(Exception ioe) {
                 Alert errorMessage =new Alert(Alert.AlertType.ERROR);
@@ -292,5 +301,9 @@ public class MainController implements Initializable {
             File file = new File(settingsFileController.getImportPath());
             ImportData(file);
         }
+    }
+
+    public void writerGroupToFile(List<Group> groups){
+        groupFileController.saveGroups(groups);
     }
 }

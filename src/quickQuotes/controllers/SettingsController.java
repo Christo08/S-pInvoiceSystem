@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import quickQuotes.data.Group;
 import quickQuotes.data.User;
 import quickQuotes.tools.ChangeListener;
 
@@ -505,6 +506,7 @@ public class SettingsController implements Initializable {
             });
         });
     }
+
     private void setUpDataUsers() {
         List<User> copyOfUsers = new ArrayList<>();
         for(User user: settingsFileController.getAllUsers()){

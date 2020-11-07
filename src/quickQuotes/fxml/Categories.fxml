@@ -24,6 +24,7 @@
                </children>
             </HBox>
                 <Button fx:id="BtnAddToQuotation" disable="true" mnemonicParsing="false" onAction="#moveItemToQuotation" prefHeight="35.0" prefWidth="114.0" text="Add To Quotation" wrapText="true" />
+            <Button fx:id="BtnCreateGroup" disable="true" layoutX="40.0" layoutY="145.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="35.0" prefWidth="114.0" text="Create a Group" wrapText="true" />
                 <Button fx:id="BtnResetItems" disable="true" mnemonicParsing="false" onAction="#resetItems" prefHeight="35.0" prefWidth="114.0" text="Reset items" wrapText="true" />
          </children>
       </VBox>

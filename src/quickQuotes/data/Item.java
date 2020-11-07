@@ -9,6 +9,7 @@ public class Item {
     private final StringProperty stockCode;
     private final StringProperty description;
     private final StringProperty quantity;
+    private final StringProperty groupQuantity;
     private final StringProperty unit;
     private final StringProperty profitPercent;
     private final StringProperty costPrice;
@@ -17,6 +18,7 @@ public class Item {
     private final StringProperty totalSellingPrice;
 
     private int quantityInt;
+    private int groupQuantityInt;
     private double profitPercentDouble;
     private double costPriceDouble;
     private double sellingPriceDouble;
@@ -41,6 +43,7 @@ public class Item {
 
     public Item(String stockCode, String description, int quantity, String unit, double profitPercent, double costPrice) {
         this.quantityInt=quantity;
+        this.groupQuantityInt=1;
         this.profitPercentDouble=profitPercent;
         this.costPriceDouble=costPrice;
         this.sellingPriceDouble=(this.costPriceDouble/(100-this.profitPercentDouble))*100;
@@ -54,6 +57,7 @@ public class Item {
         this.stockCode = new SimpleStringProperty(stockCode);
         this.description = new SimpleStringProperty(description);
         this.quantity = new SimpleStringProperty(Integer.toString(this.quantityInt));
+        this.groupQuantity = new SimpleStringProperty(Integer.toString(this.groupQuantityInt));
         this.unit = new SimpleStringProperty(unit);
         this.profitPercent = new SimpleStringProperty(String.format("%.2f", this.profitPercentDouble));
         this.costPrice = new SimpleStringProperty(String.format("%.2f", this.costPriceDouble));
@@ -98,6 +102,23 @@ public class Item {
         this.quantityInt = quantity;
         recalculateTotals();
         this.quantity.set(Integer.toString(this.quantityInt));
+    }
+
+    public String getGroupQuantity() {
+        return groupQuantity.get();
+    }
+
+    public StringProperty groupQuantityProperty() {
+        return groupQuantity;
+    }
+
+    public void setGroupQuantity(int quantity) {
+        this.groupQuantityInt = quantity;
+        this.groupQuantity.set(Integer.toString(this.groupQuantityInt));
+    }
+
+    public int getGroupQuantityInt(){
+        return this.groupQuantityInt;
     }
 
     public String getUnit() {
