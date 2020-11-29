@@ -72,12 +72,15 @@ public class CategoriesController implements Initializable {
     private void moveItemToQuotation(ActionEvent event) {
         int index =Tables.getSelectionModel().getSelectedIndex();
         if(mainCategories.get(index) instanceof MainCategory){
-            List<Item>items =((MainCategory)mainCategories.get(index)).getSelectedItems();
-            List<Integer>quantities =new ArrayList<>();
+            List<Item> items = ((MainCategory)mainCategories.get(index)).getSelectedItems();
+            List<Integer> quantities = new ArrayList<>();
             items.forEach(x->quantities.add(1));
             mainController.addToInvoice(items,quantities);
-        }else{
-
+        }else if(mainCategories.get(index) instanceof GroupsTab){
+            List<Item> items =((GroupsTab)mainCategories.get(index)).getSelectedItems();
+            List<Integer> quantities =new ArrayList<>();
+            items.forEach(x->quantities.add(1));
+            mainController.addToInvoice(items,quantities);
         }
     }
 
@@ -121,7 +124,7 @@ public class CategoriesController implements Initializable {
     }
 
     private void initializePopup(){
-        Label popUpGroupNameLbl = new Label("Number of items to add to the quotation:");
+        Label popUpGroupNameLbl = new Label("Name of group:");
         TextField popUpGroupNameTxt = new TextField();
         HBox groupNameHBox = new HBox(popUpGroupNameLbl, popUpGroupNameTxt);
         groupNameHBox.setSpacing(10);
@@ -203,13 +206,12 @@ public class CategoriesController implements Initializable {
         filteredItems.put(categoryName,newFilteredData);
         Category newCategory=new Category(categoryName,numberOfCategories,this);
         mainCategory.addSubCategory(newCategory);
-        sortTabs();
+        Tables.getTabs().clear();
+        Tables.getTabs().setAll(mainCategories);
     }
 
     private void sortTabs() {
         mainCategories.sort(Comparator.comparing(Tab::getText));
-        Tables.getTabs().clear();
-        Tables.getTabs().setAll(mainCategories);
     }
 
     public FilteredList<Item> getItemData( String id) {

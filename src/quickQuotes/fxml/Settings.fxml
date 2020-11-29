@@ -170,6 +170,48 @@
                                         </BorderPane>
                                     </content>
                                 </Tab>
+                        <Tab closable="false" text="Checking sheet">
+                           <content>
+                              <BorderPane>
+                                 <top>
+                                    <Label text="Checking Sheet Layout:" BorderPane.alignment="CENTER">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                    </Label>
+                                 </top>
+                                 <center>
+                                    <GridPane BorderPane.alignment="CENTER">
+                                       <columnConstraints>
+                                          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                          <CheckBox fx:id="CheckbxAddCheckingSheet" mnemonicParsing="false" onAction="#addCheckingSheet" text="Add checking sheet" GridPane.columnSpan="2147483647" />
+                                          <Label text="Info position:" GridPane.rowIndex="1" />
+                                          <ComboBox fx:id="CbxCheckingSheetInfoPosition" onAction="#changesCheckingSheetInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Label text="Table position: " GridPane.rowIndex="2" />
+                                          <ComboBox fx:id="CbxCheckingSheetTablePosition" onAction="#changesCheckingSheetTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label text="Text position:" GridPane.rowIndex="3" />
+                                          <ComboBox fx:id="CbxCheckingSheetTextPosition" onAction="#changesCheckingSheetTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <Label text="Text:" GridPane.rowIndex="4" />
+                                          <TextArea fx:id="TxtAreaCheckingSheetTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                       </children>
+                                    </GridPane>
+                                 </center>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </BorderPane>
+                           </content>
+                        </Tab>
                             </tabs>
                         </TabPane>
                     </content>

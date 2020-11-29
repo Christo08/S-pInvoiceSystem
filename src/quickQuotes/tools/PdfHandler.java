@@ -106,6 +106,7 @@ public class PdfHandler {
                 doc = new PDDocument();
                 addQuotationSheet(items);
                 addCostingSheet(items);
+                addCheckingSheet(items);
                 doc.save(pdfFile.getAbsolutePath());
             }
             finally {
@@ -191,6 +192,53 @@ public class PdfHandler {
                     yPosition -= yMarginBetweenElements;
                     break;
                 case "PDFTab.Data.CostingSheet.Position.text":
+                    if(yPosition < margin * 2){
+                        addFooter();
+                        contentStream.close();
+                        page = new PDPage(PDRectangle.A4);
+                        doc.addPage(page);
+                        contentStream = new PDPageContentStream(doc, page, true, true);
+                        yPosition = page.getMediaBox().getHeight() - margin;
+                    }
+                    PDStreamUtils.write(contentStream, settings.getCostingText(), font, fontSize, margin, yPosition, Color.BLACK);
+                    yPosition -= yMarginBetweenElements;
+                    break;
+                default: System.out.println("Unsuported heading \"" + sheetItemKey + "\"");
+            }
+        }
+
+        addFooter();
+        contentStream.close();
+    }
+
+    private void addCheckingSheet(List<Item> items) throws Exception {
+        page = new PDPage(PDRectangle.A4);
+        doc.addPage(page);
+        contentStream = new PDPageContentStream(doc, page);
+        yPosition = page.getMediaBox().getHeight() - margin;
+
+        List<String> sortedSheetItemKeys = new ArrayList<>();
+        Map<String, Integer> sheetItems = settings.getCheckingPositions();
+
+        // Remove all entries that wont be displayed
+        sheetItems.values().remove(-1);
+
+        //Sort headings according to their positions
+        sheetItems.entrySet().stream()
+                .sorted((k1, k2) -> -k2.getValue().compareTo(k1.getValue()))
+                .forEach(k -> sortedSheetItemKeys.add(k.getKey()));
+
+        for (String sheetItemKey: sortedSheetItemKeys) {
+            switch (sheetItemKey){
+                case "PDFTab.Data.CheckingSheet.Position.info":
+                    addCompanyInfo();
+                    yPosition -= yMarginBetweenElements;
+                    break;
+                case "PDFTab.Data.CheckingSheet.Position.table":
+                    addCheckTable(items);
+                    yPosition -= yMarginBetweenElements;
+                    break;
+                case "PDFTab.Data.CheckingSheet.Position.text":
                     if(yPosition < margin * 2){
                         addFooter();
                         contentStream.close();
@@ -363,6 +411,58 @@ public class PdfHandler {
             contentStream = new PDPageContentStream(doc, page, true, true);
         }
     }
+
+    private void addCheckTable(List<Item> items)throws Exception
+    {
+        // starting y position is whole page height subtracted by top and bottom margin
+        float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+        // we want table across whole page width (subtracted by left and right margin of course)
+        float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+        boolean drawContent = true;
+        float bottomMargin = 70;
+
+        addTableHeading("Check list", false);
+
+        // y position is your coordinate of top left corner of the table
+        BaseTable table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+
+        // Add table headings
+        Row<PDPage> headerRow = table.createRow(15f);
+        headerRow.createCell(22, "Stock Code");
+        headerRow.createCell(30, "Description");
+        headerRow.createCell(10, "Quantity");
+        headerRow.createCell(8, "Unit");
+        headerRow.createCell(10, "Checked");
+        headerRow.createCell(20, "Notes");
+
+        for (Cell<PDPage> cell: headerRow.getCells()) {
+            cell.setFont(fontBold);
+            cell.setFillColor(Color.LIGHT_GRAY);
+        }
+
+        table.addHeaderRow(headerRow);
+
+        // Add invoice items
+        for(int i = 0; i < items.size(); i++)
+        {
+            Row<PDPage> row = table.createRow(12f);
+            row.createCell(22, items.get(i).getStockCode());
+            row.createCell(30, items.get(i).getDescription());
+            row.createCell(10, items.get(i).getQuantity());
+            row.createCell(8, items.get(i).getUnit());
+            row.createCell(10,"");
+            row.createCell(20,"");
+        }
+
+        yPosition = table.draw();
+        if(page != table.getCurrentPage()){
+            addFooter();
+            contentStream.close();
+            page = table.getCurrentPage();
+            contentStream = new PDPageContentStream(doc, page, true, true);
+        }
+    }
+
 
     private void addTableHeading(String text, boolean centerText) throws Exception{
         float xPosition = margin;

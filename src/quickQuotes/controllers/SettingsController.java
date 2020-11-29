@@ -15,7 +15,6 @@ import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import quickQuotes.data.Group;
 import quickQuotes.data.User;
 import quickQuotes.tools.ChangeListener;
 
@@ -94,6 +93,21 @@ public class SettingsController implements Initializable {
     private TextArea TxtAreaCostSheetTextInput;
 
     @FXML
+    private CheckBox CheckbxAddCheckingSheet;
+
+    @FXML
+    private ComboBox<String> CbxCheckingSheetInfoPosition;
+
+    @FXML
+    private ComboBox<String> CbxCheckingSheetTablePosition;
+
+    @FXML
+    private ComboBox<String> CbxCheckingSheetTextPosition;
+
+    @FXML
+    private TextArea TxtAreaCheckingSheetTextInput;
+
+    @FXML
     private Tab PathsTab;
 
     @FXML
@@ -154,9 +168,11 @@ public class SettingsController implements Initializable {
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recoursePath +"\\"+ logoName;
     private Image logo;
+    private boolean isMakeAUser;
 
     public SettingsController() {
         contextMenu = new ContextMenu();
+        isMakeAUser = false;
         try {
             logo =new Image(new FileInputStream(absoluteLogoPath));
         } catch (FileNotFoundException e) {
@@ -183,6 +199,17 @@ public class SettingsController implements Initializable {
             CbxCostSheetInfoPosition.setValue(positionsIntegerToString(-1));
             CbxCostSheetTablePosition.setValue(positionsIntegerToString(-1));
             CbxCostSheetTextPosition.setValue(positionsIntegerToString(-1));
+        }
+    }
+
+    @FXML
+    void addCheckingSheet(ActionEvent event) {
+        disableEnableChecking(!CheckbxAddCheckingSheet.isSelected());
+        TxtAreaCheckingSheetTextInput.setDisable(true);
+        if(!CheckbxAddCheckingSheet.isSelected()){
+            CbxCheckingSheetInfoPosition.setValue(positionsIntegerToString(-1));
+            CbxCheckingSheetTablePosition.setValue(positionsIntegerToString(-1));
+            CbxCheckingSheetTextPosition.setValue(positionsIntegerToString(-1));
         }
     }
 
@@ -216,9 +243,15 @@ public class SettingsController implements Initializable {
         int tablePosition = positionsStringToInteger(CbxCostSheetTablePosition.getSelectionModel().getSelectedItem());
         int textPosition = positionsStringToInteger(CbxCostSheetTextPosition.getSelectionModel().getSelectedItem());
         if (tablePosition==-1){
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.info",-1);
             changeListener.replace("PDFTab.Data.CostingSheet.Position.table",-1);
+            changeListener.replace("PDFTab.Data.CostingSheet.Position.text",-1);
+            CbxCostSheetInfoPosition.setValue(CbxCostSheetInfoPosition.getItems().get(0));
+            CbxCostSheetTablePosition.setValue(CbxCostSheetTablePosition.getItems().get(0));
+            CbxCostSheetTextPosition.setValue(CbxCostSheetTextPosition.getItems().get(0));
+            TxtAreaCostSheetTextInput.setDisable(true);
             CheckbxAddCostSheet.setSelected(false);
-            disableEnableCosting(true);
+            disableEnableChecking(true);
         }else if(tablePosition==infoPosition){
             CbxCostSheetInfoPosition.setStyle("-fx-border-color: red");
             CbxCostSheetTablePosition.setStyle("-fx-border-color: red");
@@ -285,7 +318,15 @@ public class SettingsController implements Initializable {
         int tablePosition = positionsStringToInteger(CbxQuotationTablePosition.getSelectionModel().getSelectedItem());
         int textPosition = positionsStringToInteger(CbxQuotationTextPosition.getSelectionModel().getSelectedItem());
         if (tablePosition==-1){
+            changeListener.replace("PDFTab.Data.Quotation.Position.info",-1);
             changeListener.replace("PDFTab.Data.Quotation.Position.table",-1);
+            changeListener.replace("PDFTab.Data.Quotation.Position.text",-1);
+            CbxQuotationInfoPosition.setValue(CbxQuotationInfoPosition.getItems().get(0));
+            CbxQuotationTablePosition.setValue(CbxQuotationTablePosition.getItems().get(0));
+            CbxQuotationTextPosition.setValue(CbxQuotationTextPosition.getItems().get(0));
+            TxtAreaQuotationTextInput.setDisable(true);
+            CheckbxAddQuotation.setSelected(false);
+            disableEnableChecking(true);
         }else if(tablePosition==infoPosition){
             CbxQuotationInfoPosition.setStyle("-fx-border-color: red");
             CbxQuotationTablePosition.setStyle("-fx-border-color: red");
@@ -315,6 +356,79 @@ public class SettingsController implements Initializable {
             CbxQuotationTextPosition.setStyle("-fx-border-color: red");
         }else {
             changeListener.replace("PDFTab.Data.Quotation.Position.info",infoPosition);
+        }
+    }
+
+    @FXML
+    void changesCheckingSheetInfoPosition(ActionEvent event) {
+        CbxCheckingSheetInfoPosition.setStyle("");
+        CbxCheckingSheetTablePosition.setStyle("");
+        CbxCheckingSheetTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxCheckingSheetInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxCheckingSheetTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxCheckingSheetTextPosition.getSelectionModel().getSelectedItem());
+        if (infoPosition==-1){
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.info",-1);
+        }else if(tablePosition==infoPosition){
+            CbxCheckingSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCheckingSheetTablePosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==infoPosition){
+            CbxCheckingSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCheckingSheetTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.info",infoPosition);
+        }
+    }
+
+    @FXML
+    void changesCheckingSheetTablePosition(ActionEvent event) {
+        CbxCheckingSheetInfoPosition.setStyle("");
+        CbxCheckingSheetTablePosition.setStyle("");
+        CbxCheckingSheetTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxCheckingSheetInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxCheckingSheetTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxCheckingSheetTextPosition.getSelectionModel().getSelectedItem());
+        if (tablePosition==-1){
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.info",-1);
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.table",-1);
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.text",-1);
+            CbxCheckingSheetInfoPosition.setValue(CbxCheckingSheetInfoPosition.getItems().get(0));
+            CbxCheckingSheetTablePosition.setValue(CbxCheckingSheetTablePosition.getItems().get(0));
+            CbxCheckingSheetTextPosition.setValue(CbxCheckingSheetTextPosition.getItems().get(0));
+            TxtAreaCheckingSheetTextInput.setDisable(true);
+            CheckbxAddCheckingSheet.setSelected(false);
+            disableEnableChecking(true);
+        }else if(tablePosition==infoPosition){
+            CbxCheckingSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCheckingSheetTablePosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==tablePosition){
+            CbxCheckingSheetTablePosition.setStyle("-fx-border-color: red");
+            CbxCheckingSheetTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.table",tablePosition);
+        }
+    }
+
+    @FXML
+    void changesCheckingSheetTextPosition(ActionEvent event) {
+        CbxCheckingSheetInfoPosition.setStyle("");
+        CbxCheckingSheetTablePosition.setStyle("");
+        CbxCheckingSheetTextPosition.setStyle("");
+        int infoPosition = positionsStringToInteger(CbxCheckingSheetInfoPosition.getSelectionModel().getSelectedItem());
+        int tablePosition = positionsStringToInteger(CbxCheckingSheetTablePosition.getSelectionModel().getSelectedItem());
+        int textPosition = positionsStringToInteger(CbxCheckingSheetTextPosition.getSelectionModel().getSelectedItem());
+        if (textPosition==-1){
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.text",-1);
+            TxtAreaCheckingSheetTextInput.setDisable(true);
+        }else if(textPosition==infoPosition){
+            CbxCheckingSheetInfoPosition.setStyle("-fx-border-color: red");
+            CbxCheckingSheetTextPosition.setStyle("-fx-border-color: red");
+        }else if(textPosition==tablePosition){
+            CbxCheckingSheetTablePosition.setStyle("-fx-border-color: red");
+            CbxCheckingSheetTextPosition.setStyle("-fx-border-color: red");
+        }else {
+            changeListener.replace("PDFTab.Data.CheckingSheet.Position.text",textPosition);
+            TxtAreaCheckingSheetTextInput.setDisable(false);
         }
     }
 
@@ -386,7 +500,7 @@ public class SettingsController implements Initializable {
                     user.setMainUser(false);
                 }
             }
-            selectMainUser();
+            selectMainUser(false);
         }
         listUser.add(selectUser);
         btnChangesUser.setDisable(true);
@@ -442,7 +556,7 @@ public class SettingsController implements Initializable {
         TxtEmailInput.setStyle("");
         TxtNumberInput.setStyle("");
         CheckMakeMainUsers.setSelected(false);
-        selectMainUser();
+        selectMainUser(false);
         btnChangesUser.setDisable(true);
         btnResetUser.setDisable(true);
         changeListener.replace("UsersTab.Data.Users",null);
@@ -502,7 +616,7 @@ public class SettingsController implements Initializable {
             Platform.runLater(()->{
                 StyleManager.getInstance().removeUserAgentStylesheet(finalFilePath2);
                 StyleManager.getInstance().addUserAgentStylesheet(finalFilePath1);
-                changeListener.replace("ThemeTab.Theme",finalFilePath1.trim());
+                changeListener.replace("ThemeTab.Theme",file1);
             });
         });
     }
@@ -525,6 +639,14 @@ public class SettingsController implements Initializable {
             changeListener.replace("UsersTab.Data.Users",list);
             changeListener.replace("UsersTab.Data.UsersCounter",list.size());
         });
+        if(listUser.size()==0)
+        {
+            TxtNameInput.setDisable(true);
+            TxtSurnameInput.setDisable(true);
+            TxtEmailInput.setDisable(true);
+            TxtNumberInput.setDisable(true);
+            CheckMakeMainUsers.setDisable(true);
+        }
         LVUsersList.setItems(listUser);
         LVUsersList.setCellFactory(param -> new ListCell<User>() {
             @Override
@@ -539,11 +661,12 @@ public class SettingsController implements Initializable {
             }
         });
         LVUsersList.setOnMouseClicked(event -> {
+            isMakeAUser =false;
             showUserData(LVUsersList.getSelectionModel().getSelectedItem());
             btnChangesUser.setDisable(true);
             btnResetUser.setDisable(true);
         });
-        selectMainUser();
+        selectMainUser(true);
         TxtNameInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue){
                 boolean nameCheck;
@@ -642,17 +765,26 @@ public class SettingsController implements Initializable {
             }
         });
         CheckMakeMainUsers.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            btnChangesUser.setDisable(false);
-            btnResetUser.setDisable(false);
+            if(!isMakeAUser){
+                btnChangesUser.setDisable(false);
+                btnResetUser.setDisable(false);
+            }
         });
 
         MenuItem addNewUserMenuItem = new MenuItem("Add new user");
+        Button btnDone = new Button("Done");
+        btnDone.setOnAction(event1 -> {
+            createUser();
+            isMakeAUser =false;
+        });
         addNewUserMenuItem.setOnAction(event->{
-            Button btnDone = new Button("Done");
-            btnDone.setOnAction(event1 -> {
-                createUser();
-            });
+            isMakeAUser =true;
             showUserData(null);
+            TxtNameInput.setDisable(false);
+            TxtSurnameInput.setDisable(false);
+            TxtEmailInput.setDisable(false);
+            TxtNumberInput.setDisable(false);
+            CheckMakeMainUsers.setDisable(false);
             UserControlHBox.getChildren().add(btnDone);
         });
         MenuItem removeUserMenuItem = new MenuItem("Remove user");
@@ -678,7 +810,7 @@ public class SettingsController implements Initializable {
                     listUser.remove(user);
                     List<User> list =  listUser.stream().collect(Collectors.toList());;
                     changeListener.replace("UsersTab.Data.Users",list);
-                    selectMainUser();
+                    selectMainUser(false);
                 }
             }
         });
@@ -694,17 +826,21 @@ public class SettingsController implements Initializable {
         LVUsersList.setContextMenu(contextMenu);
     }
 
-    private void selectMainUser() {
-        for (User user:listUser) {
-            if(user.isMainUser()){
-                Platform.runLater(() -> {
-                    LVUsersList.scrollTo(LVUsersList.getItems().indexOf(user));
-                    LVUsersList.getSelectionModel().select(LVUsersList.getItems().indexOf(user));
-                    showUserData(user);
-                    btnChangesUser.setDisable(true);
-                    btnResetUser.setDisable(true);
-                });
+    private void selectMainUser(boolean pAdded) {
+        if(listUser.size() !=0 || pAdded) {
+            for (User user : listUser) {
+                if (user.isMainUser()) {
+                    Platform.runLater(() -> {
+                        LVUsersList.scrollTo(LVUsersList.getItems().indexOf(user));
+                        LVUsersList.getSelectionModel().select(LVUsersList.getItems().indexOf(user));
+                        showUserData(user);
+                        btnChangesUser.setDisable(true);
+                        btnResetUser.setDisable(true);
+                    });
+                }
             }
+        } else{
+            showUserData(null);
         }
     }
 
@@ -758,9 +894,13 @@ public class SettingsController implements Initializable {
                     user.setMainUser(false);
                 }
             }
-            selectMainUser();
+            selectMainUser(true);
         }
         listUser.add(selectUser);
+        LVUsersList.getSelectionModel().select(selectUser);
+        showUserData(LVUsersList.getSelectionModel().getSelectedItem());
+        btnChangesUser.setDisable(true);
+        btnResetUser.setDisable(true);
         btnResetUser.setDisable(false);
     }
 
@@ -783,6 +923,10 @@ public class SettingsController implements Initializable {
             CheckMakeMainUsers.setSelected(false);
             btnChangesUser.setDisable(true);
             btnResetUser.setDisable(true);
+            TxtNameInput.setDisable(true);
+            TxtSurnameInput.setDisable(true);
+            TxtNumberInput.setDisable(true);
+            TxtEmailInput.setDisable(true);
         }
     }
 
@@ -823,6 +967,10 @@ public class SettingsController implements Initializable {
             CbxCostSheetInfoPosition.getItems().add(option);
             CbxCostSheetTablePosition.getItems().add(option);
             CbxCostSheetTextPosition.getItems().add(option);
+
+            CbxCheckingSheetInfoPosition.getItems().add(option);
+            CbxCheckingSheetTablePosition.getItems().add(option);
+            CbxCheckingSheetTextPosition.getItems().add(option);
         }
 
         Map<String, Integer> quotationPosition =settingsFileController.getQuotationPositions();
@@ -862,6 +1010,26 @@ public class SettingsController implements Initializable {
         TxtAreaCostSheetTextInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue&&!TxtAreaCostSheetTextInput.isDisable()){
                 changeListener.replace("PDFTab.Data.CostingSheet.Text",TxtAreaCostSheetTextInput.getText());
+            }
+        });
+
+        Map<String, Integer> checkingSheetPosition =settingsFileController.getCheckingPositions();
+        CbxCheckingSheetInfoPosition.setValue(positionsIntegerToString(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.info")));
+        CbxCheckingSheetTablePosition.setValue(positionsIntegerToString(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.table")));
+        CbxCheckingSheetTextPosition.setValue(positionsIntegerToString(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.text")));
+        TxtAreaCheckingSheetTextInput.setText(settingsFileController.getCheckingSheetText());
+        if(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.table")==-1)
+            disableEnableChecking(true);
+        CheckbxAddCheckingSheet.setSelected(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.table")!=-1);
+        CbxCheckingSheetTablePosition.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue&&positionsStringToInteger(CbxCheckingSheetTablePosition.getSelectionModel().getSelectedItem())==-1){
+                CheckbxAddCheckingSheet.setSelected(false);
+                disableEnableCosting(true);
+            }
+        });
+        TxtAreaCheckingSheetTextInput.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue&&!TxtAreaCheckingSheetTextInput.isDisable()){
+                changeListener.replace("PDFTab.Data.CheckingSheet.Text",TxtAreaCheckingSheetTextInput.getText());
             }
         });
     }
@@ -949,6 +1117,9 @@ public class SettingsController implements Initializable {
 
         CheckbxAddCostSheet.setDisable(false);
         disableEnableCosting(false);
+
+        CheckbxAddCheckingSheet.setDisable(false);
+        disableEnableChecking(false);
     }
 
     private void disablePDFTab() {
@@ -957,6 +1128,9 @@ public class SettingsController implements Initializable {
 
         CheckbxAddCostSheet.setDisable(true);
         disableEnableCosting(true);
+
+        CheckbxAddCheckingSheet.setDisable(true);
+        disableEnableChecking(true);
     }
 
     private void disableEnableCosting(boolean disable){
@@ -971,6 +1145,13 @@ public class SettingsController implements Initializable {
         CbxQuotationTablePosition.setDisable(disable);
         CbxQuotationTextPosition.setDisable(disable);
         TxtAreaQuotationTextInput.setDisable((disable)?true:settingsFileController.hasQuotationText());
+    }
+
+    private void disableEnableChecking(boolean disable){
+        CbxCheckingSheetInfoPosition.setDisable(disable);
+        CbxCheckingSheetTablePosition.setDisable(disable);
+        CbxCheckingSheetTextPosition.setDisable(disable);
+        TxtAreaCheckingSheetTextInput.setDisable((disable)?true:settingsFileController.hasCheckingText());
     }
 
     private void closeStage(ActionEvent event) {

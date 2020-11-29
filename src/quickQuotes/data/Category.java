@@ -108,9 +108,11 @@ public class Category extends Tab {
         popupQuotation.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
         popupQuotation.setOnHidden(e -> {
             if (popupQuotation.getResult() == ButtonType.APPLY) {
-                Item selectedItem = table.getSelectionModel().getSelectedItem();
-                if (selectedItem!=null) {
-                    categoriesController.moveToQuotation(selectedItem,popUpQuotationSpr.getValue());
+                List<Item> selectedItems = table.getSelectionModel().getSelectedItems();
+                if (selectedItems!=null) {
+                    for (Item item:selectedItems) {
+                        categoriesController.moveToQuotation(item,popUpQuotationSpr.getValue());
+                    }
                 }
             }
         });
@@ -137,8 +139,8 @@ public class Category extends Tab {
         popupGroup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
         popupGroup.setOnHidden(e -> {
             if (popupGroup.getResult() == ButtonType.APPLY) {
-                Item selectedItem = table.getSelectionModel().getSelectedItem();
-                if (selectedItem!=null) {
+                ObservableList<Item> selectedItems = table.getSelectionModel().getSelectedItems();
+                for (Item selectedItem:selectedItems) {
                     Item newItem = new Item(selectedItem);
                     newItem.setGroupQuantity(popUppNumberOfItemsSpr.getValue());
                     categoriesController.addToGroup(newItem, popUpGroupNameCmb.getValue());
@@ -149,7 +151,7 @@ public class Category extends Tab {
 
     private void initializeContextMenu(){
         contextMenu = new ContextMenu();
-        MenuItem addToQuotationMenuItem = new MenuItem("Add To quotation");
+        MenuItem addToQuotationMenuItem = new MenuItem("Add to quotation");
         addToQuotationMenuItem.setOnAction(event -> {
             popupQuotation.showAndWait();
         });

@@ -28,12 +28,16 @@ public class SettingsFileController {
                        keyValuePair.put(lineSplit[0],false);
                    }else if(lineSplit[1].charAt(0)=='['&&lineSplit[1].trim().charAt(lineSplit[1].trim().length()-1)==']'){
                        if(lineSplit[0].equals("UsersTab.Data.Users")){
-                           String[] stringUsers = lineSplit[1].substring(1,lineSplit[1].length()-1).split(", ");
-                           List<User> users = new ArrayList<>();
-                           for (int counter=0; counter< stringUsers.length;counter++ ){
-                               users.add(new User(stringUsers[counter].trim()));
+                           if(lineSplit[1].trim().equalsIgnoreCase("[]")){
+                               keyValuePair.put(lineSplit[0], new ArrayList<>());
+                           }else {
+                               String[] stringUsers = lineSplit[1].substring(1, lineSplit[1].length() - 1).split(", ");
+                               List<User> users = new ArrayList<>();
+                               for (int counter = 0; counter < stringUsers.length; counter++) {
+                                   users.add(new User(stringUsers[counter].trim()));
+                               }
+                               keyValuePair.put(lineSplit[0], users);
                            }
-                           keyValuePair.put(lineSplit[0],users);
                        }
                    }else if(lineSplit[0].contains("UsersCounter")||lineSplit[0].contains("Position")) {
                        keyValuePair.put(lineSplit[0],Integer.parseInt(lineSplit[1].trim()));
@@ -83,6 +87,23 @@ public class SettingsFileController {
         return results;
     }
 
+    public Map<String, Integer> getCheckingPositions(){
+        Map<String,Integer> results = new HashMap<>();
+        if (keyValuePair.containsKey("PDFTab.Data.CheckingSheet.Position.info"))
+            results.put("PDFTab.Data.CheckingSheet.Position.info",  (int)keyValuePair.get("PDFTab.Data.CheckingSheet.Position.info"));
+        else
+            results.put("PDFTab.Data.CheckingSheet.Position.info",  -1);
+        if (keyValuePair.containsKey("PDFTab.Data.CheckingSheet.Position.table"))
+            results.put("PDFTab.Data.CheckingSheet.Position.table",  (int)keyValuePair.get("PDFTab.Data.CheckingSheet.Position.table"));
+        else
+            results.put("PDFTab.Data.CheckingSheet.Position.table",  -1);
+        if (keyValuePair.containsKey("PDFTab.Data.CheckingSheet.Position.text"))
+            results.put("PDFTab.Data.CheckingSheet.Position.text",  (int)keyValuePair.get("PDFTab.Data.CheckingSheet.Position.text"));
+        else
+            results.put("PDFTab.Data.CheckingSheet.Position.text", -1);
+        return results;
+    }
+
     public String getQuotationText(){
         if (keyValuePair.containsKey("PDFTab.Data.Quotation.Text"))
              return (String)keyValuePair.get("PDFTab.Data.Quotation.Text");
@@ -92,6 +113,12 @@ public class SettingsFileController {
     public String getCostingText(){
         if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Text"))
              return (String)keyValuePair.get("PDFTab.Data.CostingSheet.Text");
+        return "";
+    }
+
+    public String getCheckingSheetText(){
+        if (keyValuePair.containsKey("PDFTab.Data.CheckingSheet.Text"))
+            return (String)keyValuePair.get("PDFTab.Data.CheckingSheet.Text");
         return "";
     }
 
@@ -107,10 +134,16 @@ public class SettingsFileController {
         return false;
     }
 
+    public boolean hasCheckingText(){
+        if (keyValuePair.containsKey("PDFTab.Enable.CheckingSheet.Text"))
+            return !(boolean)keyValuePair.get("PDFTab.Enable.CheckingSheet.Text");
+        return false;
+    }
+
     public boolean isPDFTadEnable(){
         if (keyValuePair.containsKey("PDFTab.Enable"))
             return (boolean)keyValuePair.get("PDFTab.Enable");
-        return false;
+        return true;
     }
 
     public String getImportPath(){
@@ -261,8 +294,9 @@ public class SettingsFileController {
     }
 
     public String getTheme() {
-        if(keyValuePair.containsKey("ThemeTab.Theme"))
+        if(keyValuePair.containsKey("ThemeTab.Theme")) {
             return (String)keyValuePair.get("ThemeTab.Theme");
+        }
         return "darkTheme.css";
     }
 }

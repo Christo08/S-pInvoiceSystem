@@ -1,5 +1,6 @@
 package quickQuotes.data;
 
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -13,6 +14,7 @@ import quickQuotes.controllers.CategoriesController;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -185,7 +187,7 @@ public class GroupsTab extends Tab {
             popupGroupView.showAndWait();
         });
         contextMenu.getItems().add(viewGroupMenuItem);
-        MenuItem addToQuotationMenuItem = new MenuItem("Add To quotation");
+        MenuItem addToQuotationMenuItem = new MenuItem("Add to quotation");
         addToQuotationMenuItem.setOnAction(event -> {
             popupQuotation.showAndWait();
         });
@@ -195,6 +197,15 @@ public class GroupsTab extends Tab {
             popupRemove.showAndWait();
         });
         contextMenu.getItems().add(removeGroupMenuItem);
+    }
+
+    public List<Item> getSelectedItems() {
+        List<Item> items = new ArrayList<>();
+        ObservableList<Group> selectedGroups = table.getSelectionModel().getSelectedItems();
+        for (Group group: selectedGroups) {
+            items.addAll(group.getItemList());
+        }
+        return items;
     }
 
 }

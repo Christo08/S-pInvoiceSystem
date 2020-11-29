@@ -6,11 +6,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
 import quickQuotes.data.Group;
+import quickQuotes.data.User;
 import quickQuotes.tools.PdfHandler;
 import quickQuotes.data.Item;
 import javafx.application.Platform;
@@ -23,6 +25,7 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainController implements Initializable {
 
@@ -64,9 +67,12 @@ public class MainController implements Initializable {
     public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
     String logoName = "Logo.PNG";
     String absoluteLogoPath = recoursePath +"\\"+ logoName;
+    private Alert popupMainUserPicker;
+    private User mainUser;
 
     public void setStage(Stage stage) throws Exception{
         primaryStage = stage;
+        fileChooser.setInitialDirectory(new File(settingsFileController.getExportPath()));
         menuItemImport.setOnAction((event) -> ImportNewDataBook());
         menuItemOpen.setOnAction((event) -> Open());
         menuItemSave.setOnAction((event) -> Save());
@@ -150,7 +156,6 @@ public class MainController implements Initializable {
 
     private void Open(){
         setPdfExtensionFilter();
-        fileChooser.setInitialDirectory(new File(settingsFileController.getExportPath()));
         File file = fileChooser.showOpenDialog(primaryStage);
         fileChooser.setInitialDirectory(null);
         if (file!=null&&file.exists()) {
@@ -175,34 +180,80 @@ public class MainController implements Initializable {
     }
 
     private void Save(){
-        if (activeFilePath != null){
-            File file = new File(activeFilePath);
-            if (file!= null) {
-                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
-                pdfHandler.save(invoiceController.getItems());
-                System.out.println("File \"" +file.getAbsolutePath()+ "\" saved");
-            }
-            else{
-                System.out.println("File not found");
-            }
+        if(settingsFileController.getMainUser()==null){
+            popupMainUserPicker.showAndWait();
         }
-        else{
-            SaveAs();
+        if(settingsFileController.getMainUser()!=null) {
+            if (activeFilePath != null) {
+                if (settingsFileController.getMainUser() != null) {
+                    File file = new File(activeFilePath);
+                    if (file != null) {
+                        PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
+                        pdfHandler.save(invoiceController.getItems());
+                        System.out.println("File \"" + file.getAbsolutePath() + "\" saved");
+                    } else {
+                        System.out.println("File not found");
+                    }
+                }
+            } else {
+                SaveAs();
+            }
         }
     }
 
-    private void SaveAs(){
-        setPdfExtensionFilter();
-        File file = fileChooser.showSaveDialog(primaryStage);
-        if (file != null) {
-            activeFilePath = file.getAbsolutePath();
-            PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
-            pdfHandler.save(invoiceController.getItems());
-            System.out.println("File saved as " + file.getAbsolutePath());
+    private void createMainUserPickerPopup(){
+        popupMainUserPicker = new Alert(Alert.AlertType.NONE,"Use");
+        popupMainUserPicker.setTitle("Quick Quotes - Main User Picker");
+        try {
+            ((Stage)popupMainUserPicker.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        else
-        {
-            System.out.println("File not found");
+        popupMainUserPicker.setHeaderText("Please pick a main user");
+        Label text = new Label("User");
+        ComboBox<String> usersNames = new ComboBox<>();
+        HBox mainUserPickerHBox = new HBox(text,usersNames);
+        mainUserPickerHBox.setSpacing(5);
+        popupMainUserPicker.getDialogPane().setContent(mainUserPickerHBox);
+        popupMainUserPicker.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
+        AtomicReference<List<User>> users = new AtomicReference<>(settingsFileController.getAllUsers());
+        popupMainUserPicker.setOnShown(e ->{
+            users.set(settingsFileController.getAllUsers());
+            for (User user: users.get()) {
+                usersNames.getItems().add(user.getName()+" "+user.getSurname());
+            }
+        });
+        popupMainUserPicker.setOnHidden(e -> {
+            if (popupMainUserPicker.getResult() == ButtonType.APPLY) {
+                int mainUserIndex = usersNames.getSelectionModel().getSelectedIndex();
+                users.get().get(mainUserIndex).setMainUser(true);
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("UsersTab.Data.Users",users.get());
+                try {
+                    settingsFileController.applyChanges(map);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+            usersNames.getItems().clear();
+        });
+    }
+
+    private void SaveAs(){
+        if(settingsFileController.getMainUser()==null){
+            popupMainUserPicker.showAndWait();
+        }
+        if(settingsFileController.getMainUser()!=null) {
+            setPdfExtensionFilter();
+            File file = fileChooser.showSaveDialog(primaryStage);
+            if (file != null) {
+                activeFilePath = file.getAbsolutePath();
+                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
+                pdfHandler.save(invoiceController.getItems());
+                System.out.println("File saved as " + file.getAbsolutePath());
+            } else {
+                System.out.println("File not found");
+            }
         }
     }
 
@@ -265,6 +316,7 @@ public class MainController implements Initializable {
             File file = new File(settingsFileController.getImportPath());
             ImportData(file);
         }
+        createMainUserPickerPopup();
     }
 
     @FXML
