@@ -299,11 +299,11 @@ public class MainController implements Initializable {
     }
 
     private void Save(){
-        if(invoiceController.getItems().size()!=0) {
-            if (SettingsFileController.getMainUser() == null) {
-                popupMainUserPicker.showAndWait();
-            }
-            if (SettingsFileController.getMainUser() != null) {
+        if (SettingsFileController.getMainUser() == null) {
+            popupMainUserPicker.showAndWait();
+        }
+        if (SettingsFileController.getMainUser() != null) {
+            if(invoiceController.getItems().size() > 0) {
                 if (activeFilePath != null) {
                     popupPDFLayout.showAndWait();
                     if (cancelSavePopup) {
@@ -327,10 +327,10 @@ public class MainController implements Initializable {
                 } else {
                     SaveAs();
                 }
+            }else{
+                popupErrorMessage.setHeaderText("Please add a item to the quotation");
+                popupErrorMessage.showAndWait();
             }
-        } else {
-            popupErrorMessage.setHeaderText("No Items in the quotes.");
-            popupErrorMessage.showAndWait();
         }
     }
 
@@ -339,24 +339,29 @@ public class MainController implements Initializable {
             popupMainUserPicker.showAndWait();
         }
         if(SettingsFileController.getMainUser()!=null) {
-            popupPDFLayout.showAndWait();
-            if(cancelSavePopup) {
-                setPdfExtensionFilter();
-                File file = fileChooser.showSaveDialog(primaryStage);
-                if (file != null) {
-                    activeFilePath = file.getAbsolutePath();
-                    PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
-                    try {
-                        pdfHandler.save(invoiceController.getItems());
-                    } catch (Exception exception) {
-                        popupErrorMessage.setHeaderText(exception.toString());
+            if(invoiceController.getItems().size() > 0) {
+                popupPDFLayout.showAndWait();
+                if(cancelSavePopup) {
+                    setPdfExtensionFilter();
+                    File file = fileChooser.showSaveDialog(primaryStage);
+                    if (file != null) {
+                        activeFilePath = file.getAbsolutePath();
+                        PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
+                        try {
+                            pdfHandler.save(invoiceController.getItems());
+                        } catch (Exception exception) {
+                            popupErrorMessage.setHeaderText(exception.toString());
+                        }
+                        popupInfoMessage.setHeaderText("File saved as " + file.getName() + ".");
+                        popupInfoMessage.showAndWait();
+                    } else {
+                        popupErrorMessage.setHeaderText("File not found.");
+                        popupErrorMessage.show();
                     }
-                    popupInfoMessage.setHeaderText("File saved as " + file.getName() + ".");
-                    popupInfoMessage.showAndWait();
-                } else {
-                    popupErrorMessage.setHeaderText("File not found.");
-                    popupErrorMessage.show();
                 }
+            }else{
+                popupErrorMessage.setHeaderText("Please add a item to the quotation");
+                popupErrorMessage.showAndWait();
             }
         }
     }
