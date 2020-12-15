@@ -40,8 +40,4 @@ public class MainCategory extends Tab {
         tabPane.getTabs().clear();
         tabs = new ArrayList<>();
     }
-
-    public String getSelectedName() {
-        return tabPane.getSelectionModel().getSelectedItem().getText();
-    }
 }

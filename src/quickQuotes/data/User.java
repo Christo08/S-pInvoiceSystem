@@ -82,10 +82,6 @@ public class User {
         return email;
     }
 
-    public void changeMainUserStatus(boolean newStatus){
-        mainUser=newStatus;
-    }
-
     public boolean isMainUser() {
         return mainUser;
     }

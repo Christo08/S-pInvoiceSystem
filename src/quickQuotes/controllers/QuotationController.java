@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 public class QuotationController implements Initializable {
 
-
     @FXML
     private TableView<Item> TVQuotationTable;
 
@@ -47,10 +46,6 @@ public class QuotationController implements Initializable {
     private String popUpQuantityLblString;
     private Label popUpQuantityLbl;
     private Spinner<Integer> popUpQuantitySpr;
-
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -109,7 +104,7 @@ public class QuotationController implements Initializable {
         popup = new Alert(Alert.AlertType.NONE,
                 "Item");
         try {
-            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -130,11 +125,6 @@ public class QuotationController implements Initializable {
 
     public List<Item> getSelectionModel() {
         return TVQuotationTable.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
-    }
-
-    public void setInvoiceController(InvoiceController invoiceController) {
-        this.invoiceController=invoiceController;
-        initializeTable();
     }
 
 }

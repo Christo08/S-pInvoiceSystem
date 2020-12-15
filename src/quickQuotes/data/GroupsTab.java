@@ -2,7 +2,6 @@ package quickQuotes.data;
 
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
@@ -10,12 +9,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import quickQuotes.controllers.CategoriesController;
+import quickQuotes.controllers.SettingsFileController;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class GroupsTab extends Tab {
@@ -31,9 +29,6 @@ public class GroupsTab extends Tab {
     private Alert popupGroupView;
     private int hashOfSelectedGroup;
 
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     public GroupsTab(CategoriesController categoriesController) {
         initializePopup();
@@ -85,7 +80,7 @@ public class GroupsTab extends Tab {
         popupQuotation = new Alert(Alert.AlertType.NONE);
         popupQuotation.setTitle("Quick Quotes - Add Item");
         try {
-            ((Stage) popupQuotation.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage) popupQuotation.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -104,7 +99,7 @@ public class GroupsTab extends Tab {
         popupRemove = new Alert(Alert.AlertType.CONFIRMATION);
         popupRemove.setTitle("Quick Quotes - Remove group");
         try {
-            ((Stage) popupRemove.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage) popupRemove.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -129,7 +124,7 @@ public class GroupsTab extends Tab {
         popupGroupView = new Alert(Alert.AlertType.NONE);
         popupGroupView.setTitle("Quick Quotes - Group");
         try {
-            ((Stage) popupGroupView.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage) popupGroupView.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -157,7 +152,7 @@ public class GroupsTab extends Tab {
                     Alert popupError = new Alert(Alert.AlertType.WARNING);
                     popupError.setTitle("Quick Quotes - Group error");
                     try {
-                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
                     } catch (FileNotFoundException exception) {
                         exception.printStackTrace();
                     }
@@ -167,7 +162,7 @@ public class GroupsTab extends Tab {
                     Alert popupError = new Alert(Alert.AlertType.WARNING);
                     popupError.setTitle("Quick Quotes - Group error");
                     try {
-                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
                     } catch (FileNotFoundException exception) {
                         exception.printStackTrace();
                     }

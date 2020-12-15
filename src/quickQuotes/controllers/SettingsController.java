@@ -63,9 +63,6 @@ public class SettingsController implements Initializable {
     private Tab PDFTab;
 
     @FXML
-    private CheckBox CheckbxAddQuotation;
-
-    @FXML
     private ComboBox<String> CbxQuotationInfoPosition;
 
     @FXML
@@ -78,9 +75,6 @@ public class SettingsController implements Initializable {
     private TextArea TxtAreaQuotationTextInput;
 
     @FXML
-    private CheckBox CheckbxAddCostSheet;
-
-    @FXML
     private ComboBox<String> CbxCostSheetInfoPosition;
 
     @FXML
@@ -91,9 +85,6 @@ public class SettingsController implements Initializable {
 
     @FXML
     private TextArea TxtAreaCostSheetTextInput;
-
-    @FXML
-    private CheckBox CheckbxAddCheckingSheet;
 
     @FXML
     private ComboBox<String> CbxCheckingSheetInfoPosition;
@@ -151,7 +142,6 @@ public class SettingsController implements Initializable {
     private FileChooser.ExtensionFilter excelExtensionFilter = new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx");
 
     private MainController mainController;
-    private SettingsFileController settingsFileController;
 
     private ChangeListener changeListener;
     private Stage primaryStage;
@@ -164,9 +154,6 @@ public class SettingsController implements Initializable {
     private final String emailPattern= "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
     public static String CSSPath = new File("src/quickQuotes/CSS/").getAbsolutePath();
 
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
     private Image logo;
     private boolean isMakeAUser;
 
@@ -174,42 +161,9 @@ public class SettingsController implements Initializable {
         contextMenu = new ContextMenu();
         isMakeAUser = false;
         try {
-            logo =new Image(new FileInputStream(absoluteLogoPath));
+            logo =new Image(new FileInputStream(SettingsFileController.getLogoPath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void addQuotation(ActionEvent event) {
-        disableEnableQuotation(!CheckbxAddQuotation.isSelected());
-        TxtAreaQuotationTextInput.setDisable(true);
-        if(!CheckbxAddQuotation.isSelected()){
-            CbxQuotationInfoPosition.setValue(positionsIntegerToString(-1));
-            CbxQuotationTablePosition.setValue(positionsIntegerToString(-1));
-            CbxQuotationTextPosition.setValue(positionsIntegerToString(-1));
-        }
-    }
-
-    @FXML
-    void addCostingSheet(ActionEvent event) {
-        disableEnableCosting(!CheckbxAddCostSheet.isSelected());
-        TxtAreaCostSheetTextInput.setDisable(true);
-        if(!CheckbxAddCostSheet.isSelected()){
-            CbxCostSheetInfoPosition.setValue(positionsIntegerToString(-1));
-            CbxCostSheetTablePosition.setValue(positionsIntegerToString(-1));
-            CbxCostSheetTextPosition.setValue(positionsIntegerToString(-1));
-        }
-    }
-
-    @FXML
-    void addCheckingSheet(ActionEvent event) {
-        disableEnableChecking(!CheckbxAddCheckingSheet.isSelected());
-        TxtAreaCheckingSheetTextInput.setDisable(true);
-        if(!CheckbxAddCheckingSheet.isSelected()){
-            CbxCheckingSheetInfoPosition.setValue(positionsIntegerToString(-1));
-            CbxCheckingSheetTablePosition.setValue(positionsIntegerToString(-1));
-            CbxCheckingSheetTextPosition.setValue(positionsIntegerToString(-1));
         }
     }
 
@@ -250,7 +204,6 @@ public class SettingsController implements Initializable {
             CbxCostSheetTablePosition.setValue(CbxCostSheetTablePosition.getItems().get(0));
             CbxCostSheetTextPosition.setValue(CbxCostSheetTextPosition.getItems().get(0));
             TxtAreaCostSheetTextInput.setDisable(true);
-            CheckbxAddCostSheet.setSelected(false);
             disableEnableChecking(true);
         }else if(tablePosition==infoPosition){
             CbxCostSheetInfoPosition.setStyle("-fx-border-color: red");
@@ -325,7 +278,6 @@ public class SettingsController implements Initializable {
             CbxQuotationTablePosition.setValue(CbxQuotationTablePosition.getItems().get(0));
             CbxQuotationTextPosition.setValue(CbxQuotationTextPosition.getItems().get(0));
             TxtAreaQuotationTextInput.setDisable(true);
-            CheckbxAddQuotation.setSelected(false);
             disableEnableChecking(true);
         }else if(tablePosition==infoPosition){
             CbxQuotationInfoPosition.setStyle("-fx-border-color: red");
@@ -396,7 +348,6 @@ public class SettingsController implements Initializable {
             CbxCheckingSheetTablePosition.setValue(CbxCheckingSheetTablePosition.getItems().get(0));
             CbxCheckingSheetTextPosition.setValue(CbxCheckingSheetTextPosition.getItems().get(0));
             TxtAreaCheckingSheetTextInput.setDisable(true);
-            CheckbxAddCheckingSheet.setSelected(false);
             disableEnableChecking(true);
         }else if(tablePosition==infoPosition){
             CbxCheckingSheetInfoPosition.setStyle("-fx-border-color: red");
@@ -435,9 +386,9 @@ public class SettingsController implements Initializable {
     @FXML
     void applyChanges(ActionEvent event) {
             try {
-                settingsFileController.applyChanges(changeListener.getNewValues());
+                SettingsFileController.applyChanges(changeListener.getNewValues());
                 btnApply.setDisable(true);
-                changeListener.update(settingsFileController.getKeyValuePair());
+                changeListener.update(SettingsFileController.getKeyValuePair());
             } catch (IOException e) {
                 Alert errorDialog = new Alert(Alert.AlertType.ERROR);
                 errorDialog.setTitle("Quick Quotes - Save Error");
@@ -542,7 +493,7 @@ public class SettingsController implements Initializable {
     @FXML
     void resetUser(ActionEvent event){
         List<User> copyOfUsers = new ArrayList<>();
-        for(User user: settingsFileController.getAllUsers()){
+        for(User user: SettingsFileController.getAllUsers()){
             copyOfUsers.add(new User(user));
         }
         listUser= FXCollections.observableArrayList(copyOfUsers);
@@ -574,8 +525,7 @@ public class SettingsController implements Initializable {
 
     public void setMainController(MainController mainController) {
         this.mainController=mainController;
-        settingsFileController = new SettingsFileController();
-        changeListener = new ChangeListener(this, settingsFileController.getKeyValuePair());
+        changeListener = new ChangeListener(this, SettingsFileController.getKeyValuePair());
 
         setUpEnableOrDisableTabs();
         setUpDataInTabs();
@@ -597,7 +547,7 @@ public class SettingsController implements Initializable {
     }
 
     private void setUpDataTheme() {
-        if(settingsFileController.getTheme().contains("dark")){
+        if(SettingsFileController.getTheme().contains("dark")){
             rbDark.setSelected(true);
             rbLight.setSelected(false);
         }else{
@@ -607,8 +557,8 @@ public class SettingsController implements Initializable {
         themeGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             String file1 =((RadioButton)newValue).getText().toLowerCase()+"Theme.css";
             String file2 =((RadioButton)oldValue).getText().toLowerCase()+"Theme.css";
-            String absoluteCSSPath1= CSSPath+"\\"+ file1;
-            String absoluteCSSPath2 = CSSPath+"\\"+ file2;
+            String absoluteCSSPath1= SettingsFileController.getCSSPath()+"\\"+ file1;
+            String absoluteCSSPath2 = SettingsFileController.getCSSPath()+"\\"+ file2;
             File f1 = new File(absoluteCSSPath1);
             File f2 = new File(absoluteCSSPath2);
             String finalFilePath1="file:///" + f1.getAbsolutePath().replace("\\", "/");
@@ -623,7 +573,7 @@ public class SettingsController implements Initializable {
 
     private void setUpDataUsers() {
         List<User> copyOfUsers = new ArrayList<>();
-        for(User user: settingsFileController.getAllUsers()){
+        for(User user: SettingsFileController.getAllUsers()){
             copyOfUsers.add(new User(user));
         }
         listUser= FXCollections.observableArrayList(copyOfUsers);
@@ -687,7 +637,7 @@ public class SettingsController implements Initializable {
                 TxtSurnameInput.setStyle("");
                 for (User user: listUser) {
                     if(user.getId().equals(selectUser.getId())){
-                        if(settingsFileController.isUsersTabChangesButtonEnable()) {
+                        if(SettingsFileController.isUsersTabChangesButtonEnable()) {
                             btnChangesUser.setDisable(false);
                             btnResetUser.setDisable(false);
                         }
@@ -715,7 +665,7 @@ public class SettingsController implements Initializable {
                 TxtSurnameInput.setStyle("");
                 for (User user: listUser) {
                     if(user.getId().equals(selectUser.getId())){
-                        if(settingsFileController.isUsersTabChangesButtonEnable()) {
+                        if(SettingsFileController.isUsersTabChangesButtonEnable()) {
                             btnChangesUser.setDisable(false);
                             btnResetUser.setDisable(false);
                         }
@@ -730,7 +680,7 @@ public class SettingsController implements Initializable {
                 if(pattern.matcher(newEmail).matches()) {
                     for (User user: listUser) {
                         if(user.getId().equals(selectUser.getId())){
-                            if(settingsFileController.isUsersTabChangesButtonEnable()) {
+                            if(SettingsFileController.isUsersTabChangesButtonEnable()) {
                                 btnChangesUser.setDisable(false);
                                 btnResetUser.setDisable(false);
                             }
@@ -750,7 +700,7 @@ public class SettingsController implements Initializable {
                 if(phonePatterns.matcher(newNumber).matches()) {
                     for (User user : listUser) {
                         if (user.getId().equals(selectUser.getId())) {
-                            if (settingsFileController.isUsersTabChangesButtonEnable()) {
+                            if (SettingsFileController.isUsersTabChangesButtonEnable()) {
                                 btnChangesUser.setDisable(false);
                                 btnResetUser.setDisable(false);
                             }
@@ -814,12 +764,12 @@ public class SettingsController implements Initializable {
                 }
             }
         });
-        if(settingsFileController.isUsersTabAddButtonEnable()){
+        if(SettingsFileController.isUsersTabAddButtonEnable()){
             contextMenu.getItems().add(addNewUserMenuItem);
         }
         contextMenu.showingProperty().addListener((observable, oldValue, newValue) -> {
             contextMenu.getItems().remove(removeUserMenuItem);
-            if(settingsFileController.isUsersTabRemoveButtonEnable()&&LVUsersList.getSelectionModel().getSelectedItem()!=null){
+            if(SettingsFileController.isUsersTabRemoveButtonEnable()&&LVUsersList.getSelectionModel().getSelectedItem()!=null){
                 contextMenu.getItems().add(removeUserMenuItem);
             }
         });
@@ -931,7 +881,7 @@ public class SettingsController implements Initializable {
     }
 
     private void setUpDataPaths() {
-        if(settingsFileController.getImportOnStartUp()){
+        if(SettingsFileController.getImportOnStartUp()){
             RBtnImportStartUpYes.setSelected(true);
             RBtnImportStartUpNo.setSelected(false);
         }else{
@@ -939,13 +889,13 @@ public class SettingsController implements Initializable {
             RBtnImportStartUpNo.setSelected(true);
             TxtImportPath.setDisable(true);
         }
-        TxtImportPath.setText(settingsFileController.getImportPath());
+        TxtImportPath.setText(SettingsFileController.getImportPath());
         TxtImportPath.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue){
                 changeListener.replace("PathsTab.Data.Import",TxtImportPath.getText());
             }
         });
-        TxtExportPath.setText(settingsFileController.getExportPath());
+        TxtExportPath.setText(SettingsFileController.getExportPath());
         TxtExportPath.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue){
                 changeListener.replace("PathsTab.Data.Export",TxtExportPath.getText());
@@ -959,31 +909,27 @@ public class SettingsController implements Initializable {
         options.add("1");
         options.add("2");
         options.add("3");
-        for (String option: options){
-            CbxQuotationInfoPosition.getItems().add(option);
-            CbxQuotationTablePosition.getItems().add(option);
-            CbxQuotationTextPosition.getItems().add(option);
+        CbxQuotationInfoPosition.getItems().addAll(options);
+        CbxQuotationTablePosition.getItems().addAll(options);
+        CbxQuotationTextPosition.getItems().addAll(options);
 
-            CbxCostSheetInfoPosition.getItems().add(option);
-            CbxCostSheetTablePosition.getItems().add(option);
-            CbxCostSheetTextPosition.getItems().add(option);
+        CbxCostSheetInfoPosition.getItems().addAll(options);
+        CbxCostSheetTablePosition.getItems().addAll(options);
+        CbxCostSheetTextPosition.getItems().addAll(options);
 
-            CbxCheckingSheetInfoPosition.getItems().add(option);
-            CbxCheckingSheetTablePosition.getItems().add(option);
-            CbxCheckingSheetTextPosition.getItems().add(option);
-        }
+        CbxCheckingSheetInfoPosition.getItems().addAll(options);
+        CbxCheckingSheetTablePosition.getItems().addAll(options);
+        CbxCheckingSheetTextPosition.getItems().addAll(options);
 
-        Map<String, Integer> quotationPosition =settingsFileController.getQuotationPositions();
+        Map<String, Integer> quotationPosition =SettingsFileController.getQuotationPositions();
         CbxQuotationInfoPosition.setValue(positionsIntegerToString(quotationPosition.get("PDFTab.Data.Quotation.Position.info")));
         CbxQuotationTablePosition.setValue(positionsIntegerToString(quotationPosition.get("PDFTab.Data.Quotation.Position.table")));
         CbxQuotationTextPosition.setValue(positionsIntegerToString(quotationPosition.get("PDFTab.Data.Quotation.Position.text")));
-        TxtAreaQuotationTextInput.setText(settingsFileController.getQuotationText());
+        TxtAreaQuotationTextInput.setText(SettingsFileController.getQuotationText());
         if(quotationPosition.get("PDFTab.Data.Quotation.Position.table")==-1)
             disableEnableQuotation(true);
-        CheckbxAddQuotation.setSelected(quotationPosition.get("PDFTab.Data.Quotation.Position.table")!=-1);
         CbxQuotationTablePosition.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue&&positionsStringToInteger(CbxQuotationTablePosition.getSelectionModel().getSelectedItem())==-1){
-                CheckbxAddQuotation.setSelected(false);
                 disableEnableQuotation(true);
             }
         });
@@ -993,17 +939,15 @@ public class SettingsController implements Initializable {
             }
         });
 
-        Map<String, Integer> costSheetPosition =settingsFileController.getCostingPositions();
+        Map<String, Integer> costSheetPosition =SettingsFileController.getCostingPositions();
         CbxCostSheetInfoPosition.setValue(positionsIntegerToString(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.info")));
         CbxCostSheetTablePosition.setValue(positionsIntegerToString(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.table")));
         CbxCostSheetTextPosition.setValue(positionsIntegerToString(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.text")));
-        TxtAreaCostSheetTextInput.setText(settingsFileController.getCostingText());
+        TxtAreaCostSheetTextInput.setText(SettingsFileController.getCostingText());
         if(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.table")==-1)
             disableEnableCosting(true);
-        CheckbxAddCostSheet.setSelected(costSheetPosition.get("PDFTab.Data.CostingSheet.Position.table")!=-1);
         CbxCostSheetTablePosition.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue&&positionsStringToInteger(CbxCostSheetTablePosition.getSelectionModel().getSelectedItem())==-1){
-                CheckbxAddCostSheet.setSelected(false);
                 disableEnableCosting(true);
             }
         });
@@ -1013,17 +957,15 @@ public class SettingsController implements Initializable {
             }
         });
 
-        Map<String, Integer> checkingSheetPosition =settingsFileController.getCheckingPositions();
+        Map<String, Integer> checkingSheetPosition =SettingsFileController.getCheckingPositions();
         CbxCheckingSheetInfoPosition.setValue(positionsIntegerToString(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.info")));
         CbxCheckingSheetTablePosition.setValue(positionsIntegerToString(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.table")));
         CbxCheckingSheetTextPosition.setValue(positionsIntegerToString(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.text")));
-        TxtAreaCheckingSheetTextInput.setText(settingsFileController.getCheckingSheetText());
+        TxtAreaCheckingSheetTextInput.setText(SettingsFileController.getCheckingSheetText());
         if(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.table")==-1)
             disableEnableChecking(true);
-        CheckbxAddCheckingSheet.setSelected(checkingSheetPosition.get("PDFTab.Data.CheckingSheet.Position.table")!=-1);
         CbxCheckingSheetTablePosition.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue&&positionsStringToInteger(CbxCheckingSheetTablePosition.getSelectionModel().getSelectedItem())==-1){
-                CheckbxAddCheckingSheet.setSelected(false);
                 disableEnableCosting(true);
             }
         });
@@ -1053,22 +995,22 @@ public class SettingsController implements Initializable {
     }
 
     public void setUpEnableOrDisableTabs(){
-        if(settingsFileController.isUsersTabEnable())
+        if(SettingsFileController.isUsersTabEnable())
             enableUsersTab();
         else
             disableUsersTab();
-        if(settingsFileController.isPathsTabEnable())
+        if(SettingsFileController.isPathsTabEnable())
             enablePathsTab();
         else
             disablePathsTab();
-       if(settingsFileController.isPDFTadEnable())
+       if(SettingsFileController.isPDFTadEnable())
             enablePDFTab();
        else
             disablePDFTab();
     }
 
     private void enableUsersTab() {
-        if(settingsFileController.isUsersTabMakeMainOnlyEnable()){
+        if(SettingsFileController.isUsersTabMakeMainOnlyEnable()){
             disableUsersTab();
             LVUsersList.setDisable(false);
             CheckMakeMainUsers.setDisable(false);
@@ -1094,12 +1036,12 @@ public class SettingsController implements Initializable {
     }
 
     private void enablePathsTab() {
-        RBtnImportStartUpYes.setDisable(!settingsFileController.isPathsImportEnable());
-        RBtnImportStartUpNo.setDisable(!settingsFileController.isPathsImportEnable());
-        TxtImportPath.setDisable(!settingsFileController.isPathsImportEnable()&&settingsFileController.getImportOnStartUp());
-        btnImportPath.setDisable(!settingsFileController.isPathsImportEnable()&&settingsFileController.getImportOnStartUp());
-        TxtExportPath.setDisable(!settingsFileController.isPathsExportEnable());
-        btnExportPath.setDisable(!settingsFileController.isPathsExportEnable());
+        RBtnImportStartUpYes.setDisable(!SettingsFileController.isPathsImportEnable());
+        RBtnImportStartUpNo.setDisable(!SettingsFileController.isPathsImportEnable());
+        TxtImportPath.setDisable(!SettingsFileController.isPathsImportEnable()&&SettingsFileController.getImportOnStartUp());
+        btnImportPath.setDisable(!SettingsFileController.isPathsImportEnable()&&SettingsFileController.getImportOnStartUp());
+        TxtExportPath.setDisable(!SettingsFileController.isPathsExportEnable());
+        btnExportPath.setDisable(!SettingsFileController.isPathsExportEnable());
     }
 
     private void disablePathsTab() {
@@ -1112,24 +1054,14 @@ public class SettingsController implements Initializable {
     }
 
     private void enablePDFTab() {
-        CheckbxAddQuotation.setDisable(false);
         disableEnableQuotation(false);
-
-        CheckbxAddCostSheet.setDisable(false);
         disableEnableCosting(false);
-
-        CheckbxAddCheckingSheet.setDisable(false);
         disableEnableChecking(false);
     }
 
     private void disablePDFTab() {
-        CheckbxAddQuotation.setDisable(true);
         disableEnableQuotation(true);
-
-        CheckbxAddCostSheet.setDisable(true);
         disableEnableCosting(true);
-
-        CheckbxAddCheckingSheet.setDisable(true);
         disableEnableChecking(true);
     }
 
@@ -1137,21 +1069,21 @@ public class SettingsController implements Initializable {
         CbxCostSheetInfoPosition.setDisable(disable);
         CbxCostSheetTablePosition.setDisable(disable);
         CbxCostSheetTextPosition.setDisable(disable);
-        TxtAreaCostSheetTextInput.setDisable((disable)?true:settingsFileController.hasCostingText());
+        TxtAreaCostSheetTextInput.setDisable((disable)?true:SettingsFileController.hasCostingText());
     }
 
     private void disableEnableQuotation(boolean disable){
         CbxQuotationInfoPosition.setDisable(disable);
         CbxQuotationTablePosition.setDisable(disable);
         CbxQuotationTextPosition.setDisable(disable);
-        TxtAreaQuotationTextInput.setDisable((disable)?true:settingsFileController.hasQuotationText());
+        TxtAreaQuotationTextInput.setDisable((disable)?true:SettingsFileController.hasQuotationText());
     }
 
     private void disableEnableChecking(boolean disable){
         CbxCheckingSheetInfoPosition.setDisable(disable);
         CbxCheckingSheetTablePosition.setDisable(disable);
         CbxCheckingSheetTextPosition.setDisable(disable);
-        TxtAreaCheckingSheetTextInput.setDisable((disable)?true:settingsFileController.hasCheckingText());
+        TxtAreaCheckingSheetTextInput.setDisable((disable)?true:SettingsFileController.hasCheckingText());
     }
 
     private void closeStage(ActionEvent event) {

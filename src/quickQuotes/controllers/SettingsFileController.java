@@ -6,15 +6,11 @@ import java.io.*;
 import java.util.*;
 
 public class SettingsFileController {
-    String fileName = "settings.txt";
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String absolutePath = recoursePath +"/"+fileName;
-    Map<String,Object> keyValuePair;
-    private boolean usersDataHasChanged=false;
-    private boolean pdfDataHasChanged=false;
-    private boolean pathsDataHasChanged=false;
+    static private String absolutePath;
+    static private Map<String,Object> keyValuePair;
 
-    public SettingsFileController() {
+    static public void initSettingsFileController(String path) throws Exception {
+        absolutePath=path;
         keyValuePair = new HashMap<>();
         //read data
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(absolutePath))) {
@@ -48,12 +44,11 @@ public class SettingsFileController {
                 line = bufferedReader.readLine();
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Can not open the settings file");
         }
-
     }
 
-    public Map<String, Integer> getQuotationPositions(){
+    static public Map<String, Integer> getQuotationPositions(){
         Map<String,Integer> results = new HashMap<>();
         if (keyValuePair.containsKey("PDFTab.Data.Quotation.Position.info"))
             results.put("PDFTab.Data.Quotation.Position.info",  (int)keyValuePair.get("PDFTab.Data.Quotation.Position.info"));
@@ -70,7 +65,7 @@ public class SettingsFileController {
         return results;
     }
 
-    public Map<String, Integer> getCostingPositions(){
+    static public Map<String, Integer> getCostingPositions(){
         Map<String,Integer> results = new HashMap<>();
         if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Position.info"))
             results.put("PDFTab.Data.CostingSheet.Position.info",  (int)keyValuePair.get("PDFTab.Data.CostingSheet.Position.info"));
@@ -87,7 +82,7 @@ public class SettingsFileController {
         return results;
     }
 
-    public Map<String, Integer> getCheckingPositions(){
+    static public Map<String, Integer> getCheckingPositions(){
         Map<String,Integer> results = new HashMap<>();
         if (keyValuePair.containsKey("PDFTab.Data.CheckingSheet.Position.info"))
             results.put("PDFTab.Data.CheckingSheet.Position.info",  (int)keyValuePair.get("PDFTab.Data.CheckingSheet.Position.info"));
@@ -104,73 +99,79 @@ public class SettingsFileController {
         return results;
     }
 
-    public String getQuotationText(){
+    static public String getQuotationText(){
         if (keyValuePair.containsKey("PDFTab.Data.Quotation.Text"))
              return (String)keyValuePair.get("PDFTab.Data.Quotation.Text");
         return "";
     }
 
-    public String getCostingText(){
+    static public String getCostingText(){
         if (keyValuePair.containsKey("PDFTab.Data.CostingSheet.Text"))
              return (String)keyValuePair.get("PDFTab.Data.CostingSheet.Text");
         return "";
     }
 
-    public String getCheckingSheetText(){
+    static public String getLogoPath(){
+        if(keyValuePair.containsKey("Logo.Path"))
+            return (String) keyValuePair.get("Logo.Path");
+        return "C:\\Logo.PNG";
+    }
+
+    static public String getCheckingSheetText(){
         if (keyValuePair.containsKey("PDFTab.Data.CheckingSheet.Text"))
             return (String)keyValuePair.get("PDFTab.Data.CheckingSheet.Text");
         return "";
     }
 
-    public boolean hasQuotationText(){
+    static public boolean hasQuotationText(){
         if (keyValuePair.containsKey("PDFTab.Enable.Quotation.Text"))
             return !(boolean)keyValuePair.get("PDFTab.Enable.Quotation.Text");
         return false;
     }
 
-    public boolean hasCostingText(){
+    static public boolean hasCostingText(){
         if (keyValuePair.containsKey("PDFTab.Enable.CostingSheet.Text"))
             return !(boolean)keyValuePair.get("PDFTab.Enable.CostingSheet.Text");
         return false;
     }
 
-    public boolean hasCheckingText(){
+    static  public boolean hasCheckingText(){
         if (keyValuePair.containsKey("PDFTab.Enable.CheckingSheet.Text"))
             return !(boolean)keyValuePair.get("PDFTab.Enable.CheckingSheet.Text");
         return false;
     }
 
-    public boolean isPDFTadEnable(){
+    static public boolean isPDFTadEnable(){
         if (keyValuePair.containsKey("PDFTab.Enable"))
             return (boolean)keyValuePair.get("PDFTab.Enable");
         return true;
     }
 
-    public String getImportPath(){
+    static public String getImportPath(){
         if(keyValuePair.containsKey("PathsTab.Data.Import"))
             return (String) keyValuePair.get("PathsTab.Data.Import");
         return "";
     }
 
-    public String getExportPath(){
+    static public String getExportPath(){
         if(keyValuePair.containsKey("PathsTab.Data.Export"))
             return (String) keyValuePair.get("PathsTab.Data.Export");
         return "";
     }
 
-    public boolean getImportOnStartUp(){
+    static public boolean getImportOnStartUp(){
         if(keyValuePair.containsKey("PathsTab.Data.ImportOnStartUp"))
             return (boolean) keyValuePair.get("PathsTab.Data.ImportOnStartUp");
         return false;
     }
 
-    public List<User> getAllUsers(){
+    static public List<User> getAllUsers(){
         if(keyValuePair.containsKey("UsersTab.Data.Users"))
             return (ArrayList<User>) keyValuePair.get("UsersTab.Data.Users");
         return new ArrayList<>();
     }
 
-    public User getMainUser(){
+    static public User getMainUser(){
         List<User> users =getAllUsers();
         if(users==null)
             return new User("Default","User","0000000000","DefaultUser@gmail.com",false);
@@ -180,59 +181,55 @@ public class SettingsFileController {
                     .orElse(null);
     }
 
-    public boolean isChanged(){
-        return (usersDataHasChanged||pdfDataHasChanged||pathsDataHasChanged);
-    }
-
-    public boolean isPathsTabEnable(){
+    static public boolean isPathsTabEnable(){
         if(keyValuePair.containsKey("PathsTab.Enable"))
             return (boolean) keyValuePair.get("PathsTab.Enable");
         return true;
     }
 
-    public boolean isPathsExportEnable(){
+    static public boolean isPathsExportEnable(){
         if(keyValuePair.containsKey("PathsTab.Enable.Export"))
             return (boolean) keyValuePair.get("PathsTab.Enable.Export");
         return true;
     }
 
-    public boolean isPathsImportEnable(){
+    static public boolean isPathsImportEnable(){
         if(keyValuePair.containsKey("PathsTab.Enable.Import"))
             return (boolean) keyValuePair.get("PathsTab.Enable.Import");
         return true;
     }
 
-    public boolean isUsersTabEnable(){
+    static public boolean isUsersTabEnable(){
         if(keyValuePair.containsKey("UsersTab.Enable"))
             return (boolean) keyValuePair.get("UsersTab.Enable");
         return true;
     }
 
-    public boolean isUsersTabAddButtonEnable(){
+    static public boolean isUsersTabAddButtonEnable(){
         if(keyValuePair.containsKey("UsersTab.Enable.AddButton"))
             return (boolean) keyValuePair.get("UsersTab.Enable.AddButton");
         return true;
     }
 
-    public boolean isUsersTabChangesButtonEnable(){
+    static public boolean isUsersTabChangesButtonEnable(){
         if(keyValuePair.containsKey("UsersTab.Enable.ChangesButton"))
             return (boolean) keyValuePair.get("UsersTab.Enable.ChangesButton");
         return true;
     }
 
-    public boolean isUsersTabMakeMainOnlyEnable(){
+    static public boolean isUsersTabMakeMainOnlyEnable(){
         if(keyValuePair.containsKey("UsersTab.Enable.MakeMainOnly"))
             return (boolean) keyValuePair.get("UsersTab.Enable.MakeMainOnly");
         return false;
     }
 
-    public boolean isUsersTabRemoveButtonEnable(){
+    static public boolean isUsersTabRemoveButtonEnable(){
         if(keyValuePair.containsKey("UsersTab.Enable.RemoveButton"))
             return (boolean) keyValuePair.get("UsersTab.Enable.RemoveButton");
         return true;
     }
 
-    public void applyChanges(Map<String, Object> newValues) throws IOException {
+    static public void applyChanges(Map<String, Object> newValues) throws IOException {
         List<String> keys = Lists.newArrayList(newValues.keySet());
         boolean hasChanged=false;
         for (String key:  keys) {
@@ -252,7 +249,7 @@ public class SettingsFileController {
 
     }
 
-    private String formatData(){
+    static private String formatData(){
         String dataText =keyValuePair.toString();
         dataText=dataText.substring(1,dataText.length()-1);
         String outputText ="";
@@ -289,14 +286,35 @@ public class SettingsFileController {
         return outputText;
     }
 
-    public Map<String,Object> getKeyValuePair() {
+    static public Map<String,Object> getKeyValuePair() {
         return keyValuePair;
     }
 
-    public String getTheme() {
+    static public String getTheme() {
         if(keyValuePair.containsKey("ThemeTab.Theme")) {
             return (String)keyValuePair.get("ThemeTab.Theme");
         }
         return "darkTheme.css";
+    }
+
+    public static String getCSSPath() {
+        if(keyValuePair.containsKey("CSS.Path")) {
+            return (String)keyValuePair.get("CSS.Path");
+        }
+        return "C:\\Users\\User\\OneDrive\\Work\\SP\\Invoice\\src\\quickQuotes\\CSS";
+    }
+
+    public static String getFXMLSettingsPath() {
+        if(keyValuePair.containsKey("FXML.Settings.Path")) {
+            return (String)keyValuePair.get("FXML.Settings.Path");
+        }
+        return "C:\\Users\\User\\OneDrive\\Work\\SP\\Invoice\\src\\quickQuotes\\fxml\\Settings.fxml";
+    }
+
+    public static String getGroupPath() {
+        if(keyValuePair.containsKey("Groups.Path")) {
+            return (String)keyValuePair.get("Groups.Path");
+        }
+        return "C:\\Users\\User\\OneDrive\\Work\\SP\\Invoice\\src\\quickQuotes\\resource\\groups.txt";
     }
 }

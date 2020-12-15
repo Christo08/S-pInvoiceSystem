@@ -11,12 +11,14 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.text.PDFTextStripper;
 import quickQuotes.controllers.InvoiceController;
+import quickQuotes.controllers.MainController;
 import quickQuotes.controllers.SettingsFileController;
 import quickQuotes.data.Item;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.text.SimpleDateFormat;
@@ -26,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class PdfHandler {
     private  File pdfFile;
-    PDDocument doc;
+    private PDDocument doc;
     private PDPageContentStream contentStream;
     private PDPage page;
     private PDFont font = PDType1Font.HELVETICA;
@@ -36,19 +38,18 @@ public class PdfHandler {
     private int yMarginBetweenText = 15;
     private float fontSize = 10;
     private float yPosition;
-    private SettingsFileController settings;
     private InvoiceController invoiceController;
-    DecimalFormat decimalFormat = new DecimalFormat("##.00");
+    private MainController mainController;
+    private DecimalFormat decimalFormat = new DecimalFormat("##.00");
     public final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public  PdfHandler(File file, SettingsFileController settingsFileController, InvoiceController _invoiceController){
+    public  PdfHandler(File file, InvoiceController _invoiceController, MainController _mainController){
         pdfFile = file;
-        settings = settingsFileController;
         invoiceController = _invoiceController;
+        mainController = _mainController;
     }
 
-    public void load()
-    {
+    public void load() throws Exception {
         try {
             try {
                 doc = PDDocument.load(pdfFile);
@@ -96,35 +97,46 @@ public class PdfHandler {
                 doc.close();
             }
         } catch(Exception ioe) {
-            ioe.printStackTrace();
+            throw new Exception("Can not load pdf file.");
         }
     }
 
-    public void save(List<Item> items){
-        try {
+    public void save(List<Item> items) throws Exception {
             try {
                 doc = new PDDocument();
-                addQuotationSheet(items);
-                addCostingSheet(items);
-                addCheckingSheet(items);
-                doc.save(pdfFile.getAbsolutePath());
+                if(mainController.isQuotationSheetNeeded())
+                    addQuotationSheet(items);
+                if(mainController.isCostingSheetNeeded())
+                    addCostingSheet(items);
+                if(mainController.isCheckingSheetNeeded())
+                    addCheckingSheet(items);
+                try {
+                    doc.save(pdfFile.getAbsolutePath());
+                }catch (IOException e){
+                    throw new Exception("Can not open file");
+                }
             }
             finally {
-                doc.close();
+                try {
+                    doc.close();
+                }catch (IOException e){
+                    throw new Exception("Can not open file");
+                }
             }
-        } catch(Exception ioe) {
-            ioe.printStackTrace();
-        }
     }
 
     private void addQuotationSheet(List<Item> items) throws Exception {
         page = new PDPage(PDRectangle.A4);
         doc.addPage(page);
-        contentStream = new PDPageContentStream(doc, page);
+        try {
+            contentStream = new PDPageContentStream(doc, page);
+        } catch (IOException e) {
+            throw new Exception("Can not open file");
+        }
         yPosition = page.getMediaBox().getHeight() - margin;
 
         List<String> sortedSheetItemKeys = new ArrayList<>();
-        Map<String, Integer> sheetItems = settings.getQuotationPositions();
+        Map<String, Integer> sheetItems = SettingsFileController.getQuotationPositions();
 
         // Remove all entries that wont be displayed
         sheetItems.values().remove(-1);
@@ -147,31 +159,47 @@ public class PdfHandler {
                 case "PDFTab.Data.Quotation.Position.text":
                     if(yPosition < margin * 2){
                         addFooter();
-                        contentStream.close();
+                        try {
+                            contentStream.close();
+                        } catch (IOException e) {
+                            throw new Exception("Can not add footer to Quotation Sheet's footer");
+                        }
                         page = new PDPage(PDRectangle.A4);
                         doc.addPage(page);
-                        contentStream = new PDPageContentStream(doc, page, true, true);
+                        try{
+                            contentStream = new PDPageContentStream(doc, page, true, true);
+                        } catch (IOException e) {
+                            throw new Exception("Can not add footer to Quotation Sheet's footer");
+                        }
                         yPosition = page.getMediaBox().getHeight() - margin;
                     }
-                    PDStreamUtils.write(contentStream, settings.getQuotationText(), font, fontSize, margin, yPosition, Color.BLACK);
+                    PDStreamUtils.write(contentStream, SettingsFileController.getQuotationText(), font, fontSize, margin, yPosition, Color.BLACK);
                     yPosition -= yMarginBetweenElements;
                     break;
-                default: System.out.println("Unsuported heading \"" + sheetItemKey + "\"");
+                default: throw new Exception("Unsuported heading \"" + sheetItemKey + "\"");
             }
         }
 
         addFooter();
-        contentStream.close();
+        try {
+            contentStream.close();
+        } catch (IOException e) {
+            throw new Exception("Can not add footer to Quotation Sheet's footer");
+        }
     }
 
     private void addCostingSheet(List<Item> items) throws Exception {
         page = new PDPage(PDRectangle.A4);
         doc.addPage(page);
-        contentStream = new PDPageContentStream(doc, page);
+        try {
+            contentStream = new PDPageContentStream(doc, page);
+        } catch (IOException e) {
+            throw new Exception("Can not open file");
+        }
         yPosition = page.getMediaBox().getHeight() - margin;
 
         List<String> sortedSheetItemKeys = new ArrayList<>();
-        Map<String, Integer> sheetItems = settings.getCostingPositions();
+        Map<String, Integer> sheetItems = SettingsFileController.getCostingPositions();
 
         // Remove all entries that wont be displayed
         sheetItems.values().remove(-1);
@@ -194,31 +222,47 @@ public class PdfHandler {
                 case "PDFTab.Data.CostingSheet.Position.text":
                     if(yPosition < margin * 2){
                         addFooter();
-                        contentStream.close();
+                        try {
+                            contentStream.close();
+                        } catch (IOException e) {
+                            throw new Exception("Can not add footer to Costing Sheet's footer");
+                        }
                         page = new PDPage(PDRectangle.A4);
                         doc.addPage(page);
-                        contentStream = new PDPageContentStream(doc, page, true, true);
+                        try {
+                            contentStream = new PDPageContentStream(doc, page, true, true);
+                        } catch (IOException e) {
+                            throw new Exception("Can not add footer to Costing Sheet's footer");
+                        }
                         yPosition = page.getMediaBox().getHeight() - margin;
                     }
-                    PDStreamUtils.write(contentStream, settings.getCostingText(), font, fontSize, margin, yPosition, Color.BLACK);
+                    PDStreamUtils.write(contentStream, SettingsFileController.getCostingText(), font, fontSize, margin, yPosition, Color.BLACK);
                     yPosition -= yMarginBetweenElements;
                     break;
-                default: System.out.println("Unsuported heading \"" + sheetItemKey + "\"");
+                default: throw new Exception("Unsuported heading \"" + sheetItemKey + "\"");
             }
         }
 
         addFooter();
-        contentStream.close();
+        try {
+            contentStream.close();
+        } catch (IOException e) {
+            throw new Exception("Can not add footer to Costing Sheet's footer");
+        }
     }
 
     private void addCheckingSheet(List<Item> items) throws Exception {
         page = new PDPage(PDRectangle.A4);
         doc.addPage(page);
-        contentStream = new PDPageContentStream(doc, page);
+        try {
+            contentStream = new PDPageContentStream(doc, page);
+        } catch (IOException e) {
+            throw new Exception("Can not open file");
+        }
         yPosition = page.getMediaBox().getHeight() - margin;
 
         List<String> sortedSheetItemKeys = new ArrayList<>();
-        Map<String, Integer> sheetItems = settings.getCheckingPositions();
+        Map<String, Integer> sheetItems = SettingsFileController.getCheckingPositions();
 
         // Remove all entries that wont be displayed
         sheetItems.values().remove(-1);
@@ -241,26 +285,33 @@ public class PdfHandler {
                 case "PDFTab.Data.CheckingSheet.Position.text":
                     if(yPosition < margin * 2){
                         addFooter();
-                        contentStream.close();
                         page = new PDPage(PDRectangle.A4);
                         doc.addPage(page);
-                        contentStream = new PDPageContentStream(doc, page, true, true);
+                        try {
+                            contentStream = new PDPageContentStream(doc, page, true, true);
+                        } catch (IOException e) {
+                            throw new Exception("Can not add footer to Checking List's footer");
+                        }
                         yPosition = page.getMediaBox().getHeight() - margin;
                     }
-                    PDStreamUtils.write(contentStream, settings.getCostingText(), font, fontSize, margin, yPosition, Color.BLACK);
+                    PDStreamUtils.write(contentStream, SettingsFileController.getCostingText(), font, fontSize, margin, yPosition, Color.BLACK);
                     yPosition -= yMarginBetweenElements;
                     break;
-                default: System.out.println("Unsuported heading \"" + sheetItemKey + "\"");
+                default: throw new Exception("Unsuported heading \"" + sheetItemKey + "\"");
             }
         }
 
         addFooter();
-        contentStream.close();
+        try {
+            contentStream.close();
+        } catch (IOException e) {
+            throw new Exception("Can not add footer to Checking List's footer");
+        }
     }
 
     private void addCompanyInfo(){
         try{
-            Image image = new Image(ImageIO.read(new File(settings.recoursePath +"/Logo.PNG")));
+            Image image = new Image(ImageIO.read(new File(SettingsFileController.getLogoPath())));
             float imageWidth = 100;
             image = image.scaleByWidth(imageWidth);
             if((yPosition - image.getHeight()) < margin){
@@ -273,7 +324,7 @@ public class PdfHandler {
             }
             image.draw(doc, contentStream, margin, yPosition);
             float xPosition = page.getMediaBox().getWidth() - margin - 150;
-            String[] info = settings.getMainUser().pdfString().split("\n");
+            String[] info = SettingsFileController.getMainUser().pdfString().split("\n");
             for (String line: info) {
                 PDStreamUtils.write(contentStream, line, font, fontSize, xPosition, yPosition, Color.BLACK);
                 yPosition -= yMarginBetweenText;
@@ -285,8 +336,7 @@ public class PdfHandler {
 
     }
 
-    private void addQuotationTable(List<Item> items)throws Exception
-    {
+    private void addQuotationTable(List<Item> items) throws Exception {
         // starting y position is whole page height subtracted by top and bottom margin
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         // we want table across whole page width (subtracted by left and right margin of course)
@@ -297,7 +347,12 @@ public class PdfHandler {
         addTableHeading("Quotation", false);
 
         // y position is your coordinate of top left corner of the table
-        BaseTable table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        BaseTable table = null;
+        try {
+            table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        } catch (IOException e) {
+            throw new Exception("Fail to create Quotation table.");
+        }
 
         // Add Table headings
         Row<PDPage> headerRow = table.createRow(15f);
@@ -341,18 +396,20 @@ public class PdfHandler {
         row.createCell(85, "Total:", HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE).setFont(fontBold);
         row.createCell(15, decimalFormat.format(invoiceController.getTotal())).setFont(fontBold);
 
-
-        yPosition = table.draw();
-        if(page != table.getCurrentPage()){
-            addFooter();
-            contentStream.close();
-            page = table.getCurrentPage();
-            contentStream = new PDPageContentStream(doc, page, true, true);
+        try {
+            yPosition = table.draw();
+            if(page != table.getCurrentPage()){
+                addFooter();
+                contentStream.close();
+                page = table.getCurrentPage();
+                contentStream = new PDPageContentStream(doc, page, true, true);
+            }
+        } catch (IOException e) {
+            throw new Exception("Fail to create Quotation table.");
         }
     }
 
-    private void addCostingTable(List<Item> items)throws Exception
-    {
+    private void addCostingTable(List<Item> items) throws Exception {
         // starting y position is whole page height subtracted by top and bottom margin
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         // we want table across whole page width (subtracted by left and right margin of course)
@@ -363,7 +420,12 @@ public class PdfHandler {
         addTableHeading("Costs", false);
 
         // y position is your coordinate of top left corner of the table
-        BaseTable table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        BaseTable table =null;
+        try{
+             table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        } catch (IOException e) {
+            throw new Exception("Fail to create Costs table.");
+        }
 
         // Add table headings
         Row<PDPage> headerRow = table.createRow(15f);
@@ -403,17 +465,20 @@ public class PdfHandler {
         row.createCell(85, "Total:", HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE).setFont(fontBold);
         row.createCell(15, decimalFormat.format(totalCostPrice)).setFont(fontBold);
 
-        yPosition = table.draw();
-        if(page != table.getCurrentPage()){
-            addFooter();
-            contentStream.close();
-            page = table.getCurrentPage();
-            contentStream = new PDPageContentStream(doc, page, true, true);
+        try{
+            yPosition = table.draw();
+            if(page != table.getCurrentPage()){
+                addFooter();
+                contentStream.close();
+                page = table.getCurrentPage();
+                contentStream = new PDPageContentStream(doc, page, true, true);
+            }
+        } catch (IOException e) {
+            throw new Exception("Fail to create Costs table.");
         }
     }
 
-    private void addCheckTable(List<Item> items)throws Exception
-    {
+    private void addCheckTable(List<Item> items) throws Exception {
         // starting y position is whole page height subtracted by top and bottom margin
         float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
         // we want table across whole page width (subtracted by left and right margin of course)
@@ -424,7 +489,12 @@ public class PdfHandler {
         addTableHeading("Check list", false);
 
         // y position is your coordinate of top left corner of the table
-        BaseTable table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        BaseTable table =null;
+        try {
+            table = new BaseTable(yPosition, yStartNewPage, bottomMargin, tableWidth, margin, doc, page, true, drawContent);
+        } catch (IOException e) {
+            throw new Exception("Fail to create Check list table.");
+        }
 
         // Add table headings
         Row<PDPage> headerRow = table.createRow(15f);
@@ -454,19 +524,27 @@ public class PdfHandler {
             row.createCell(20,"");
         }
 
-        yPosition = table.draw();
-        if(page != table.getCurrentPage()){
-            addFooter();
-            contentStream.close();
-            page = table.getCurrentPage();
-            contentStream = new PDPageContentStream(doc, page, true, true);
+        try{
+            yPosition = table.draw();
+            if(page != table.getCurrentPage()){
+                addFooter();
+                contentStream.close();
+                page = table.getCurrentPage();
+                contentStream = new PDPageContentStream(doc, page, true, true);
+            }
+        } catch (IOException e) {
+            throw new Exception("Fail to create Check list table.");
         }
     }
 
-
-    private void addTableHeading(String text, boolean centerText) throws Exception{
+    private void addTableHeading(String text, boolean centerText) throws Exception {
         float xPosition = margin;
-        float titleWidth = font.getStringWidth(text) / 1000 * fontSize;
+        float titleWidth = 0;
+        try {
+            titleWidth = font.getStringWidth(text) / 1000 * fontSize;
+        } catch (IOException e) {
+            throw new Exception("Fail to create table heading for "+text+" table.");
+        }
 
         if (centerText) {
             xPosition = (page.getMediaBox().getWidth() - titleWidth) / 2;

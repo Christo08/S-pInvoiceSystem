@@ -107,18 +107,16 @@
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                     </rowConstraints>
                                                     <children>
-                                                        <CheckBox fx:id="CheckbxAddQuotation" mnemonicParsing="false" onAction="#addQuotation" text="Add quotation" GridPane.columnSpan="2147483647" />
-                                                        <Label text="Info position:" GridPane.rowIndex="1" />
-                                                        <ComboBox fx:id="CbxQuotationInfoPosition" onAction="#changesQuotationInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                        <Label text="Table position: " GridPane.rowIndex="2" />
-                                                        <ComboBox fx:id="CbxQuotationTablePosition" onAction="#changesQuotationTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                        <Label text="Text position:" GridPane.rowIndex="3" />
-                                                        <ComboBox fx:id="CbxQuotationTextPosition" onAction="#changesQuotationTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                        <Label text="Text:" GridPane.rowIndex="4" />
-                                                        <TextArea fx:id="TxtAreaQuotationTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                        <Label text="Info position:" />
+                                                        <ComboBox fx:id="CbxQuotationInfoPosition" onAction="#changesQuotationInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" />
+                                                        <Label text="Table position: " GridPane.rowIndex="1" />
+                                                        <ComboBox fx:id="CbxQuotationTablePosition" onAction="#changesQuotationTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                        <Label text="Text position:" GridPane.rowIndex="2" />
+                                                        <ComboBox fx:id="CbxQuotationTextPosition" onAction="#changesQuotationTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                        <Label text="Text:" GridPane.rowIndex="3" />
+                                                        <TextArea fx:id="TxtAreaQuotationTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                                     </children>
                                                 </GridPane>
                                             </center>
@@ -149,18 +147,16 @@
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                     </rowConstraints>
                                                     <children>
-                                                        <CheckBox fx:id="CheckbxAddCostSheet" mnemonicParsing="false" onAction="#addCostingSheet" text="Add costing sheet" GridPane.columnSpan="2147483647" />
-                                                        <Label text="Info position:" GridPane.rowIndex="1" />
-                                                        <ComboBox fx:id="CbxCostSheetInfoPosition" onAction="#changesCostingsSheetInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                        <Label text="Table position: " GridPane.rowIndex="2" />
-                                                        <ComboBox fx:id="CbxCostSheetTablePosition" onAction="#changesCostingsSheetTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                        <Label text="Text position:" GridPane.rowIndex="3" />
-                                                        <ComboBox fx:id="CbxCostSheetTextPosition" onAction="#changesCostSheetTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                        <Label text="Text:" GridPane.rowIndex="4" />
-                                                        <TextArea fx:id="TxtAreaCostSheetTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                        <Label text="Info position:" />
+                                                        <ComboBox fx:id="CbxCostSheetInfoPosition" onAction="#changesCostingsSheetInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" />
+                                                        <Label text="Table position: " GridPane.rowIndex="1" />
+                                                        <ComboBox fx:id="CbxCostSheetTablePosition" onAction="#changesCostingsSheetTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                        <Label text="Text position:" GridPane.rowIndex="2" />
+                                                        <ComboBox fx:id="CbxCostSheetTextPosition" onAction="#changesCostSheetTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                        <Label text="Text:" GridPane.rowIndex="3" />
+                                                        <TextArea fx:id="TxtAreaCostSheetTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                                     </children>
                                                 </GridPane>
                                             </center>
@@ -191,18 +187,16 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <CheckBox fx:id="CheckbxAddCheckingSheet" mnemonicParsing="false" onAction="#addCheckingSheet" text="Add checking sheet" GridPane.columnSpan="2147483647" />
-                                          <Label text="Info position:" GridPane.rowIndex="1" />
-                                          <ComboBox fx:id="CbxCheckingSheetInfoPosition" onAction="#changesCheckingSheetInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <Label text="Table position: " GridPane.rowIndex="2" />
-                                          <ComboBox fx:id="CbxCheckingSheetTablePosition" onAction="#changesCheckingSheetTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          <Label text="Text position:" GridPane.rowIndex="3" />
-                                          <ComboBox fx:id="CbxCheckingSheetTextPosition" onAction="#changesCheckingSheetTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <Label text="Text:" GridPane.rowIndex="4" />
-                                          <TextArea fx:id="TxtAreaCheckingSheetTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <Label text="Info position:" />
+                                          <ComboBox fx:id="CbxCheckingSheetInfoPosition" onAction="#changesCheckingSheetInfoPosition" prefWidth="150.0" GridPane.columnIndex="1" />
+                                          <Label text="Table position: " GridPane.rowIndex="1" />
+                                          <ComboBox fx:id="CbxCheckingSheetTablePosition" onAction="#changesCheckingSheetTablePosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Label text="Text position:" GridPane.rowIndex="2" />
+                                          <ComboBox fx:id="CbxCheckingSheetTextPosition" onAction="#changesCheckingSheetTextPosition" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label text="Text:" GridPane.rowIndex="3" />
+                                          <TextArea fx:id="TxtAreaCheckingSheetTextInput" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                        </children>
                                     </GridPane>
                                  </center>

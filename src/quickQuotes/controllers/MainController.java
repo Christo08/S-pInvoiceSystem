@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -62,22 +63,151 @@ public class MainController implements Initializable {
     @FXML
     private MenuItem menuItemQuit;
 
-    private SettingsFileController settingsFileController;
     private GroupFileController groupFileController;
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
     private Alert popupMainUserPicker;
-    private User mainUser;
+    private Alert popupErrorMessage;
+    private Alert popupInfoMessage;
+    private Alert popupQuit;
+    private Alert popupPDFLayout;
+    private VBox PDFLayoutVBox;
 
-    public void setStage(Stage stage) throws Exception{
+    private CheckBox cboxQuotation;
+    private CheckBox cboxCosting;
+    private CheckBox cboxChecking;
+
+    private ButtonType save;
+    private ButtonType saveAs;
+    private ButtonType dontSave;
+    private ButtonType cancel;
+    private boolean cancelSavePopup;
+
+    public void setStage(Stage stage){
         primaryStage = stage;
-        fileChooser.setInitialDirectory(new File(settingsFileController.getExportPath()));
+        fileChooser.setInitialDirectory(new File(SettingsFileController.getExportPath()));
         menuItemImport.setOnAction((event) -> ImportNewDataBook());
         menuItemOpen.setOnAction((event) -> Open());
         menuItemSave.setOnAction((event) -> Save());
         menuItemSaveAs.setOnAction((event) -> SaveAs());
         menuItemQuit.setOnAction((event) -> Quit());
+    }
+
+    private void initializePopUps(){
+        popupMainUserPicker = new Alert(Alert.AlertType.NONE,"Use");
+        popupMainUserPicker.setTitle("Quick Quotes - Main User Picker");
+        try {
+            ((Stage)popupMainUserPicker.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        popupMainUserPicker.setHeaderText("Please pick a main user");
+        Label text = new Label("User");
+        ComboBox<String> usersNames = new ComboBox<>();
+        HBox mainUserPickerHBox = new HBox(text,usersNames);
+        mainUserPickerHBox.setSpacing(5);
+        popupMainUserPicker.getDialogPane().setContent(mainUserPickerHBox);
+        popupMainUserPicker.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
+        AtomicReference<List<User>> users = new AtomicReference<>(SettingsFileController.getAllUsers());
+        popupMainUserPicker.setOnShown(e ->{
+            users.set(SettingsFileController.getAllUsers());
+            for (User user: users.get()) {
+                usersNames.getItems().add(user.getName()+" "+user.getSurname());
+            }
+        });
+        popupMainUserPicker.setOnHidden(e -> {
+            if (popupMainUserPicker.getResult() == ButtonType.APPLY) {
+                int mainUserIndex = usersNames.getSelectionModel().getSelectedIndex();
+                users.get().get(mainUserIndex).setMainUser(true);
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("UsersTab.Data.Users",users.get());
+                try {
+                    SettingsFileController.applyChanges(map);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+            usersNames.getItems().clear();
+        });
+
+        popupErrorMessage =new Alert(Alert.AlertType.ERROR);
+        try {
+            ((Stage)popupErrorMessage.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        popupErrorMessage.setTitle("Quick Quotes - Error");
+
+        popupInfoMessage =new Alert(Alert.AlertType.INFORMATION);
+        try {
+            ((Stage)popupInfoMessage.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        popupInfoMessage.setTitle("Quick Quotes - Info");
+
+
+        popupQuit = new Alert(Alert.AlertType.CONFIRMATION);
+        popupQuit.setTitle("Quick Quotes - Save");
+        try {
+            ((Stage)popupQuit.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        String fileName = (activeFilePath != null)? Paths.get(activeFilePath).getFileName().toString(): "Untitled";
+        popupQuit.setHeaderText("Save changes to document “"+fileName+"” before closing?");
+        popupQuit.setContentText("Your changes will be lost if you don’t save them.");
+        save = new ButtonType("Save");
+        saveAs = new ButtonType("Save As");
+        dontSave = new ButtonType("Don't save");
+        cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        popupQuit.getButtonTypes().setAll(save, saveAs,dontSave, cancel);
+
+        PDFLayoutVBox = new VBox();
+        cboxQuotation = new CheckBox("Add Quotation Sheet");
+        cboxCosting = new CheckBox("Add Costing Sheet");
+        cboxChecking = new CheckBox("Add Checking Sheet");
+        PDFLayoutVBox.getChildren().addAll(cboxQuotation,cboxCosting,cboxChecking);
+
+        popupPDFLayout = new Alert(Alert.AlertType.NONE);
+        popupPDFLayout.setTitle("Quick Quotes - PDF Layout");
+        try {
+            ((Stage)popupPDFLayout.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        popupPDFLayout.setHeaderText("PDF Layout");
+        popupPDFLayout.getDialogPane().setContent(PDFLayoutVBox);
+        popupPDFLayout.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
+        popupPDFLayout.setOnShown(e ->{
+            boolean checkQuotation = SettingsFileController.getQuotationPositions().values()
+                                                                                    .stream()
+                                                                                    .anyMatch(positions -> positions != -1);
+            boolean checkCosting = SettingsFileController.getCostingPositions().values()
+                                                                                .stream()
+                                                                                .anyMatch(positions -> positions != -1);
+            boolean checkChecking = SettingsFileController.getCheckingPositions().values()
+                                                                                  .stream()
+                                                                                  .anyMatch(positions -> positions != -1);
+            cboxQuotation.setSelected(checkQuotation);
+            cboxCosting.setSelected(checkCosting);
+            cboxChecking.setSelected(checkChecking);
+        });
+        popupPDFLayout.setOnHidden(e -> {
+            if (popupPDFLayout.getResult() == ButtonType.APPLY) {
+                if(!isCheckingSheetNeeded() && !isCostingSheetNeeded() && !isQuotationSheetNeeded()) {
+                    cancelSavePopup = false;
+                    popupErrorMessage.setHeaderText("Please select a sheet.");
+                    popupErrorMessage.showAndWait();
+                }
+                else {
+                    cancelSavePopup = true;
+                }
+            }
+            else
+            {
+                cancelSavePopup=false;
+            }
+        });
     }
 
     private void setExcelExtensionFilter(){
@@ -142,14 +272,8 @@ public class MainController implements Initializable {
                 addGroups();
 
             } catch(Exception ioe) {
-                Alert errorMessage =new Alert(Alert.AlertType.ERROR);
-                try {
-                    ((Stage)errorMessage.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                errorMessage.setTitle("Quick Quotes - Error");
-                errorMessage.setHeaderText("Can not open file.");
+                popupErrorMessage.setHeaderText("Can not import data.");
+                popupErrorMessage.showAndWait();
             }
         }
     }
@@ -161,98 +285,78 @@ public class MainController implements Initializable {
         if (file!=null&&file.exists()) {
             try {
                 activeFilePath = file.getAbsolutePath();
-                System.out.println("Opened file: " + activeFilePath );
+                popupInfoMessage.setHeaderText("Successfully opened file "+file.getName()+".");
+                popupInfoMessage.showAndWait();
                 invoiceController.clearTables();
-                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
+                PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
                 pdfHandler.load();
 
             } catch(Exception ioe) {
-                Alert errorMessage =new Alert(Alert.AlertType.ERROR);
-                try {
-                    ((Stage)errorMessage.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                errorMessage.setTitle("Quick Quotes - Error");
-                errorMessage.setHeaderText("Can not open file.");
+                popupErrorMessage.setHeaderText(ioe.getMessage());
+                popupErrorMessage.showAndWait();
             }
         }
     }
 
     private void Save(){
-        if(settingsFileController.getMainUser()==null){
-            popupMainUserPicker.showAndWait();
-        }
-        if(settingsFileController.getMainUser()!=null) {
-            if (activeFilePath != null) {
-                if (settingsFileController.getMainUser() != null) {
-                    File file = new File(activeFilePath);
-                    if (file != null) {
-                        PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
-                        pdfHandler.save(invoiceController.getItems());
-                        System.out.println("File \"" + file.getAbsolutePath() + "\" saved");
-                    } else {
-                        System.out.println("File not found");
+        if(invoiceController.getItems().size()!=0) {
+            if (SettingsFileController.getMainUser() == null) {
+                popupMainUserPicker.showAndWait();
+            }
+            if (SettingsFileController.getMainUser() != null) {
+                if (activeFilePath != null) {
+                    popupPDFLayout.showAndWait();
+                    if (cancelSavePopup) {
+                        if (SettingsFileController.getMainUser() != null) {
+                            File file = new File(activeFilePath);
+                            if (file != null) {
+                                PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
+                                try {
+                                    pdfHandler.save(invoiceController.getItems());
+                                } catch (Exception exception) {
+                                    popupErrorMessage.setHeaderText(exception.toString());
+                                }
+                                popupInfoMessage.setHeaderText("Successfully saved.");
+                                popupInfoMessage.showAndWait();
+                            } else {
+                                popupErrorMessage.setHeaderText("File not found.");
+                                popupErrorMessage.showAndWait();
+                            }
+                        }
                     }
-                }
-            } else {
-                SaveAs();
-            }
-        }
-    }
-
-    private void createMainUserPickerPopup(){
-        popupMainUserPicker = new Alert(Alert.AlertType.NONE,"Use");
-        popupMainUserPicker.setTitle("Quick Quotes - Main User Picker");
-        try {
-            ((Stage)popupMainUserPicker.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        popupMainUserPicker.setHeaderText("Please pick a main user");
-        Label text = new Label("User");
-        ComboBox<String> usersNames = new ComboBox<>();
-        HBox mainUserPickerHBox = new HBox(text,usersNames);
-        mainUserPickerHBox.setSpacing(5);
-        popupMainUserPicker.getDialogPane().setContent(mainUserPickerHBox);
-        popupMainUserPicker.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
-        AtomicReference<List<User>> users = new AtomicReference<>(settingsFileController.getAllUsers());
-        popupMainUserPicker.setOnShown(e ->{
-            users.set(settingsFileController.getAllUsers());
-            for (User user: users.get()) {
-                usersNames.getItems().add(user.getName()+" "+user.getSurname());
-            }
-        });
-        popupMainUserPicker.setOnHidden(e -> {
-            if (popupMainUserPicker.getResult() == ButtonType.APPLY) {
-                int mainUserIndex = usersNames.getSelectionModel().getSelectedIndex();
-                users.get().get(mainUserIndex).setMainUser(true);
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("UsersTab.Data.Users",users.get());
-                try {
-                    settingsFileController.applyChanges(map);
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                } else {
+                    SaveAs();
                 }
             }
-            usersNames.getItems().clear();
-        });
+        } else {
+            popupErrorMessage.setHeaderText("No Items in the quotes.");
+            popupErrorMessage.showAndWait();
+        }
     }
 
     private void SaveAs(){
-        if(settingsFileController.getMainUser()==null){
+        if(SettingsFileController.getMainUser()==null){
             popupMainUserPicker.showAndWait();
         }
-        if(settingsFileController.getMainUser()!=null) {
-            setPdfExtensionFilter();
-            File file = fileChooser.showSaveDialog(primaryStage);
-            if (file != null) {
-                activeFilePath = file.getAbsolutePath();
-                PdfHandler pdfHandler = new PdfHandler(file, settingsFileController, invoiceController);
-                pdfHandler.save(invoiceController.getItems());
-                System.out.println("File saved as " + file.getAbsolutePath());
-            } else {
-                System.out.println("File not found");
+        if(SettingsFileController.getMainUser()!=null) {
+            popupPDFLayout.showAndWait();
+            if(cancelSavePopup) {
+                setPdfExtensionFilter();
+                File file = fileChooser.showSaveDialog(primaryStage);
+                if (file != null) {
+                    activeFilePath = file.getAbsolutePath();
+                    PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
+                    try {
+                        pdfHandler.save(invoiceController.getItems());
+                    } catch (Exception exception) {
+                        popupErrorMessage.setHeaderText(exception.toString());
+                    }
+                    popupInfoMessage.setHeaderText("File saved as " + file.getName() + ".");
+                    popupInfoMessage.showAndWait();
+                } else {
+                    popupErrorMessage.setHeaderText("File not found.");
+                    popupErrorMessage.show();
+                }
             }
         }
     }
@@ -260,24 +364,7 @@ public class MainController implements Initializable {
     private void Quit(){
 
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Quick Quotes - Save");
-            try {
-                ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            String fileName = (activeFilePath != null)? Paths.get(activeFilePath).getFileName().toString(): "Untitled";
-            alert.setHeaderText("Save changes to document “"+fileName+"” before closing?");
-            alert.setContentText("Your changes will be lost if you don’t save them.");
-            ButtonType save = new ButtonType("Save");
-            ButtonType saveAs = new ButtonType("Save As");
-            ButtonType dontSave = new ButtonType("Don't save");
-            ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-            alert.getButtonTypes().setAll(save, saveAs,dontSave, cancel);
-
-            Optional<ButtonType> result = alert.showAndWait();
+            Optional<ButtonType> result = popupQuit.showAndWait();
             if (result.get() == save){
                 Save();
                 closeApplication();
@@ -311,17 +398,18 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         categoriesController.setMainController(this);
         invoiceController.setMainController(this);
-        settingsFileController = new SettingsFileController();
-        if(settingsFileController.getImportOnStartUp()){
-            File file = new File(settingsFileController.getImportPath());
+        if(SettingsFileController.getImportOnStartUp()){
+            File file = new File(SettingsFileController.getImportPath());
             ImportData(file);
         }
-        createMainUserPickerPopup();
+        initializePopUps();
     }
 
     @FXML
     void showSettings() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../fxml/Settings.fxml"));
+        URL fxmlURL = Paths.get(SettingsFileController.getFXMLSettingsPath()).toUri().toURL();
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(fxmlURL);
         Parent parent = fxmlLoader.load();
         SettingsController dialogController = fxmlLoader.getController();
         dialogController.setMainController(this);
@@ -330,7 +418,7 @@ public class MainController implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Settings");
-        stage.getIcons().add(new Image("quickQuotes/resource/Logo.PNG"));
+        stage.getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         stage.setScene(scene);
         stage.showAndWait();
     }
@@ -339,23 +427,27 @@ public class MainController implements Initializable {
         invoiceController.clearTables();
     }
 
-    public String getTheme() {
-        return settingsFileController.getTheme();
-    }
-
-    public void refresh(Item selectedItem) {
-        invoiceController.refresh(selectedItem);
-    }
-
     public void reset() {
         invoiceController.clearTables();
-        if(settingsFileController.getImportOnStartUp()){
-            File file = new File(settingsFileController.getImportPath());
+        if(SettingsFileController.getImportOnStartUp()){
+            File file = new File(SettingsFileController.getImportPath());
             ImportData(file);
         }
     }
 
     public void writerGroupToFile(List<Group> groups){
         groupFileController.saveGroups(groups);
+    }
+
+    public boolean isQuotationSheetNeeded() {
+        return cboxQuotation.isSelected();
+    }
+
+    public boolean isCostingSheetNeeded() {
+        return cboxCosting.isSelected();
+    }
+
+    public boolean isCheckingSheetNeeded() {
+        return cboxChecking.isSelected();
     }
 }

@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import quickQuotes.controllers.CategoriesController;
+import quickQuotes.controllers.SettingsFileController;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,8 +36,6 @@ public class Category extends Tab {
     private Alert popupGroup;
 
     public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     public Category(String name, int index,CategoriesController categoriesController) {
         table = new TableView<>();
@@ -99,7 +98,7 @@ public class Category extends Tab {
         popupQuotation = new Alert(Alert.AlertType.NONE,"Item");
         popupQuotation.setTitle("Quick Quotes - Add Item");
         try {
-            ((Stage)popupQuotation.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage)popupQuotation.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -130,7 +129,7 @@ public class Category extends Tab {
         popupGroup = new Alert(Alert.AlertType.NONE,"Item");
         popupGroup.setTitle("Quick Quotes - Add to group");
         try {
-            ((Stage)popupGroup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage)popupGroup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -173,7 +172,4 @@ public class Category extends Tab {
         return  new ArrayList<>(table.getSelectionModel().getSelectedItems());
     }
 
-    public int getIndex() {
-        return index;
-    }
 }

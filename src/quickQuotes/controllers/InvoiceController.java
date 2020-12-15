@@ -209,4 +209,5 @@ public class InvoiceController implements Initializable {
             updateTotal();
         }
     }
+
 }

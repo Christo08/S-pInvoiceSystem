@@ -8,15 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GroupFileController {
-    String fileName = "groups.txt";
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String absolutePath = recoursePath +"/"+fileName;
 
     List<Group> groups;
 
-    public GroupFileController(List<Item> items) {
+    public GroupFileController(List<Item> items) throws Exception {
         groups = new ArrayList<>();
-        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(absolutePath))) {
+        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(SettingsFileController.getGroupPath()))) {
             String line = bufferedReader.readLine();
             while(line != null) {
                 String[] lineSplit = line.split(" , ");
@@ -38,7 +35,7 @@ public class GroupFileController {
                 line = bufferedReader.readLine();
             }
         }catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println("Can not open groups text file.");
         }
     }
 
@@ -48,7 +45,7 @@ public class GroupFileController {
 
     public void saveGroups(List<Group> groups){
         try {
-            FileWriter file = new FileWriter(absolutePath);
+            FileWriter file = new FileWriter(SettingsFileController.getGroupPath());
             BufferedWriter output = new BufferedWriter(file);
             String data = formatData(groups);
             output.write(data);

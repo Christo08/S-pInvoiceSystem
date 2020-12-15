@@ -8,6 +8,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import quickQuotes.controllers.InvoiceController;
+import quickQuotes.controllers.SettingsFileController;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,10 +35,8 @@ public class CostingSheet extends Tab {
     private Spinner<Integer> popUpQuantitySpr;
     private Label popUpProfitLbl;
     private Spinner<Double> popUpProfitSpr;
-
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
+    private Label popUpCostingPriceLbl;
+    private Spinner<Double> popUpCostingPriceSpr;
 
     public CostingSheet(InvoiceController invoiceController){
         this.invoiceController=invoiceController;
@@ -78,6 +77,8 @@ public class CostingSheet extends Tab {
                 popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
                 popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
                 popUpQuantitySpr.setStyle("");
+                popUpCostingPriceSpr.getValueFactory().setValue(selectedItem.getCostPriceDouble());
+                popUpCostingPriceSpr.setStyle("");
                 popup.show();
             }
         });
@@ -137,6 +138,29 @@ public class CostingSheet extends Tab {
             }
         });
 
+
+        popUpCostingPriceLbl = new Label("Cost Price:");
+        popUpCostingPriceSpr = new Spinner<>(1.0,9999999.0,1.0,1.0);
+        popUpCostingPriceSpr.setEditable(true);
+        popUpCostingPriceSpr.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) return;
+            String newText =popUpCostingPriceSpr.getEditor().getText();
+            try
+            {
+                // checking valid integer using parseInt() method
+                double newNumber = Double.parseDouble(newText);
+                if(newNumber>=1.0&&newNumber<=9999999.0){
+                    popUpCostingPriceSpr.getValueFactory().setValue(newNumber);
+                }else{
+                    popUpCostingPriceSpr.setStyle("-fx-border-color: red");
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                popUpCostingPriceSpr.setStyle("-fx-border-color: red");
+            }
+        });
+
         popUpPane = new GridPane();
         popUpPane.setAlignment(Pos.CENTER);
         popUpPane.setVgap(10);
@@ -145,10 +169,12 @@ public class CostingSheet extends Tab {
         popUpPane.add(popUpProfitSpr,1,0);
         popUpPane.add(popUpQuantityLbl,0,1);
         popUpPane.add(popUpQuantitySpr,1,1);
+        popUpPane.add(popUpCostingPriceLbl,0,2);
+        popUpPane.add(popUpCostingPriceSpr,1,2);
         popup = new Alert(Alert.AlertType.NONE,"Item");
         popup.setTitle("Quick Quotes - Changes Item");
         try {
-            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -161,6 +187,7 @@ public class CostingSheet extends Tab {
                 if(selectedItem!=null){
                     selectedItem.setProfitPercent(popUpProfitSpr.getValue());
                     selectedItem.setQuantity(popUpQuantitySpr.getValue());
+                    selectedItem.setCostPrice(popUpCostingPriceSpr.getValue());
                     invoiceController.updateTotal();
                 }
             }

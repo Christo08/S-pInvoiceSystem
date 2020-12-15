@@ -9,7 +9,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import quickQuotes.data.*;
 
@@ -46,10 +45,6 @@ public class CategoriesController implements Initializable {
     private FilteredList<Group> filteredGroups;
 
     private Alert popupCreateGroup;
-
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     private int numberOfCategories =0;
 
@@ -131,7 +126,7 @@ public class CategoriesController implements Initializable {
         popupCreateGroup = new Alert(Alert.AlertType.NONE,"Create Group");
         popupCreateGroup.setTitle("Quick Quotes - Create Group");
         try {
-            ((Stage) popupCreateGroup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage) popupCreateGroup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -153,7 +148,7 @@ public class CategoriesController implements Initializable {
                     Alert popupError = new Alert(Alert.AlertType.WARNING);
                     popupError.setTitle("Quick Quotes - Group error");
                     try {
-                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
                     } catch (FileNotFoundException exception) {
                         exception.printStackTrace();
                     }
@@ -163,7 +158,7 @@ public class CategoriesController implements Initializable {
                     Alert popupError = new Alert(Alert.AlertType.WARNING);
                     popupError.setTitle("Quick Quotes - Group error");
                     try {
-                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+                        ((Stage) popupError.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
                     } catch (FileNotFoundException exception) {
                         exception.printStackTrace();
                     }
@@ -208,10 +203,6 @@ public class CategoriesController implements Initializable {
         mainCategory.addSubCategory(newCategory);
         Tables.getTabs().clear();
         Tables.getTabs().setAll(mainCategories);
-    }
-
-    private void sortTabs() {
-        mainCategories.sort(Comparator.comparing(Tab::getText));
     }
 
     public FilteredList<Item> getItemData( String id) {
@@ -268,10 +259,6 @@ public class CategoriesController implements Initializable {
                 } else return group.getNumberOfItemsString().toLowerCase().contains(lowerCaseFilter);
             });
         });
-    }
-
-    public void refresh(Item selectedItem) {
-        mainController.refresh(selectedItem);
     }
 
     public void moveToQuotation(Item newItem, int quantity) {

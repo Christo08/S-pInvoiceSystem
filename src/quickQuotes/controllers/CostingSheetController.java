@@ -59,25 +59,9 @@ public class CostingSheetController implements Initializable {
     private Spinner<Double> SprProfitPercent;
 
     private InvoiceController invoiceController;
-    private int oldQuantity;
-    private double oldProfit;
-
-    private Alert popup;
-    private GridPane popUpPane;
-    private HBox quantityHBox;
-    private String popUpQuantityLblString;
-    private Label popUpQuantityLbl;
-    private Spinner<Integer> popUpQuantitySpr;
-    private HBox profitHBox;
-    private Label popUpProfitLbl;
-    private Spinner<Double> popUpProfitSpr;
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        initializePopUp();
     }
 
     private void initializeTable(){
@@ -100,94 +84,8 @@ public class CostingSheetController implements Initializable {
         TVCostTable.setItems(sortedData);
         TVCostTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        TVCostTable.setOnMousePressed(event -> {
-          Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
-          if (event.isPrimaryButtonDown() && event.getClickCount() == 2&&selectedItem!=null) {
-              popUpQuantityLbl.setText(popUpQuantityLblString.replace("{{0}}",selectedItem.getUnit()));
-              popUpProfitSpr.getValueFactory().setValue(selectedItem.getProfitPercentDouble());
-              popUpQuantitySpr.getValueFactory().setValue(selectedItem.getQuantityInt());
-              popUpQuantitySpr.setStyle("");
-              popup.show();
-          }
-        });
-
     }
 
-    private void initializePopUp() {
-        popUpProfitLbl = new Label("Profit Percent(%):");
-        popUpProfitSpr = new Spinner<>(15.0,100.0,25.0,1.0);
-        popUpProfitSpr.setEditable(true);
-        popUpProfitSpr.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) return;
-            String newText =popUpProfitSpr.getEditor().getText();
-            try
-            {
-                // checking valid integer using parseInt() method
-                double newNumber = Double.parseDouble(newText);
-                if(newNumber>=15&&newNumber<=100){
-                    popUpProfitSpr.getValueFactory().setValue(newNumber);
-                }else{
-                    popUpProfitSpr.setStyle("-fx-border-color: red");
-                }
-            }
-            catch (NumberFormatException e)
-            {
-                popUpProfitSpr.setStyle("-fx-border-color: red");
-            }
-        });
-
-        popUpQuantityLblString="Quantity ({{0}}):";
-        popUpQuantityLbl = new Label(popUpQuantityLblString);
-        popUpQuantitySpr = new Spinner<>(1,9999999,1,1);
-        popUpQuantitySpr.setEditable(true);
-        popUpQuantitySpr.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) return;
-            String newText =popUpQuantitySpr.getEditor().getText();
-            try
-            {
-                // checking valid integer using parseInt() method
-                int newNumber = Integer.parseInt(newText);
-                if(newNumber>=1&&newNumber<=9999999){
-                    popUpQuantitySpr.getValueFactory().setValue(newNumber);
-                }else{
-                    popUpQuantitySpr.setStyle("-fx-border-color: red");
-                }
-            }
-            catch (NumberFormatException e)
-            {
-                popUpQuantitySpr.setStyle("-fx-border-color: red");
-            }
-        });
-
-        popUpPane = new GridPane();
-        popUpPane.setAlignment(Pos.CENTER);
-        popUpPane.setVgap(10);
-        popUpPane.setHgap(10);
-        popUpPane.add(popUpProfitLbl,0,0);
-        popUpPane.add(popUpProfitSpr,1,0);
-        popUpPane.add(popUpQuantityLbl,0,1);
-        popUpPane.add(popUpQuantitySpr,1,1);
-        popup = new Alert(Alert.AlertType.NONE,"Item");
-        popup.setTitle("Quick Quotes - Changes Item");
-        try {
-            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        popup.setHeaderText("Changes item");
-        popup.getDialogPane().setContent(popUpPane);
-        popup.getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
-        popup.setOnHidden(e -> {
-            if (popup.getResult() == ButtonType.APPLY) {
-                Item selectedItem = TVCostTable.getSelectionModel().getSelectedItem();
-                if(selectedItem!=null){
-                    selectedItem.setProfitPercent(popUpProfitSpr.getValue());
-                    selectedItem.setQuantity(popUpQuantitySpr.getValue());
-                    invoiceController.updateTotal();
-                }
-            }
-        });
-    }
 
     public void setInvoiceController(InvoiceController invoiceController) {
         this.invoiceController=invoiceController;

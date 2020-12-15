@@ -4,16 +4,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import quickQuotes.controllers.CategoriesController;
+import quickQuotes.controllers.SettingsFileController;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -44,10 +41,6 @@ public class Group {
     private ContextMenu contextMenu;
     private Alert popupWarningRemove;
     private Alert popupChangeItem;
-
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     public Group(String name) {
         this.nameString = name;
@@ -102,7 +95,7 @@ public class Group {
         popupWarningRemove = new Alert(Alert.AlertType.CONFIRMATION);
         popupWarningRemove.setTitle("Quick Quotes - Remove item");
         try {
-            ((Stage) popupWarningRemove.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage) popupWarningRemove.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -123,7 +116,7 @@ public class Group {
         popupChangeItem = new Alert(Alert.AlertType.NONE,"Item");
         popupChangeItem.setTitle("Quick Quotes - Remove form group");
         try {
-            ((Stage)popupChangeItem.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage)popupChangeItem.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

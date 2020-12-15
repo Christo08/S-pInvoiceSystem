@@ -74,20 +74,12 @@ public class Item {
         return stockCode;
     }
 
-    public void setStockCode(String stockCode) {
-        this.stockCode.set(stockCode);
-    }
-
     public String getDescription() {
         return description.get();
     }
 
     public StringProperty descriptionProperty() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description.set(description);
     }
 
     public String getQuantity() {
@@ -155,10 +147,10 @@ public class Item {
         return costPrice;
     }
 
-    public void setCostPrice(double costPrice) {
+    public void setCostPrice(double costPrice){
         this.costPriceDouble=costPrice;
-        recalculateTotals();
         this.costPrice.set(String.format("%.2f", this.costPriceDouble));
+        recalculateTotals();
     }
 
     public String getSellingPrice() {

@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import quickQuotes.controllers.InvoiceController;
+import quickQuotes.controllers.SettingsFileController;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,10 +29,6 @@ public class Quotation extends Tab {
     private Label popUpQuantityLbl;
     private Spinner<Integer> popUpQuantitySpr;
     private InvoiceController invoiceController;
-
-    public static String recoursePath = new File("src/quickQuotes/resource/").getAbsolutePath();
-    String logoName = "Logo.PNG";
-    String absoluteLogoPath = recoursePath +"\\"+ logoName;
 
     public Quotation(InvoiceController invoiceController){
         this.invoiceController=invoiceController;
@@ -106,7 +103,7 @@ public class Quotation extends Tab {
         popup = new Alert(Alert.AlertType.NONE,
                 "Item");
         try {
-            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(absoluteLogoPath)));
+            ((Stage)popup.getDialogPane().getScene().getWindow()).getIcons().add(new Image(new FileInputStream(SettingsFileController.getLogoPath())));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
