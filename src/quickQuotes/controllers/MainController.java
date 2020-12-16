@@ -81,6 +81,15 @@ public class MainController implements Initializable {
     private ButtonType cancel;
     private boolean cancelSavePopup;
 
+    public InvoiceController getInvoiceController()
+    {
+        return invoiceController;
+    }
+
+    public CategoriesController getCategoriesController()
+    {
+        return categoriesController;
+    }
     public void setStage(Stage stage){
         primaryStage = stage;
         fileChooser.setInitialDirectory(new File(SettingsFileController.getExportPath()));
@@ -285,11 +294,18 @@ public class MainController implements Initializable {
         if (file!=null&&file.exists()) {
             try {
                 activeFilePath = file.getAbsolutePath();
-                popupInfoMessage.setHeaderText("Successfully opened file "+file.getName()+".");
-                popupInfoMessage.showAndWait();
                 invoiceController.clearTables();
-                PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
-                pdfHandler.load();
+                PdfHandler pdfHandler = new PdfHandler(file, this);
+                if(pdfHandler.load())
+                {
+                    popupInfoMessage.setHeaderText("Successfully opened file "+file.getName()+".");
+                    popupInfoMessage.showAndWait();
+                }
+                else
+                {
+                    popupErrorMessage.setHeaderText("Error loading from file \"" + file.getName() + "\"");
+                    popupErrorMessage.showAndWait();
+                }
 
             } catch(Exception ioe) {
                 popupErrorMessage.setHeaderText(ioe.getMessage());
@@ -310,7 +326,7 @@ public class MainController implements Initializable {
                         if (SettingsFileController.getMainUser() != null) {
                             File file = new File(activeFilePath);
                             if (file != null) {
-                                PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
+                                PdfHandler pdfHandler = new PdfHandler(file, this);
                                 try {
                                     pdfHandler.save(invoiceController.getItems());
                                 } catch (Exception exception) {
@@ -346,7 +362,7 @@ public class MainController implements Initializable {
                     File file = fileChooser.showSaveDialog(primaryStage);
                     if (file != null) {
                         activeFilePath = file.getAbsolutePath();
-                        PdfHandler pdfHandler = new PdfHandler(file, invoiceController, this);
+                        PdfHandler pdfHandler = new PdfHandler(file, this);
                         try {
                             pdfHandler.save(invoiceController.getItems());
                         } catch (Exception exception) {

@@ -54,6 +54,11 @@ public class CategoriesController implements Initializable {
         mainCategories = new ArrayList<>();
     }
 
+    public Map<String,ObservableList<Item>> getItemsByCatagory()
+    {
+        return items;
+    }
+
     public void setMainController(MainController mainController) {
         this.mainController=mainController;
     }

@@ -3,6 +3,7 @@ package quickQuotes.tools;
 import be.quodlibet.boxable.*;
 import be.quodlibet.boxable.utils.PDStreamUtils;
 import be.quodlibet.boxable.image.Image;
+import javafx.collections.ObservableList;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -38,60 +39,142 @@ public class PdfHandler {
     private int yMarginBetweenText = 15;
     private float fontSize = 10;
     private float yPosition;
-    private InvoiceController invoiceController;
     private MainController mainController;
     private DecimalFormat decimalFormat = new DecimalFormat("##.00");
     public final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public  PdfHandler(File file, InvoiceController _invoiceController, MainController _mainController){
+    public  PdfHandler(File file, MainController _mainController){
         pdfFile = file;
-        invoiceController = _invoiceController;
         mainController = _mainController;
     }
 
-    public void load() throws Exception {
+    private Item getItemInDatabase(String stockCode)
+    {
+        for(ObservableList<Item> catagoryItems: mainController.getCategoriesController().getItemsByCatagory().values())
+        {
+            for(Item item: catagoryItems)
+            {
+                if(item.getStockCode().equals(stockCode))
+                {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean load() throws Exception {
         try {
             try {
                 doc = PDDocument.load(pdfFile);
                 PDFTextStripper pdfStripper = new PDFTextStripper();
                 String text = pdfStripper.getText(doc);
                 String costTableHeading = "Stock Code Description Quantity Unit Profit(%) Cost Price (R) Total Price (R)";
-                String costTableText = text.substring(text.indexOf(costTableHeading)+ costTableHeading.length(), text.lastIndexOf("Total:")).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
-
-                Pattern pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
-                Matcher matcher = pattern.matcher(costTableText);
-
-                int prevEndIndex = 0;
-                List<String> costTableRows = new ArrayList<>();
-                while(matcher.find())
+                String quoteTableHeading = "Stock Code Description Quantity Unit Selling Price (R) Total Price (R)";
+                String checklistTableHeading = "Stock Code Description Quantity Unit Checked Notes";
+                Map<String, Integer> stockItems = new LinkedHashMap<>();
+                if(text.contains(costTableHeading))
                 {
-                    costTableRows.add(costTableText.substring(prevEndIndex, matcher.end()).trim());
-                    prevEndIndex = matcher.end();
+                    String tableText = text.substring(text.indexOf(costTableHeading)+ costTableHeading.length(), text.lastIndexOf("Total:")).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
+
+                    Pattern pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
+                    Matcher matcher = pattern.matcher(tableText);
+
+                    int prevEndIndex = 0;
+                    List<String> costTableRows = new ArrayList<>();
+                    while(matcher.find())
+                    {
+                        costTableRows.add(tableText.substring(prevEndIndex, matcher.end()).trim());
+                        prevEndIndex = matcher.end();
+                    }
+                    for(String row : costTableRows)
+                    {
+                        String stockCode = row.substring(0, row.indexOf(" "));
+                        row = row.replace(stockCode, "");
+                        pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s\\S+\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
+                        matcher = pattern.matcher(row);
+                        matcher.find();
+                        String description = row.substring(0, matcher.start()).trim();
+                        row = row.replace(description, "");
+                        String[] rowRemains = row.trim().split("\\s");
+                        stockItems.put(stockCode, Integer.parseInt(rowRemains[0]));
+                    }
                 }
+                else if (text.contains(quoteTableHeading))
+                {
+                    String tableText = text.substring(text.indexOf(quoteTableHeading) + quoteTableHeading.length(), text.lastIndexOf("Total:")).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
+
+                    Pattern pattern = Pattern.compile("([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
+                    Matcher matcher = pattern.matcher(tableText);
+
+                    int prevEndIndex = 0;
+                    List<String> costTableRows = new ArrayList<>();
+                    while(matcher.find())
+                    {
+                        costTableRows.add(tableText.substring(prevEndIndex, matcher.end()).trim());
+                        prevEndIndex = matcher.end();
+                    }
+                    for(String row : costTableRows)
+                    {
+                        String stockCode = row.substring(0, row.indexOf(" "));
+                        row = row.replace(stockCode, "");
+                        pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s\\S+\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
+                        matcher = pattern.matcher(row);
+                        matcher.find();
+                        String description = row.substring(0, matcher.start()).trim();
+                        row = row.replace(description, "");
+                        String[] rowRemains = row.trim().split("\\s");
+                        stockItems.put(stockCode, Integer.parseInt(rowRemains[0]));
+                    }
+                }
+                else if (text.contains(checklistTableHeading))
+                {
+                    String tableText = text.substring(text.indexOf(checklistTableHeading) + checklistTableHeading.length()).replaceAll("-\\r?\\n", "-").replaceAll("\\s\\r?\\n", " ").trim();
+                    Pattern pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s(each|m)");
+                    Matcher matcher = pattern.matcher(tableText);
+
+                    int prevEndIndex = 0;
+                    List<String> costTableRows = new ArrayList<>();
+                    while(matcher.find())
+                    {
+                        costTableRows.add(tableText.substring(prevEndIndex, matcher.end()).trim());
+                        prevEndIndex = matcher.end();
+                    }
+                    for(String row : costTableRows)
+                    {
+                        String stockCode = row.substring(0, row.indexOf(" "));
+                        pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s(each|m)");
+                        matcher = pattern.matcher(row);
+                        matcher.find();
+                        stockItems.put(stockCode, Integer.parseInt(row.substring(matcher.start()).trim().split("\\s")[0]));
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+
                 List<Item> items = new ArrayList<>();
-                for(String row : costTableRows)
+                mainController.getInvoiceController().clearTables();
+                
+                for (Map.Entry<String, Integer> entry: stockItems.entrySet())
                 {
-                    String stockCode = row.substring(0, row.indexOf(" "));
-                    row = row.replace(stockCode, "");
-                    pattern = Pattern.compile("([0-9]+\\.?[0-9]*)\\s\\S+\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})\\s([0-9]+\\.[0-9]{2})");
-                    matcher = pattern.matcher(row);
-                    matcher.find();
-                    String description = row.substring(0, matcher.start()).trim();
-                    row = row.replace(description, "");
-                    String[] rowRemains = row.trim().split("\\s");
-                    Integer quantity = Integer.parseInt(rowRemains[0]);
-                    String unit = rowRemains[1];
-                    Double profitPercentage = Double.parseDouble(rowRemains[2]);
-                    Double costPrice = Double.parseDouble(rowRemains[3]);
-                    Double totalPrice = Double.parseDouble(rowRemains[4]);
-
-                    items.add(new Item(stockCode, description, quantity, unit, profitPercentage, costPrice));
+                    Item retrievedItem = getItemInDatabase(entry.getKey());
+                    if(retrievedItem != null)
+                    {
+                        Item newItem = new Item(retrievedItem);
+                        newItem.setQuantity(entry.getValue());
+                        mainController.getInvoiceController().add(newItem);
+                    }
+                    else
+                    {
+                        System.out.println("Item with stock code:" +entry.getKey() +" not found");
+                        return false;
+                    }
                 }
 
-                invoiceController.clearTables();
-                for (Item item: items){
-                    invoiceController.add(item);
-                }
+
+                return true;
             }
             finally {
                 doc.close();
@@ -386,15 +469,15 @@ public class PdfHandler {
         Row<PDPage> row = table.createRow(12f);
 
         row.createCell(85, "Total without Tax:", HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE).setFont(fontBold);
-        row.createCell(15, decimalFormat.format(invoiceController.getGrossTotal())).setFont(fontBold);
+        row.createCell(15, decimalFormat.format(mainController.getInvoiceController().getGrossTotal())).setFont(fontBold);
 
         row = table.createRow(12f);
         row.createCell(85, "VAT(15%):", HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE).setFont(fontBold);
-        row.createCell(15, decimalFormat.format(invoiceController.getVAT())).setFont(fontBold);
+        row.createCell(15, decimalFormat.format(mainController.getInvoiceController().getVAT())).setFont(fontBold);
 
         row = table.createRow(12f);
         row.createCell(85, "Total:", HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE).setFont(fontBold);
-        row.createCell(15, decimalFormat.format(invoiceController.getTotal())).setFont(fontBold);
+        row.createCell(15, decimalFormat.format(mainController.getInvoiceController().getTotal())).setFont(fontBold);
 
         try {
             yPosition = table.draw();
